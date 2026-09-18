@@ -4,6 +4,9 @@
 
 # Draft (`dft`) — The Multiverse Version Control System
 
+> 🚀 **The Multi-Agent Concurrency Engine**:  
+> **Deploy multiple autonomous AI agents to code across parallel branches simultaneously — with zero disk bloat, zero lock collisions, and automated convergence. Build and ship faster than ever before.**
+
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
 [![Live Web Demo](https://img.shields.io/badge/Live_Demo-GitHub%20Pages-22c55e.svg)](https://pathomphong-i.github.io/draft/)
@@ -49,6 +52,10 @@ When Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel
 
 **Git was engineered in 2005 around a single checked-out working tree and linear branch switching.**  
 **Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**
+
+> [!TIP]
+> ### ⚡ Build Faster with Autonomous Swarms
+> Instead of waiting for one agent or developer to finish before switching branches, **Draft lets you dispatch multiple AI agents to write code across parallel dimensions at the exact same time**. They code concurrently, sense each other in real-time via cross-dimension radar, and converge cleanly into mainline without lock collisions — making you build and ship software drastically faster.
 
 Modern software engineering faces concurrency bottlenecks at the version control layer:
 1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.

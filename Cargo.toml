@@ -16,8 +16,8 @@ edition = "2021"
 rust-version = "1.75"
 authors = ["Daft Contributors"]
 license = "GPL-2.0-only"
-repository = "https://github.com/daft-vcs/daft"
-homepage = "https://github.com/daft-vcs/daft"
+repository = "https://github.com/Pathomphong-i/draft"
+homepage = "https://pathomphong-i.github.io/draft"
 keywords = ["vcs", "version-control", "git", "parallel-dimensions", "ai-agents"]
 categories = ["development-tools", "command-line-utilities"]
 
