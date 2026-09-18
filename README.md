@@ -99,6 +99,120 @@ We named this system **Draft (`draft` / `dft`)** because every parallel dimensio
 
 ---
 
+## 🤖 How to Use `SKILL.md` with Your AI Agents
+
+Draft ships with an open-standard agent skill manifest located at [**`SKILL.md`**](SKILL.md) in the root of the repository. It teaches AI coding agents (such as Google Antigravity, Claude Code, Cursor, Windsurf, GitHub Copilot, and autonomous agent swarms) how to work in parallel dimensions without stepping on each other's code.
+
+```
+                     ┌──────────────────────────────────────────────┐
+                     │          Autonomous AI Coding Agent          │
+                     │  (Antigravity / Claude / Cursor / Swarms)    │
+                     └──────────────────────┬───────────────────────┘
+                                            │ Reads SKILL.md
+                                            ▼
+                     ┌──────────────────────────────────────────────┐
+                     │          8-Step Draft Agent Protocol         │
+                     │  • Register & private CoW dimension          │
+                     │  • Check radar & lease file claims           │
+                     │  • Lock-free private commit & in-memory merge│
+                     │  • Foresee 3-way conflicts & safe converge   │
+                     └──────────────────────────────────────────────┘
+```
+
+### 1. Equip Your Agent with `SKILL.md`
+
+Depending on your development environment or AI tool, here is how to activate `SKILL.md`:
+
+#### 🌌 Google Antigravity & Agentic IDEs
+Draft's [`SKILL.md`](SKILL.md) contains native YAML frontmatter compliant with agent skill protocols:
+- Simply open the repository in Antigravity or an Agentic IDE.
+- The assistant automatically indexes [`SKILL.md`](SKILL.md) and switches to multiverse-aware workflows when creating feature dimensions or executing tasks.
+
+#### ⚡ Claude Code & Terminal LLM Assistants
+Pass `SKILL.md` directly into your terminal agent prompt or system context:
+```bash
+# Example invocation with Claude Code:
+claude "Read SKILL.md and implement the JWT authentication module following the 8-step Draft agent protocol."
+```
+
+#### 💻 Cursor, Windsurf, & GitHub Copilot
+In your agent chat panel, reference the skill file using the `@` symbol:
+> *"@SKILL.md Follow the Draft agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `dft foresee`, and converge back into mainline."*
+
+#### 🐝 Multi-Agent Swarms (LangGraph, CrewAI, AutoGen, Custom Scripts)
+When initializing autonomous swarms programmatically in Python, TypeScript, or Rust, inject `SKILL.md` into the agent's system instructions:
+```python
+# Load the Draft skill into your agent fleet
+with open("SKILL.md") as f:
+    draft_skill_manifest = f.read()
+
+agent_worker = Agent(
+    role="Backend Engine Developer",
+    system_prompt=f"You operate inside a Draft VCS repository. Strictly adhere to this operational protocol:\n{draft_skill_manifest}"
+)
+```
+
+---
+
+### 2. The 8-Step Concurrency Protocol Every Agent Follows
+
+When agents read [`SKILL.md`](SKILL.md), they automatically follow an isolated, conflict-free workflow:
+
+```
+┌────────────────────────────────────────────────────────┐
+│ 1. Register:   dft agent register <id> --type ai       │
+│ 2. Dimension:  dft dimension create <id>/<task_name>   │
+│ 3. Radar:      dft radar --hot                         │
+│ 4. Claim:      dft claim <file_path>                   │
+│ 5. Code & Save:dft add . && dft commit -m "feat: ..."  │
+│ 6. Foresee:    dft foresee <dimension> mainline        │
+│ 7. Converge:   dft converge <dimension> mainline       │
+│ 8. Yield:      dft yield <file_path>                   │
+└────────────────────────────────────────────────────────┘
+```
+
+1. **Register Identity**: The agent registers its worker ID to participate in the local fleet:
+   ```bash
+   dft agent register agent-coder --type ai
+   dft heartbeat agent-coder
+   ```
+2. **Create Private Dimension**: Spawns an isolated Copy-on-Write workspace in **0.06 seconds** without cloning the repo:
+   ```bash
+   dft dimension create agent-coder/auth-feature
+   dft dimension enter agent-coder/auth-feature
+   ```
+3. **Scan Radar**: Scans for active hot zones to verify if another agent is modifying nearby modules:
+   ```bash
+   dft radar --hot
+   ```
+4. **Lease Territory (`dft claim`)**: Claims advisory leases on the files it will edit to prevent other agents from colliding:
+   ```bash
+   dft claim src/auth.rs
+   ```
+5. **Code & Commit Locally**: Makes edits and commits with zero lock contention against other agents:
+   ```bash
+   dft add src/auth.rs
+   dft commit -m "feat(auth): implement token verification"
+   ```
+6. **Predict Conflicts In-Memory (`dft foresee`)**: Simulates 3-way reconciliation in RAM in ~66–120 ms to verify clean convergence before touching mainline:
+   ```bash
+   dft foresee agent-coder/auth-feature mainline
+   ```
+7. **Converge into Mainline**: Reconciles the feature cleanly:
+   ```bash
+   dft dimension enter mainline
+   dft converge agent-coder/auth-feature mainline
+   ```
+8. **Yield Claims & Teardown**: Releases file claims and destroys the ephemeral dimension:
+   ```bash
+   dft yield src/auth.rs
+   dft dimension destroy agent-coder/auth-feature
+   ```
+
+*(For peer-to-peer agent mailboxes, background daemon automation, and CI/CD pipelines, see [Section 6: Orchestrating AI Agents with SKILL.md](#6-orchestrating-ai-agents-with-skillmd) below).*
+
+---
+
 ## 🔬 Deep Technical Architecture
 
 ```
