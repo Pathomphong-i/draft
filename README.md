@@ -1,31 +1,31 @@
-# Daft (`dft`) — The Multiverse Version Control System
+# Draft (`dft`) — The Multiverse Version Control System
 
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
 [![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-emerald.svg)](#)
 [![Performance: CoW Instant](https://img.shields.io/badge/Cloning-0.06s%20%2F%201000%20files-cyan.svg)](#)
 [![Architecture: Lock--Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
-[![Web Platform: DaftMultiverse](https://img.shields.io/badge/GUI-DaftMultiverse-violet.svg)](#)
+[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](#)
 
-> *"In classical philosophy, Chronos (Χρόνος) forces all actions into a single linear sequence. In Daft, Kairos (Καιρός) lets parallel minds build concurrently until the opportune moment of convergence."*
-
----
-
-![DaftMultiverse 3D Architecture](docs/assets/daft_multiverse_3d.jpg)
+> *"In classical philosophy, Chronos (Χρόνος) forces all actions into a single linear sequence. In Draft, Kairos (Καιρός) lets parallel minds build concurrently until the opportune moment of convergence."*
 
 ---
 
-## ⚡ The Architectural Shift: Why Daft?
+![DraftMultiverse 3D Architecture](docs/assets/draft_multiverse_3d.jpg)
+
+---
+
+## ⚡ The Architectural Shift: Why Draft?
 
 **Git was engineered in 2005 for sequential, single-threaded development workflows.**  
-**Daft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**
+**Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**
 
 Modern software engineering faces concurrency bottlenecks at the version control layer:
 1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.
 2. **Blind Collision**: Agents editing files concurrently have zero cross-branch awareness of each other until a final merge or rebase triggers complex conflict triage.
 3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are discovered *after* code changes are completed, requiring manual 3-way triage.
 
-### What Daft (`dft`) Delivers:
+### What Draft (`dft`) Delivers:
 - 🌌 **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.
 - 📡 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.
 - 🔮 **Predictive Merge Foresight (`dft foresee`)**: In-memory simulation of 3-way merges *before* branch integration occurs.
@@ -33,8 +33,8 @@ Modern software engineering faces concurrency bottlenecks at the version control
 - 🔗 **Continuous Entanglement (`dft entangle`)**: Bi-directional live auto-synchronization of specific files across parallel dimensions.
 - ⏰ **Cronos Autonomous Daemon**: Background continuous 3-way tree convergence engine.
 - 🌊 **Multi-Branch Collapse (`dft collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.
-- 🖥️ **DaftMultiverse Self-Hosted Web Platform**: Gitea-grade web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
-- 🪐 **Decentralized Remote Sync (`DaftUniverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
+- 🖥️ **DraftMultiverse Self-Hosted Web Platform**: Gitea-grade web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
+- 🪐 **Decentralized Remote Sync (`DraftUniverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
 
 ---
 
@@ -53,12 +53,12 @@ The moment multiple agents executed in parallel, **traditional single-worktree G
 - Multiple local clones duplicated tens of thousands of build artifacts, causing disk thrashing and operating system resource exhaustion.
 - At the end of every sprint, merging diverged branches created painful manual triage.
 
-In ancient thought, the Greeks distinguished two forms of time: **Chronos (Χρόνος)**, the quantitative, sequential progression of linear events, and **Kairos (Καιρός)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*—a single linear arrow where only one branch could be active at a time. **Daft was built to bring Kairos (Καιρός) and Metis (Μῆτις, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (Ἁρμονία)** without collision.
+In ancient thought, the Greeks distinguished two forms of time: **Chronos (Χρόνος)**, the quantitative, sequential progression of linear events, and **Kairos (Καιρός)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*—a single linear arrow where only one branch could be active at a time. **Draft was built to bring Kairos (Καιρός) and Metis (Μῆτις, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (Ἁρμονία)** without collision.
 
 ### Sincere Tribute to Linus Torvalds
-Daft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights—content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots—remain foundational.
+Draft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights—content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots—remain foundational.
 
-We named this system **Daft (`dft`)** in Linus's proud tradition of self-deprecating names. "Daft" reflects our irreverence toward the rigid dogma of single-branch version control. Daft retains Linus's CAS principles while unlocking **parallel dimension branching**.
+We named this system **Draft (`draft` / `dft`)** because every parallel dimension is an agile, living *draft* of reality. Where Git forces developers to treat every experiment as a committed linear branch, Draft allows agents and humans to explore multiple drafts simultaneously until the opportune moment of convergence. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.
 
 ---
 
@@ -66,7 +66,7 @@ We named this system **Daft (`dft`)** in Linus's proud tradition of self-depreca
 
 ```
                                ┌───────────────────────────┐
-                               │   DaftMultiverse (GUI)    │ (Web Platform on :3333)
+                               │   DraftMultiverse (GUI)    │ (Web Platform on :3333)
                                └─────────────┬─────────────┘
                                              │
                                ┌─────────────▼─────────────┐
@@ -103,7 +103,7 @@ We named this system **Daft (`dft`)** in Linus's proud tradition of self-depreca
   - `Tag`: Cryptographic pointer linking an arbitrary object to an annotated signature.
 
 ### 2. Copy-on-Write (CoW) Workspace Engine
-- **Sub-Second Forking**: When a parallel dimension is spawned, Daft avoids byte copying by leveraging kernel-level reflink primitives:
+- **Sub-Second Forking**: When a parallel dimension is spawned, Draft avoids byte copying by leveraging kernel-level reflink primitives:
   - **macOS**: `clonefile()` / `fclonefileat()` via Apple File System (APFS).
   - **Linux**: `ioctl(FICLONE)` / `ioctl(FICLONERANGE)` on Btrfs, XFS, and ZFS.
   - **Fallback**: Hard-link trees with atomic break-on-write mechanisms for standard ext4.
@@ -128,7 +128,7 @@ We named this system **Daft (`dft`)** in Linus's proud tradition of self-depreca
     ```
 
 ### 4. Timeline Divergence Metric ($H$)
-Daft computes a quantitative divergence score $H(D_A, D_B) \in [0.0, 1.0]$ between any two dimensions across four weighted components:
+Draft computes a quantitative divergence score $H(D_A, D_B) \in [0.0, 1.0]$ between any two dimensions across four weighted components:
 $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.15 \cdot T_{\text{trees}} + 0.10 \cdot L_{\text{lines}}$$
 
 - **$C_{\text{commits}}$**: Distance in the commit DAG from their Lowest Common Ancestor (LCA).
@@ -145,7 +145,7 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 
 ---
 
-## 🛠️ Using Daft with Standard Open-Source Workflows
+## 🛠️ Using Draft with Standard Open-Source Workflows
 
 ### 1. Installation
 
@@ -156,8 +156,8 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 #### Building from Source
 ```bash
 # Clone the repository
-git clone https://github.com/daft-vcs/daft.git
-cd daft
+git clone https://github.com/draft-vcs/draft.git
+cd draft
 
 # Build optimized release binaries
 cargo build --release
@@ -173,10 +173,10 @@ dft --version
 
 ### 2. Quickstart: Standard Version Control
 
-Daft offers a 100% familiar interface for standard version control commands:
+Draft offers a 100% familiar interface for standard version control commands:
 
 ```bash
-# Initialize a new Daft repository
+# Initialize a new Draft repository
 dft init my-project
 cd my-project
 
@@ -232,11 +232,11 @@ dft converge feature-auth mainline
 
 ---
 
-### 4. Seamless Hybrid Workflow: Develop in Parallel with Daft → Push to Git
+### 4. Seamless Hybrid Workflow: Develop in Parallel with Draft → Push to Git
 
-You do not need to replace your organization's Git infrastructure, GitHub Pull Request workflows, or existing CI/CD pipelines to harness the concurrency power of Daft. You can use **Daft as a local concurrency acceleration layer** on top of any existing Git repository:
+You do not need to replace your organization's Git infrastructure, GitHub Pull Request workflows, or existing CI/CD pipelines to harness the concurrency power of Draft. You can use **Draft as a local concurrency acceleration layer** on top of any existing Git repository:
 
-> **"Develop in the Multiverse with Daft, Ship to the World with Git."**
+> **"Develop in the Multiverse with Draft, Ship to the World with Git."**
 
 ```
                      ┌────────────────────────────────────────────────────────┐
@@ -247,7 +247,7 @@ You do not need to replace your organization's Git infrastructure, GitHub Pull R
                                  git push origin main / dft export
                                                  │
                                ┌─────────────────┴──────────────────┐
-                               │       Daft Mainline Working Tree   │
+                               │       Draft Mainline Working Tree   │
                                │        (Converged, Tested, Clean)  │
                                └─────────────────▲──────────────────┘
                                                  │
@@ -269,9 +269,9 @@ You do not need to replace your organization's Git infrastructure, GitHub Pull R
                                       Zero Duplicate Disk Blocks
 ```
 
-#### Why Combine Daft with Git?
+#### Why Combine Draft with Git?
 
-| Concurrency Dimension | Traditional Git / Worktrees | Daft Multiverse Swarm |
+| Concurrency Dimension | Traditional Git / Worktrees | Draft Multiverse Swarm |
 |:---|:---|:---|
 | **Branch Creation Speed** | 2.5s – 5.0s (full directory copy) | **0.06s** (instant APFS/Btrfs CoW reflink) |
 | **Disk Footprint** | Multiplies linearly per branch (GBs) | **0 KB** additional blocks until modified |
@@ -282,19 +282,19 @@ You do not need to replace your organization's Git infrastructure, GitHub Pull R
 
 ---
 
-#### Step-by-Step Guide: The Parallel Daft → Git Push Flow
+#### Step-by-Step Guide: The Parallel Draft → Git Push Flow
 
-##### Step 1: Enable Daft in Your Existing Git Repository
-Navigate to your current project. Daft lives harmoniously alongside `.git/` without altering your Git status:
+##### Step 1: Enable Draft in Your Existing Git Repository
+Navigate to your current project. Draft lives harmoniously alongside `.git/` without altering your Git status:
 ```bash
 cd my-existing-git-repo
 
-# Initialize Daft VCS engine (.dft/)
+# Initialize Draft VCS engine (.dft/)
 dft init
 
-# Keep Daft internal state untracked in Git
+# Keep Draft internal state untracked in Git
 echo ".dft/" >> .gitignore
-git add .gitignore && git commit -m "chore: enable Daft parallel multiverse engine"
+git add .gitignore && git commit -m "chore: enable Draft parallel multiverse engine"
 ```
 
 ##### Step 2: Spawn Parallel Dimensions for Features or AI Agents
@@ -375,9 +375,9 @@ git push origin main
 ```
 
 ##### Optional: Direct Git Bridge & Import/Export
-You can also import existing Git history or export Daft dimensions:
+You can also import existing Git history or export Draft dimensions:
 ```bash
-# Import an existing Git repository into Daft
+# Import an existing Git repository into Draft
 dft import git
 
 # Export a specific dimension to standard Git format
@@ -393,7 +393,7 @@ dft compat git-bridge
 
 ### 5. Orchestrating AI Agents with `SKILL.md`
 
-Daft ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Daft repository.
+Draft ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Draft repository.
 
 #### Why AI Agents Need `SKILL.md`
 Standard coding agents assume Git's single-working-tree model: when multiple agents run concurrently, they switch branches under each other, overwrite uncommitted files, and trigger race conditions. 
@@ -411,35 +411,35 @@ By reading [`SKILL.md`](SKILL.md), agents understand how to:
 #### How to Equip Your AI Agents with `SKILL.md`
 
 ##### A. In Antigravity / Agentic IDEs
-Daft's `SKILL.md` adheres to the open-standard agent skill manifest format with YAML frontmatter:
+Draft's `SKILL.md` adheres to the open-standard agent skill manifest format with YAML frontmatter:
 ```markdown
 ---
-name: daft-vcs
-description: Operational guide and multi-agent protocol for Daft ('dft')...
+name: draft-vcs
+description: Operational guide and multi-agent protocol for Draft ('dft')...
 ---
 ```
 - The IDE automatically discovers [`SKILL.md`](SKILL.md) in the workspace root.
-- Agents automatically adopt the Daft multi-agent lifecycle when assigned coding tasks.
+- Agents automatically adopt the Draft multi-agent lifecycle when assigned coding tasks.
 
 ##### B. In Claude Code, Cursor, or Terminal Agent Prompts
 Feed [`SKILL.md`](SKILL.md) directly into your agent's context or system prompt:
 ```bash
 # Example invocation with Claude Code or terminal LLMs:
-claude "Read SKILL.md and implement the JWT authentication module following the 8-step Daft agent protocol."
+claude "Read SKILL.md and implement the JWT authentication module following the 8-step Draft agent protocol."
 ```
 Or in Cursor / Copilot Chat:
-> *"@SKILL.md Follow the Daft agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `dft foresee`, and converge back to mainline."*
+> *"@SKILL.md Follow the Draft agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `dft foresee`, and converge back to mainline."*
 
 ##### C. Programmatic Multi-Agent Swarms (Python / TypeScript / Rust)
 When orchestrating swarms with frameworks like CrewAI, LangGraph, or AutoGen, provide `SKILL.md` as the system instruction or tool reference:
 ```python
 # Pass SKILL.md contents into the agent system prompt
 with open("SKILL.md") as f:
-    darf_skill_prompt = f.read()
+    draft_skill_prompt = f.read()
 
 agent_worker = Agent(
     role="Backend Engine Developer",
-    system_prompt=f"You operate in a Daft VCS repository. Follow this protocol:\n{darf_skill_prompt}"
+    system_prompt=f"You operate in a Draft VCS repository. Follow this protocol:\n{draft_skill_prompt}"
 )
 ```
 
@@ -447,7 +447,7 @@ agent_worker = Agent(
 
 #### The 8-Step Autonomous Agent Lifecycle
 
-Every agent interacting with Daft follows a structured lifecycle:
+Every agent interacting with Draft follows a structured lifecycle:
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -503,7 +503,7 @@ Every agent interacting with Daft follows a structured lifecycle:
 ---
 
 #### Peer-to-Peer Agent Mailbox Protocol
-Agents can coordinate directly without third-party message brokers using Daft's built-in file-backed mailboxes:
+Agents can coordinate directly without third-party message brokers using Draft's built-in file-backed mailboxes:
 ```bash
 # Agent Alpha notifies Agent Beta about updated API types
 dft agent send agent-beta "New user payload types committed to shared/types/user.rs"
@@ -519,7 +519,7 @@ This exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent
 
 ### 6. Automated CI/CD & AI Agent Pipelines
 
-Every Daft command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:
+Every Draft command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:
 
 ```bash
 # Get machine-readable status
@@ -546,13 +546,13 @@ dft radar --json
 
 ---
 
-### 7. Self-Hosting: DaftMultiverse & DaftUniverse
+### 7. Self-Hosting: DraftMultiverse & DraftUniverse
 
-Daft includes a complete, self-hosted web platform (**DaftMultiverse**) and headless remote server (**DaftUniverse**):
+Draft includes a complete, self-hosted web platform (**DraftMultiverse**) and headless remote server (**DraftUniverse**):
 
 #### Launching the Web Platform
 ```bash
-# Launch the DaftMultiverse Web GUI
+# Launch the DraftMultiverse Web GUI
 dft ui --port 3333
 ```
 Open **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:
@@ -565,14 +565,14 @@ Open **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:
 - **`⏰ Cronos Daemon`**: Background sync controls and continuous event log streamer.
 - **`⚡ Terminal`**: In-browser command prompt supporting execution of any `dft` command.
 
-#### Setting up a Self-Hosted Remote Server (`DaftUniverse`)
+#### Setting up a Self-Hosted Remote Server (`DraftUniverse`)
 ```bash
 # 1. Initialize a bare server repository on your server or local disk
-mkdir -p /path/to/DaftUniverse
-dft init --bare /path/to/DaftUniverse
+mkdir -p /path/to/DraftUniverse
+dft init --bare /path/to/DraftUniverse
 
 # 2. Add as remote origin in your working project
-dft remote add origin /path/to/DaftUniverse
+dft remote add origin /path/to/DraftUniverse
 
 # 3. Deploy and synchronize all dimensions
 dft push origin main
@@ -611,7 +611,7 @@ dft push origin agent-quantum
 | `dft reflog` | `git reflog` | Audit append-only reference transaction history |
 | `dft gc` / `dft fsck` | `git gc` / `git fsck` | Object pruning, repacking, and integrity verification |
 
-### Layer 2: Daft Multiverse Commands (Exclusive Capabilities)
+### Layer 2: Draft Multiverse Commands (Exclusive Capabilities)
 | Command | Subsystem | Description |
 |:---|:---|:---|
 | `dft dimension create <name>` | Parallel Workspace | Instant CoW workspace creation (< 0.06s) |
@@ -637,14 +637,14 @@ dft push origin agent-quantum
 | `dft agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |
 | `dft heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |
 | `dft timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |
-| `dft ui [--port 3333]` | Web Platform | Launch the DaftMultiverse self-hosted web platform |
-| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DaftUniverse remotes |
+| `dft ui [--port 3333]` | Web Platform | Launch the DraftMultiverse self-hosted web platform |
+| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftUniverse remotes |
 
 ---
 
 ## 🤝 Contributing & Community
 
-Daft is an open-source project welcoming developers, systems programmers, and AI researchers:
+Draft is an open-source project welcoming developers, systems programmers, and AI researchers:
 
 ### Development Workflow
 ```bash
@@ -664,4 +664,4 @@ cargo clippy --workspace --all-targets -- -D warnings
 
 ## 📜 License
 
-Daft is licensed under the **GNU General Public License v2.0 (GPL v2)** — the same license that has preserved the freedom of Git and the Linux kernel for decades. See [LICENSE](LICENSE) for details.
+Draft is licensed under the **GNU General Public License v2.0 (GPL v2)** — the same license that has preserved the freedom of Git and the Linux kernel for decades. See [LICENSE](LICENSE) for details.

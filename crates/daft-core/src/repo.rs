@@ -49,7 +49,12 @@ impl Repository {
         let mut current = canonical.as_path();
 
         loop {
-            // 1. Check for standard working tree (.dft directory)
+            // 1. Check for standard working tree (.draft or .dft directory)
+            let candidate_draft = current.join(".draft");
+            if candidate_draft.is_dir() && candidate_draft.join("HEAD").is_file() {
+                return Self::open(&candidate_draft);
+            }
+
             let candidate_dft = current.join(".dft");
             if candidate_dft.is_dir() && candidate_dft.join("HEAD").is_file() {
                 return Self::open(&candidate_dft);

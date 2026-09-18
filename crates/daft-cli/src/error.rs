@@ -7,7 +7,7 @@ pub enum CliError {
     #[error("{0}")]
     General(String),
 
-    #[error("Not a Daft repository (or any of the parent directories): .dft")]
+    #[error("Not a Draft repository (or any of the parent directories): .draft or .dft")]
     NotARepository,
 
     #[error("nothing to commit, working tree clean")]

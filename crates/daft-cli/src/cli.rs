@@ -5,11 +5,11 @@ use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "dft",
-    author = "Daft Contributors",
+    name = "draft",
+    author = "Draft Contributors",
     version = env!("CARGO_PKG_VERSION"),
-    about = "Daft - Distributed VCS for Parallel Timelines & Multi-Agent Workflows",
-    long_about = "Daft ('dft') is a high-performance version control system designed for parallel AI agent workflows and human-agent collaboration."
+    about = "Draft - Distributed VCS for Parallel Timelines & Multi-Agent Workflows",
+    long_about = "Draft ('draft' / 'dft') is a high-performance version control system designed for parallel AI agent workflows and human-agent collaboration."
 )]
 pub struct Cli {
     #[arg(
@@ -35,7 +35,7 @@ pub enum Commands {
     // ------------------------------------------------------------------------
     // Layer 1: Setup & Config
     // ------------------------------------------------------------------------
-    #[command(about = "Initialize a new Daft repository")]
+    #[command(about = "Initialize a new Draft repository")]
     Init(InitArgs),
 
     #[command(about = "Clone a repository into a new directory")]
@@ -278,16 +278,16 @@ pub enum Commands {
     #[command(about = "Move objects and refs by archive")]
     Bundle(BundleArgs),
 
-    #[command(about = "Export Daft dimensions or repositories to external formats")]
+    #[command(about = "Export Draft dimensions or repositories to external formats")]
     Export(ExportArgs),
 
-    #[command(about = "Import external repositories into Daft")]
+    #[command(about = "Import external repositories into Draft")]
     Import(ImportArgs),
 
     #[command(about = "Manage backward compatibility and bridge daemons")]
     Compat(CompatArgs),
 
-    #[command(about = "Launch the interactive real-time Daft Multiverse Web GUI")]
+    #[command(about = "Launch the interactive real-time Draft Multiverse Web GUI")]
     Ui(UiArgs),
 }
 

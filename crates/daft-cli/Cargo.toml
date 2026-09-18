@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Command-line interface for Daft ('dft') Version Control System"
+description = "Command-line interface for Draft ('draft' / 'dft') Version Control System"
 
 [[bin]]
 name = "dft"

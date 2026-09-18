@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DarftMultiverse</title>
+    <title>DraftMultiverse</title>
     <style>
         :root {
             --bg: #0d1117;
@@ -488,9 +488,9 @@
     <!-- Top Navbar (Gitea-style) -->
     <nav class="gitea-navbar">
         <a href="/" class="brand">
-            <div class="brand-logo">drf</div>
-            <div class="repo-title">DarftMultiverse</div>
-            <span class="repo-badge">v0.1.0 Darf Multiverse</span>
+            <div class="brand-logo">dft</div>
+            <div class="repo-title">DraftMultiverse</div>
+            <span class="repo-badge">v0.1.0 Draft Multiverse</span>
         </a>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
             <button class="btn" onclick="switchTab('terminal')">⚡ Terminal</button>
@@ -502,10 +502,10 @@
     <header class="repo-header">
         <div class="repo-meta-bar">
             <div class="repo-path">
-                DarftMultiverse / <strong>Darf</strong>
+                DraftMultiverse / <strong>Draft</strong>
             </div>
             <div>
-                <span class="btn" style="cursor: default;"><span class="badge-live"></span>🪐 DarfUniverse Origin: Active</span>
+                <span class="btn" style="cursor: default;"><span class="badge-live"></span>🪐 DraftUniverse Origin: Active</span>
             </div>
         </div>
 
@@ -534,7 +534,7 @@
                     </select>
                     <!-- Breadcrumbs -->
                     <div class="breadcrumbs" id="breadcrumbsBar">
-                        <span>Darf</span>
+                        <span>Draft</span>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
@@ -604,18 +604,79 @@
             </div>
         </section>
 
-        <!-- TAB 3: MULTIVERSE GRAPH -->
+        <!-- TAB 3: MULTIVERSE GRAPH & TIMELINE -->
         <section id="view-multiverse" class="tab-content">
-            <div class="toolbar">
-                <div style="font-size: 1.1rem; font-weight: 600;">Multiverse Spacetime DAG</div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn" onclick="runCmd('timeline')">drf timeline</button>
-                    <button class="btn" onclick="promptNewDim()">+ New Dimension</button>
-                    <button class="btn" onclick="runCmd('collapse')">Collapse Wavefunction</button>
+            <div class="toolbar" style="flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-heading); display: flex; align-items: center; gap: 0.5rem;">
+                        <span>🌌</span> Multiverse Spacetime DAG <span style="font-size: 0.75rem; font-weight: 400; padding: 2px 8px; border-radius: 12px; background: rgba(88, 166, 255, 0.15); color: #58a6ff; border: 1px solid rgba(88, 166, 255, 0.3);">dft timeline</span>
+                    </div>
+                    <select id="timelineDimFilter" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onchange="loadTimeline()">
+                        <option value="">All Dimensions (Multiverse)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <div class="toggle-group" style="display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px;">
+                        <button class="toggle-btn active" id="btnTimelineSvg" onclick="setTimelineViewMode('svg')">👁️ Visual DAG</button>
+                        <button class="toggle-btn" id="btnTimelineAscii" onclick="setTimelineViewMode('ascii')">💻 Terminal Graph</button>
+                        <button class="toggle-btn" id="btnTimelineAncestry" onclick="setTimelineViewMode('ancestry')">🌲 Ancestry</button>
+                        <button class="toggle-btn" id="btnTimelineJson" onclick="setTimelineViewMode('json')">📊 JSON</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="promptNewDim()">+ New Dimension</button>
+                    <button class="btn" onclick="loadTimeline()">🔄 Refresh</button>
                 </div>
             </div>
-            <div style="height: 440px; background: #050811; border: 1px solid var(--border); border-radius: 6px; position: relative;">
-                <canvas id="multiverseCanvas" style="width: 100%; height: 100%;"></canvas>
+
+            <!-- Stats Bar -->
+            <div id="timelineStatsBar" style="display: flex; gap: 1.5rem; margin-bottom: 1rem; padding: 0.75rem 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; flex-wrap: wrap;">
+                <div><strong style="color: var(--text-muted);">Dimensions:</strong> <span id="tlStatDims" style="color: var(--accent); font-weight: 600;">--</span></div>
+                <div><strong style="color: var(--text-muted);">Active Dimension:</strong> <span id="tlStatActive" style="color: var(--success); font-weight: 600;">--</span></div>
+                <div><strong style="color: var(--text-muted);">DAG Nodes:</strong> <span id="tlStatCommits" style="color: #bc8cff; font-weight: 600;">--</span></div>
+                <div><strong style="color: var(--text-muted);">Inter-Dimension Edges:</strong> <span id="tlStatEdges" style="color: var(--text); font-weight: 600;">--</span></div>
+            </div>
+
+            <!-- Visual SVG Container -->
+            <div id="timelineSvgContainer" style="min-height: 480px; max-height: 650px; overflow: auto; background: #0b1120; border: 1px solid var(--border); border-radius: 6px; padding: 1rem; position: relative;">
+                <div id="timelineSvgContent" style="display: flex; justify-content: center;">
+                    <div style="padding: 2rem; color: var(--text-muted);">Loading Spacetime DAG...</div>
+                </div>
+            </div>
+
+            <!-- Terminal ASCII Container -->
+            <div id="timelineAsciiContainer" style="display: none; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.88rem; line-height: 1.6; color: #c9d1d9; max-height: 600px; overflow: auto; white-space: pre;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                    <span style="color: var(--quantum-violet); font-weight: 600;">$ dft timeline</span>
+                    <button class="code-copy-btn" onclick="copyTimelineAscii()">Copy Output</button>
+                </div>
+                <div id="timelineAsciiContent">Loading terminal graph...</div>
+            </div>
+
+            <!-- Ancestry Container -->
+            <div id="timelineAncestryContainer" style="display: none; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.88rem; line-height: 1.6; color: #c9d1d9; max-height: 600px; overflow: auto; white-space: pre;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                    <span style="color: var(--quantum-violet); font-weight: 600;">$ dft timeline --ancestry</span>
+                    <button class="code-copy-btn" onclick="copyTimelineAncestry()">Copy Output</button>
+                </div>
+                <div id="timelineAncestryContent">Loading ancestry tree...</div>
+            </div>
+
+            <!-- JSON Container -->
+            <div id="timelineJsonContainer" style="display: none; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.8rem; line-height: 1.5; color: #7ee787; max-height: 600px; overflow: auto; white-space: pre;">
+                <pre id="timelineJsonContent">Loading timeline JSON...</pre>
+            </div>
+
+            <!-- Node Inspector Card (shows when clicking a commit) -->
+            <div id="timelineNodeInspector" style="margin-top: 1rem; display: none; padding: 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1rem; font-weight: 600;" id="tlInspectTitle">Commit Details</span>
+                        <span id="tlInspectSha" class="commit-sha"></span>
+                        <span id="tlInspectDimPill" style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);"></span>
+                    </div>
+                    <button class="btn btn-primary" id="tlInspectDiffBtn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">View Myers Diff</button>
+                </div>
+                <div id="tlInspectMsg" style="font-weight: 500; color: var(--text-heading); margin-bottom: 0.25rem;"></div>
+                <div id="tlInspectMeta" style="font-size: 0.8rem; color: var(--text-muted);"></div>
             </div>
         </section>
 
@@ -633,7 +694,7 @@
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
                         Collapse all concurrent active dimensions down into mainline, applying 3-way reconciliation across spacetime.
                     </p>
-                    <button class="btn btn-primary" onclick="runCmd('collapse')">Execute drf collapse</button>
+                    <button class="btn btn-primary" onclick="runCmd('collapse')">Execute dft collapse</button>
                 </div>
                 <div class="file-box" style="padding: 1.5rem;">
                     <h3 style="margin-bottom: 0.75rem;">🔀 Multi-Dimension Convergence</h3>
@@ -644,7 +705,7 @@
                         <input type="text" id="convergeSourceInput" class="btn" style="flex: 1; text-align: left;" placeholder="Source dimension (e.g. agent-quantum)">
                         <input type="text" id="convergeTargetInput" class="btn" style="flex: 1; text-align: left;" placeholder="Target (e.g. mainline)">
                     </div>
-                    <button class="btn" onclick="executeConverge()">Execute drf converge</button>
+                    <button class="btn" onclick="executeConverge()">Execute dft converge</button>
                 </div>
             </div>
         </section>
@@ -711,12 +772,12 @@
         <section id="view-terminal" class="tab-content">
             <div class="terminal-box">
                 <div class="terminal-header">
-                    <span>⚡ DarftMultiverse Interactive Console</span>
+                    <span>⚡ DraftMultiverse Interactive Console</span>
                     <span id="termStatus" style="color: var(--success); font-weight: bold;">READY</span>
                 </div>
-                <div class="terminal-body" id="termBody">DarftMultiverse v0.1.0 Ready. Type any Darf command (e.g. status, radar, foresee, timeline, dimension)</div>
+                <div class="terminal-body" id="termBody">DraftMultiverse v0.1.0 Ready. Type any dft command (e.g. status, radar, foresee, timeline, dimension)</div>
                 <div class="terminal-input-row">
-                    <span style="color: var(--quantum-violet); font-weight: 700; margin-right: 0.5rem;">drf$</span>
+                    <span style="color: var(--quantum-violet); font-weight: 700; margin-right: 0.5rem;">dft$</span>
                     <input type="text" class="term-input" id="termInput" placeholder="Enter command..." autofocus>
                 </div>
             </div>
@@ -739,6 +800,7 @@
 
             if (tabId === 'multiverse') {
                 fetchState();
+                loadTimeline();
             } else if (tabId === 'commits') {
                 loadCommits();
             }
@@ -782,7 +844,7 @@
 
         function renderBreadcrumbs(path) {
             const bar = document.getElementById('breadcrumbsBar');
-            bar.innerHTML = `<span class="breadcrumb-link" onclick="loadTree('')">Darf</span>`;
+            bar.innerHTML = `<span class="breadcrumb-link" onclick="loadTree('')">Draft</span>`;
             if (!path) return;
 
             const parts = path.split('/');
@@ -989,61 +1051,168 @@
                 // Cronos
                 document.getElementById('cronosStatusText').innerHTML = `Status: ${state.cronos.running ? '<span style="color: var(--success);"><span class="badge-live"></span>RUNNING (Autonomous 3-way sync active)</span>' : '<span style="color: var(--text-muted);">STANDBY (Stopped)</span>'}`;
 
-                drawMultiverseGraph(state.dimensions);
+                if (state.dimensions && state.dimensions.length > 0) {
+                    const filterSelect = document.getElementById('timelineDimFilter');
+                    if (filterSelect && filterSelect.options.length <= 1) {
+                        state.dimensions.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.name;
+                            opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
+                            filterSelect.appendChild(opt);
+                        });
+                    }
+                }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        function drawMultiverseGraph(dimensions) {
-            const canvas = document.getElementById('multiverseCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
+        // -------------------------------------------------------------
+        // Multiverse Spacetime Timeline DAG
+        // -------------------------------------------------------------
+        let currentTimelineMode = 'svg';
+        let timelineGraphData = null;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const startX = 60;
-            const endX = canvas.width - 60;
-            const count = Math.max(dimensions.length, 2);
-            const gapY = (canvas.height - 70) / count;
-
-            dimensions.forEach((d, idx) => {
-                const y = 60 + idx * gapY;
-                ctx.strokeStyle = d.is_active ? '#58a6ff' : '#30363d';
-                ctx.lineWidth = d.is_active ? 4 : 2;
-                ctx.beginPath();
-                ctx.moveTo(startX, y);
-                ctx.lineTo(endX, y);
-                ctx.stroke();
-
-                if (idx > 0) {
-                    ctx.strokeStyle = 'rgba(188, 140, 255, 0.4)';
-                    ctx.setLineDash([4, 4]);
-                    ctx.beginPath();
-                    ctx.moveTo(startX + 40, 60);
-                    ctx.bezierCurveTo(startX + 80, 60, startX + 60, y, startX + 120, y);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
-                }
-
-                [startX + 40, startX + 180, startX + 340, endX - 60].forEach((nx) => {
-                    ctx.fillStyle = d.is_active ? '#58a6ff' : '#6e7681';
-                    ctx.beginPath();
-                    ctx.arc(nx, y, d.is_active ? 6 : 4, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-
-                ctx.fillStyle = d.is_active ? '#58a6ff' : '#8b949e';
-                ctx.font = 'bold 12px monospace';
-                ctx.fillText(`${d.name} ${d.is_active ? '★ ACTIVE' : ''}`, startX, y - 10);
+        function setTimelineViewMode(mode) {
+            currentTimelineMode = mode;
+            ['btnTimelineSvg', 'btnTimelineAscii', 'btnTimelineAncestry', 'btnTimelineJson'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.classList.remove('active');
             });
+            ['timelineSvgContainer', 'timelineAsciiContainer', 'timelineAncestryContainer', 'timelineJsonContainer'].forEach(id => {
+                const c = document.getElementById(id);
+                if (c) c.style.display = 'none';
+            });
+
+            if (mode === 'svg') {
+                document.getElementById('btnTimelineSvg').classList.add('active');
+                document.getElementById('timelineSvgContainer').style.display = 'block';
+            } else if (mode === 'ascii') {
+                document.getElementById('btnTimelineAscii').classList.add('active');
+                document.getElementById('timelineAsciiContainer').style.display = 'block';
+            } else if (mode === 'ancestry') {
+                document.getElementById('btnTimelineAncestry').classList.add('active');
+                document.getElementById('timelineAncestryContainer').style.display = 'block';
+            } else if (mode === 'json') {
+                document.getElementById('btnTimelineJson').classList.add('active');
+                document.getElementById('timelineJsonContainer').style.display = 'block';
+            }
+            loadTimeline();
+        }
+
+        async function loadTimeline() {
+            const filterSelect = document.getElementById('timelineDimFilter');
+            const dim = filterSelect ? filterSelect.value : '';
+            const dimQuery = dim ? `&dimension=${encodeURIComponent(dim)}` : '';
+
+            // 1. Fetch metadata JSON for stats
+            try {
+                const jsonRes = await fetch(`/api/timeline?format=json${dimQuery}`);
+                timelineGraphData = await jsonRes.json();
+
+                if (timelineGraphData && timelineGraphData.dimensions) {
+                    document.getElementById('tlStatDims').textContent = timelineGraphData.dimensions.length;
+                    const activeDim = timelineGraphData.dimensions.find(d => d.is_active);
+                    document.getElementById('tlStatActive').textContent = activeDim ? activeDim.name : (currentDim || 'mainline');
+                    document.getElementById('tlStatCommits').textContent = timelineGraphData.nodes ? timelineGraphData.nodes.length : 0;
+                    document.getElementById('tlStatEdges').textContent = timelineGraphData.edges ? timelineGraphData.edges.length : 0;
+
+                    // Populate filter dropdown if empty
+                    if (filterSelect && filterSelect.options.length <= 1) {
+                        timelineGraphData.dimensions.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.name;
+                            opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
+                            filterSelect.appendChild(opt);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load timeline metadata:", err);
+            }
+
+            // 2. Fetch specific format according to currentTimelineMode
+            try {
+                if (currentTimelineMode === 'svg') {
+                    const svgRes = await fetch(`/api/timeline?format=svg${dimQuery}`);
+                    const svgText = await svgRes.text();
+                    const container = document.getElementById('timelineSvgContent');
+                    container.innerHTML = svgText;
+
+                    // Bind interactivity to commit nodes
+                    if (timelineGraphData && timelineGraphData.nodes) {
+                        timelineGraphData.nodes.forEach(node => {
+                            const el = document.getElementById(`node_${node.short_id}`);
+                            if (el) {
+                                el.style.cursor = 'pointer';
+                                el.addEventListener('mouseenter', () => {
+                                    el.style.opacity = '0.75';
+                                });
+                                el.addEventListener('mouseleave', () => {
+                                    el.style.opacity = '1.0';
+                                });
+                                el.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    inspectTimelineNode(node);
+                                });
+                            }
+                        });
+                    }
+                } else if (currentTimelineMode === 'ascii') {
+                    const asciiRes = await fetch(`/api/timeline?format=ascii${dimQuery}`);
+                    const text = await asciiRes.text();
+                    document.getElementById('timelineAsciiContent').textContent = text;
+                } else if (currentTimelineMode === 'ancestry') {
+                    const ancRes = await fetch(`/api/timeline?format=ancestry${dimQuery}`);
+                    const text = await ancRes.text();
+                    document.getElementById('timelineAncestryContent').textContent = text;
+                } else if (currentTimelineMode === 'json') {
+                    document.getElementById('timelineJsonContent').textContent = JSON.stringify(timelineGraphData, null, 2);
+                }
+            } catch (err) {
+                console.error(`Failed to load timeline in ${currentTimelineMode} mode:`, err);
+            }
+        }
+
+        function inspectTimelineNode(node) {
+            const inspector = document.getElementById('timelineNodeInspector');
+            if (!inspector) return;
+            inspector.style.display = 'block';
+
+            document.getElementById('tlInspectTitle').textContent = `Commit: ${node.summary || 'Commit Node'}`;
+            document.getElementById('tlInspectSha').textContent = node.short_id || node.id;
+            
+            let dimName = 'mainline';
+            if (timelineGraphData && timelineGraphData.dimensions && timelineGraphData.dimensions[node.lane]) {
+                dimName = timelineGraphData.dimensions[node.lane].name;
+            }
+            document.getElementById('tlInspectDimPill').textContent = `Dimension: ${dimName}`;
+            document.getElementById('tlInspectMsg').textContent = node.summary || '(no commit message)';
+            document.getElementById('tlInspectMeta').textContent = `Author: ${node.author || 'Unknown'} • Timestamp: ${node.timestamp || 'N/A'}`;
+
+            const diffBtn = document.getElementById('tlInspectDiffBtn');
+            diffBtn.onclick = () => {
+                viewDiff(node.id);
+            };
+            inspector.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyTimelineAscii() {
+            const text = document.getElementById('timelineAsciiContent').textContent;
+            navigator.clipboard.writeText(text);
+            alert("Copied terminal timeline graph to clipboard!");
+        }
+
+        function copyTimelineAncestry() {
+            const text = document.getElementById('timelineAncestryContent').textContent;
+            navigator.clipboard.writeText(text);
+            alert("Copied ancestry tree to clipboard!");
         }
 
         async function runCmd(cmd) {
             switchTab('terminal');
             const term = document.getElementById('termBody');
-            term.textContent += `\n$ drf ${cmd}\n`;
+            term.textContent += `\n$ dft ${cmd}\n`;
             term.scrollTop = term.scrollHeight;
             document.getElementById('termStatus').textContent = 'RUNNING...';
 
@@ -1116,11 +1285,14 @@
         }
 
         function copyClone() {
-            navigator.clipboard.writeText("drf clone /Users/pathomphongphiphatsuriyawong/Workspace/DaftUniverse");
-            alert("Copied: drf clone /Users/pathomphongphiphatsuriyawong/Workspace/DaftUniverse");
+            const cloneStr = "dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftUniverse";
+            navigator.clipboard.writeText(cloneStr);
+            alert("Copied: " + cloneStr);
         }
 
         function copyCloneCmd() {
+            copyClone();
+        }
             copyClone();
         }
 
@@ -1442,6 +1614,7 @@
         loadTree("");
         loadCommits();
         fetchState();
+        loadTimeline();
         renderReadme();
         setInterval(fetchState, 3000);
     </script>

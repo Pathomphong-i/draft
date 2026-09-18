@@ -1,4 +1,4 @@
-//! Gitea-inspired DarftMultiverse Web Platform ('drf ui' / 'dft ui').
+//! Gitea-inspired DraftMultiverse Web Platform ('draft ui' / 'dft ui').
 //! Self-hosted, lightweight, high-performance web interface for parallel version control.
 
 use crate::cli::UiArgs;
@@ -17,7 +17,7 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
         Ok(r) => r,
         Err(_) => {
             return Err(CliError::General(
-                "Fatal: not inside a Darf repository. Run 'drf init' first.".into(),
+                "Fatal: not inside a Draft repository. Run 'draft init' or 'dft init' first.".into(),
             ));
         }
     };
@@ -42,10 +42,10 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
     };
 
     println!("============================================================");
-    println!("🌌 DAFTMULTIVERSE WEB PLATFORM OPERATIONAL");
+    println!("🌌 DRAFTMULTIVERSE WEB PLATFORM OPERATIONAL");
     println!("============================================================");
     println!("Dashboard:        {}", server_url);
-    println!("Core Product:     Daft (command: 'dft')");
+    println!("Core Product:     Draft (command: 'draft' / 'dft')");
     println!("Repository:       {}", repo_root.display());
     println!("Active Dimension: {}", get_active_dimension(&repo_root));
     println!("Press Ctrl+C to terminate GUI server.");
@@ -60,7 +60,7 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
         let _ = Command::new("cmd").args(["/C", "start", &server_url]).spawn();
     }
 
-    let exe_path = env::current_exe().unwrap_or_else(|_| PathBuf::from("drf"));
+    let exe_path = env::current_exe().unwrap_or_else(|_| PathBuf::from("draft"));
 
     for stream in listener.incoming() {
         match stream {
@@ -140,6 +140,18 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
     } else if method == "GET" && path_part == "/api/radar" {
         let radar_json = get_radar_json(exe_path, repo_root);
         send_response(&mut stream, 200, "application/json", radar_json.as_bytes());
+    } else if method == "GET" && path_part == "/api/timeline" {
+        let fmt = extract_query_param(query_part, "format").unwrap_or("json");
+        let dim_filter = extract_query_param(query_part, "dimension");
+        let timeline_res = get_timeline_output(repo_root, fmt, dim_filter);
+        let mime = if fmt == "svg" {
+            "image/svg+xml"
+        } else if fmt == "ascii" || fmt == "ancestry" || fmt == "text" {
+            "text/plain; charset=utf-8"
+        } else {
+            "application/json"
+        };
+        send_response(&mut stream, 200, mime, timeline_res.as_bytes());
     } else if (method == "GET" || method == "HEAD") && (
         path_part.ends_with(".jpg") ||
         path_part.ends_with(".jpeg") ||
@@ -155,8 +167,11 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
         if !candidate.exists() && clean_path.starts_with("assets/") {
             candidate = repo_root.join("docs").join(clean_path);
         }
-        if !candidate.exists() && clean_path.contains("daft_multiverse_3d") {
-            candidate = repo_root.join("docs").join("assets").join("daft_multiverse_3d.jpg");
+        if !candidate.exists() && (clean_path.contains("draft_multiverse_3d") || clean_path.contains("daft_multiverse_3d")) {
+            candidate = repo_root.join("docs").join("assets").join("draft_multiverse_3d.jpg");
+            if !candidate.exists() {
+                candidate = repo_root.join("docs").join("assets").join("daft_multiverse_3d.jpg");
+            }
         }
         if candidate.exists() && candidate.is_file() {
             if let Ok(bytes) = fs::read(&candidate) {
@@ -238,7 +253,7 @@ struct CommandResult {
 
 fn execute_dft_command(exe_path: &Path, repo_root: &Path, cmd_str: &str) -> CommandResult {
     let mut parts: Vec<&str> = cmd_str.split_whitespace().collect();
-    if parts.first().map(|s| *s == "dft" || *s == "drf").unwrap_or(false) {
+    if parts.first().map(|s| *s == "draft" || *s == "dft" || *s == "drf").unwrap_or(false) {
         parts.remove(0);
     }
 
@@ -531,3 +546,37 @@ fn render_dashboard_html(repo_root: &Path) -> String {
         .replace("__ACTIVE_DIM__", &cur_dim)
         .replace("__README_JSON__", &escaped_readme)
 }
+
+fn get_timeline_output(repo_root: &Path, fmt: &str, dim: Option<&str>) -> String {
+    use std::sync::Arc;
+    use daft_core::Repository;
+    use crate::commands::layer2::timeline::{
+        TimelineGraphBuilder, render_ancestry_tree, render_dot, render_json, render_single_dimension,
+        render_svg, render_terminal_graph,
+    };
+
+    let repo = match Repository::discover(repo_root) {
+        Ok(r) => Arc::new(r),
+        Err(e) => return format!("{{\"error\": \"{}\"}}", e),
+    };
+
+    let graph = match TimelineGraphBuilder::build(&repo, dim) {
+        Ok(g) => g,
+        Err(e) => return format!("{{\"error\": \"{}\"}}", e),
+    };
+
+    match fmt {
+        "svg" => render_svg(&graph),
+        "ascii" | "text" => {
+            if let Some(target) = dim {
+                render_single_dimension(&graph, target)
+            } else {
+                render_terminal_graph(&graph)
+            }
+        }
+        "ancestry" => render_ancestry_tree(&graph),
+        "dot" => render_dot(&graph),
+        _ => render_json(&graph).unwrap_or_else(|e| format!("{{\"error\": \"{}\"}}", e)),
+    }
+}
+

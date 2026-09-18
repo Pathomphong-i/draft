@@ -6,7 +6,7 @@ use std::io::{self, BufRead, Write};
 
 fn main() -> io::Result<()> {
     println!("==================================================");
-    println!("⚡ AETHER-DB v0.1.0 (Built via Daft Multi-Agent Swarm)");
+    println!("⚡ AETHER-DB v0.1.0 (Built via Draft Multi-Agent Swarm)");
     println!("Commands: SET <k> <v> | GET <k> | DEL <k> | SCAN [pfx] | PING | QUIT");
     println!("==================================================");
 

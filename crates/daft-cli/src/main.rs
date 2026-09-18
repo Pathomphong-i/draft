@@ -1,4 +1,4 @@
-//! Daft VCS Unified CLI entry point ('dft').
+//! Draft VCS Unified CLI entry point ('draft' / 'dft').
 
 use clap::Parser;
 use std::process::ExitCode;

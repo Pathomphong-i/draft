@@ -55,7 +55,7 @@ pub fn init(target_dir: &Path, options: &InitOptions) -> Result<Repository, Repo
     // Write description
     fs::write(
         dft_dir.join("description"),
-        "Unnamed Daft repository; edit this file 'description' to name the repository.\n",
+        "Unnamed Draft repository; edit this file 'description' to name the repository.\n",
     )?;
 
     // Write current_dimension

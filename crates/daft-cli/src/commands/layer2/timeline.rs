@@ -22,8 +22,9 @@ pub fn execute(args: TimelineArgs) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
 
-    let is_export = args.dimension.as_deref() == Some("export")
-        || args.args.first().map(|s| s.as_str()) == Some("export");
+    let is_export = args.format.is_some()
+        || args.dimension.as_deref() == Some("export")
+        || args.args.iter().any(|s| s == "export" || s == "--format" || s.starts_with("--format="));
 
     if is_export {
         let mut fmt = args.format;

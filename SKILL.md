@@ -1,17 +1,17 @@
 ---
-name: daft-vcs
-description: Operational guide and multi-agent protocol for Daft ('dft'), the high-performance parallel version control system designed for AI agent swarms and human-agent collaboration.
+name: draft-vcs
+description: Operational guide and multi-agent protocol for Draft ('draft' / 'dft'), the high-performance parallel version control system designed for AI agent swarms and human-agent collaboration.
 ---
 
-# Daft (`dft`) Multi-Agent VCS Skill
+# Draft (`draft` / `dft`) Multi-Agent VCS Skill
 
-## 1. Conceptual Model: From Git 1D to Daft Multiverse
+## 1. Conceptual Model: From Git 1D to Draft Multiverse
 
 Traditional Git enforces a **single universe, single timeline**:
 - Only one branch can be checked out at a time in a working tree.
 - If multiple AI agents work concurrently, they overwrite `HEAD`, collide on files, corrupt uncommitted work, and block each other.
 
-**Daft (`dft`)** is built for **Parallel Swarm Concurrency**:
+**Draft (`draft` / `dft`)** is built for **Parallel Swarm Concurrency**:
 - **Dimensions (`dft dimension`)**: Isolated parallel workspaces existing simultaneously. Each dimension is an independent working tree with its own index and branch, powered by OS-native Copy-on-Write (macOS APFS `clonefile` / Linux `FICLONE`) sharing a lock-free SHA-256 Content-Addressable Object Store (`.dft/objects/`).
 - **Radar (`dft radar`)**: Cross-dimensional awareness showing which files are being modified by other agents across all dimensions in real time.
 - **Foresee (`dft foresee`)**: Predictive conflict detection that simulates 3-way merges in memory *before* merging by analyzing overlapping edits.
@@ -25,7 +25,7 @@ Traditional Git enforces a **single universe, single timeline**:
 
 ## 2. Standard Autonomous Agent Protocol
 
-Every AI agent working on a Daft repository **MUST** follow this 8-step lifecycle:
+Every AI agent working on a Draft repository **MUST** follow this 8-step lifecycle:
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -120,7 +120,7 @@ dft dimension destroy <your_dimension>
 ## 3. Multi-Agent Swarm Communication & Recipes
 
 ### Recipe A: Agent-to-Agent Direct Mailbox
-AI agents can send structured messages and coordination payloads directly through Daft without external network dependencies:
+AI agents can send structured messages and coordination payloads directly through Draft without external network dependencies:
 ```bash
 # Send a message to another agent's mailbox
 dft agent send agent-beta "API types updated in shared/types/api.rs"
@@ -135,7 +135,7 @@ When two agents are working on tightly coupled features (e.g. Frontend Agent & A
 # Entangle dimension-api and dimension-frontend on shared API types
 dft entangle dimension-api dimension-frontend --paths "shared/types/*"
 ```
-Whenever Agent 1 updates `shared/types/api.rs`, Daft automatically propagates the change into Agent 2's workspace in real time.
+Whenever Agent 1 updates `shared/types/api.rs`, Draft automatically propagates the change into Agent 2's workspace in real time.
 
 ### Recipe C: Autonomous Background Synchronization (Cronos)
 For swarms of 3+ agents working concurrently, activate Cronos:
@@ -157,11 +157,11 @@ dft observe dimension-beta src/engine.rs
 dft diff dimension-alpha..dimension-beta
 ```
 
-### Recipe E: Deploying to DaftUniverse Remote
-Push your commits and dimensions to the shared DaftUniverse origin:
+### Recipe E: Deploying to DraftUniverse Remote
+Push your commits and dimensions to the shared DraftUniverse origin:
 ```bash
 # Add origin remote
-dft remote add origin /path/to/DaftUniverse
+dft remote add origin /path/to/DraftUniverse
 
 # Push dimension or branch
 dft push origin main
@@ -175,5 +175,5 @@ dft push origin feature-dimension
 1. **NEVER touch fenced paths**: If `dft territory` shows a path has a hard fence owned by another dimension, DO NOT edit that file until the fence is lifted.
 2. **Always check `dft radar --hot`**: If a file is in a hot zone, coordinate with the other agent using `dft agent send <id> "<msg>"` or check `dft foresee`.
 3. **Keep dimensions ephemeral**: Create dimensions for discrete tasks, converge them when done, and destroy them to preserve workspace hygiene.
-4. **Use CoW Workspaces**: Daft automatically uses kernel-level copy-on-write. Never manually copy entire repositories into subfolders.
+4. **Use CoW Workspaces**: Draft automatically uses kernel-level copy-on-write. Never manually copy entire repositories into subfolders.
 
