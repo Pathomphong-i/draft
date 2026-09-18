@@ -278,10 +278,204 @@
             margin-top: 2rem;
             line-height: 1.6;
         }
-        .readme-box h1, .readme-box h2, .readme-box h3 { color: var(--text-heading); margin-top: 1.5rem; margin-bottom: 0.75rem; }
-        .readme-box h1 { border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        .readme-box img { max-width: 100%; border-radius: 6px; border: 1px solid var(--border); margin: 1rem 0; }
-        .readme-box code { background: rgba(110, 118, 129, 0.2); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+
+        /* Gitea/GitHub-grade Markdown Styling */
+        .markdown-body {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            word-wrap: break-word;
+        }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+            color: var(--text-heading);
+            font-weight: 600;
+            margin-top: 1.75rem;
+            margin-bottom: 0.85rem;
+            line-height: 1.3;
+        }
+        .markdown-body h1 {
+            font-size: 1.8rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .markdown-body h2 {
+            font-size: 1.35rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+        .markdown-body h3 { font-size: 1.15rem; }
+        .markdown-body h4 { font-size: 1rem; }
+        .markdown-body p { margin-top: 0; margin-bottom: 1rem; }
+        .markdown-body a { color: var(--accent); text-decoration: none; }
+        .markdown-body a:hover { text-decoration: underline; }
+        .markdown-body strong { color: var(--text-heading); font-weight: 600; }
+        .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+        /* Tables */
+        .markdown-body .table-container {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .markdown-body table {
+            border-collapse: collapse;
+            width: 100%;
+            display: table;
+        }
+        .markdown-body th, .markdown-body td {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .markdown-body th {
+            background-color: var(--header-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+        .markdown-body tr:nth-child(2n) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Code Blocks */
+        .markdown-body .code-block-wrapper {
+            margin: 1.25rem 0;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #0d1117;
+            overflow: hidden;
+        }
+        .markdown-body .code-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            font-family: monospace;
+        }
+        .markdown-body .code-copy-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .markdown-body .code-copy-btn:hover {
+            background: var(--btn-hover);
+            color: #fff;
+        }
+        .markdown-body pre {
+            padding: 1rem;
+            margin: 0;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #e6edf3;
+        }
+        .markdown-body code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85em;
+            background: rgba(110, 118, 129, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: #f0f6fc;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Lists */
+        .markdown-body ul, .markdown-body ol {
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        .markdown-body li { margin-bottom: 0.25rem; }
+        .markdown-body li.task-list-item {
+            list-style-type: none;
+            margin-left: -1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Blockquotes & Alerts */
+        .markdown-body blockquote {
+            margin: 1rem 0;
+            padding: 0.5rem 1rem;
+            border-left: 4px solid var(--border);
+            color: var(--text-muted);
+            background: rgba(110, 118, 129, 0.05);
+            border-radius: 0 6px 6px 0;
+        }
+        .markdown-body .markdown-alert {
+            margin: 1.25rem 0;
+            padding: 0.85rem 1rem;
+            border-left: 4px solid;
+            border-radius: 0 6px 6px 0;
+        }
+        .markdown-body .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            font-size: 0.9rem;
+        }
+        .markdown-body .alert-note {
+            border-left-color: #58a6ff;
+            background: rgba(56, 139, 253, 0.1);
+        }
+        .markdown-body .alert-note .alert-title { color: #58a6ff; }
+        .markdown-body .alert-tip {
+            border-left-color: #3fb950;
+            background: rgba(63, 185, 80, 0.1);
+        }
+        .markdown-body .alert-tip .alert-title { color: #3fb950; }
+        .markdown-body .alert-important {
+            border-left-color: #bc8cff;
+            background: rgba(188, 140, 255, 0.1);
+        }
+        .markdown-body .alert-important .alert-title { color: #bc8cff; }
+        .markdown-body .alert-warning {
+            border-left-color: #d29922;
+            background: rgba(210, 153, 34, 0.1);
+        }
+        .markdown-body .alert-warning .alert-title { color: #d29922; }
+        .markdown-body .alert-caution {
+            border-left-color: #f85149;
+            background: rgba(248, 81, 73, 0.1);
+        }
+        .markdown-body .alert-caution .alert-title { color: #f85149; }
+
+        /* Images & Badges */
+        .markdown-body img {
+            max-width: 100%;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin: 0.25rem 0;
+        }
+
+        /* Toggle button styling */
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .toggle-btn:hover { color: var(--text-heading); }
+        .toggle-btn.active {
+            background: var(--btn-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
 
         .badge-live {
             display: inline-block; width: 8px; height: 8px; border-radius: 50%;
@@ -365,22 +559,30 @@
             <!-- Single File Blob Viewer (Hidden by default) -->
             <div id="codeViewer" class="code-viewer" style="display: none;">
                 <div class="code-header">
-                    <span id="codeFileName" style="font-weight: 600;">file</span>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span id="codeFileName" style="font-weight: 600;">file</span>
+                        <div id="mdViewToggle" style="display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; padding: 2px;">
+                            <button class="toggle-btn active" id="btnPreview" onclick="setMarkdownMode('preview')">👁️ Preview</button>
+                            <button class="toggle-btn" id="btnRaw" onclick="setMarkdownMode('raw')">📝 Source</button>
+                        </div>
+                    </div>
                     <div>
                         <span id="codeFileMeta" style="color: var(--text-muted); margin-right: 1rem;"></span>
                         <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="copyCodeContent()">Copy</button>
                         <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="closeCodeViewer()">Close</button>
                     </div>
                 </div>
+                <div id="markdownContent" class="markdown-body" style="display: none; padding: 2rem; background: var(--card-bg); border-top: 1px solid var(--border);"></div>
                 <pre class="code-content" id="codeContent"></pre>
             </div>
 
             <!-- Rendered Readme -->
             <div class="readme-box" id="readmeSection">
-                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-                    📖 README.md
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                    <span style="font-weight: 600; color: var(--text-heading);">📖 README.md</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px;">Markdown Rendered</span>
                 </div>
-                <div id="readmeBody">Loading README...</div>
+                <div id="readmeBody" class="markdown-body">Loading README...</div>
             </div>
         </section>
 
@@ -592,25 +794,70 @@
             });
         }
 
+        let currentBlobData = null;
+        let currentBlobPath = null;
+        let currentMarkdownMode = 'preview';
+
         async function loadBlob(filePath) {
             try {
                 const res = await fetch(`/api/blob?path=${encodeURIComponent(filePath)}`);
                 const data = await res.json();
                 if (data.content !== undefined) {
+                    currentBlobData = data;
+                    currentBlobPath = filePath;
                     document.getElementById('fileBrowserView').style.display = 'none';
+                    document.getElementById('readmeSection').style.display = 'none';
                     document.getElementById('codeViewer').style.display = 'block';
                     document.getElementById('codeFileName').textContent = filePath;
                     document.getElementById('codeFileMeta').textContent = `${data.lines} lines | ${formatBytes(data.size)}`;
                     document.getElementById('codeContent').textContent = data.content;
+
+                    const isMd = filePath.toLowerCase().endsWith('.md') || filePath.toLowerCase().endsWith('.markdown');
+                    const toggleBox = document.getElementById('mdViewToggle');
+                    const mdContainer = document.getElementById('markdownContent');
+                    const rawPre = document.getElementById('codeContent');
+
+                    if (isMd) {
+                        toggleBox.style.display = 'flex';
+                        setMarkdownMode(currentMarkdownMode);
+                    } else {
+                        toggleBox.style.display = 'none';
+                        mdContainer.style.display = 'none';
+                        rawPre.style.display = 'block';
+                    }
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
+        function setMarkdownMode(mode) {
+            currentMarkdownMode = mode;
+            const btnPrev = document.getElementById('btnPreview');
+            const btnRaw = document.getElementById('btnRaw');
+            const mdContainer = document.getElementById('markdownContent');
+            const rawPre = document.getElementById('codeContent');
+
+            if (!btnPrev || !btnRaw || !mdContainer || !rawPre) return;
+
+            if (mode === 'preview') {
+                btnPrev.classList.add('active');
+                btnRaw.classList.remove('active');
+                mdContainer.innerHTML = parseMarkdown(currentBlobData ? currentBlobData.content : '');
+                mdContainer.style.display = 'block';
+                rawPre.style.display = 'none';
+            } else {
+                btnRaw.classList.add('active');
+                btnPrev.classList.remove('active');
+                mdContainer.style.display = 'none';
+                rawPre.style.display = 'block';
+            }
+        }
+
         function closeCodeViewer() {
             document.getElementById('codeViewer').style.display = 'none';
             document.getElementById('fileBrowserView').style.display = 'block';
+            document.getElementById('readmeSection').style.display = 'block';
         }
 
         function copyCodeContent() {
@@ -883,19 +1130,306 @@
             return (b / 1048576).toFixed(1) + ' MB';
         }
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function copySnippet(btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            if (!wrapper) return;
+            const code = wrapper.querySelector('code').textContent;
+            navigator.clipboard.writeText(code);
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = orig; }, 1500);
+        }
+
+        function parseInline(str) {
+            if (!str) return '';
+            let s = escapeHtml(str);
+
+            // Images inside links (Shields.io badges): [![alt](img)](url)
+            s = s.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, '<a href="$3" target="_blank" rel="noopener noreferrer"><img alt="$1" src="$2" /></a>');
+
+            // Images: ![alt](url)
+            s = s.replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" />');
+
+            // Standard links: [text](url)
+            s = s.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+            // Inline code: `code`
+            s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Bold + Italic: ***text***
+            s = s.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+
+            // Bold: **text** or __text__
+            s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            s = s.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+            // Italic: *text* or _text_
+            s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+            s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+
+            // Strikethrough: ~~text~~
+            s = s.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+            // Inline math: $formula$
+            s = s.replace(/\$([^$\n]+)\$/g, '<code style="color: var(--quantum-violet); font-style: italic;">$$1$</code>');
+
+            return s;
+        }
+
+        function parseMarkdown(md) {
+            if (!md) return '';
+
+            // 1. Extract and preserve fenced code blocks
+            const codeBlocks = [];
+            let text = md.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                const id = `__CODE_BLOCK_${codeBlocks.length}__`;
+                codeBlocks.push({ lang: lang ? lang.trim() : 'text', code: code.replace(/\n$/, '') });
+                return id;
+            });
+
+            // 2. Extract and preserve math blocks ($$ ... $$)
+            const mathBlocks = [];
+            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+                const id = `__MATH_BLOCK_${mathBlocks.length}__`;
+                mathBlocks.push(math.trim());
+                return id;
+            });
+
+            // 3. Process line-by-line
+            const lines = text.split('\n');
+            const out = [];
+            let inTable = false;
+            let tableAligns = [];
+            let inList = false;
+            let listType = 'ul';
+            let inBlockquote = false;
+            let bqLines = [];
+
+            function flushBlockquote() {
+                if (bqLines.length === 0) return;
+                const bqRaw = bqLines.join(' ');
+                const alertMatch = bqRaw.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)$/i);
+                if (alertMatch) {
+                    const type = alertMatch[1].toUpperCase();
+                    const body = parseInline(alertMatch[2].trim());
+                    const titles = { NOTE: 'ℹ️ Note', TIP: '💡 Tip', IMPORTANT: '❗ Important', WARNING: '⚠️ Warning', CAUTION: '🛑 Caution' };
+                    out.push(`<div class="markdown-alert alert-${type.toLowerCase()}"><div class="alert-title">${titles[type] || type}</div><div>${body}</div></div>`);
+                } else {
+                    out.push(`<blockquote>${parseInline(bqRaw)}</blockquote>`);
+                }
+                bqLines = [];
+                inBlockquote = false;
+            }
+
+            function flushList() {
+                if (inList) {
+                    out.push(`</${listType}>`);
+                    inList = false;
+                }
+            }
+
+            function flushTable() {
+                if (inTable) {
+                    out.push('</tbody></table></div>');
+                    inTable = false;
+                    tableAligns = [];
+                }
+            }
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+
+                // Fenced code block or math block placeholder
+                if (line.trim().startsWith('__CODE_BLOCK_') || line.trim().startsWith('__MATH_BLOCK_')) {
+                    flushBlockquote();
+                    flushList();
+                    flushTable();
+                    out.push(line.trim());
+                    continue;
+                }
+
+                // Horizontal Rule
+                if (/^(?:---|\*\*\*|___)\s*$/.test(line)) {
+                    flushBlockquote();
+                    flushList();
+                    flushTable();
+                    out.push('<hr>');
+                    continue;
+                }
+
+                // Headings
+                const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+                if (headingMatch) {
+                    flushBlockquote();
+                    flushList();
+                    flushTable();
+                    const level = headingMatch[1].length;
+                    const headingText = parseInline(headingMatch[2].trim());
+                    out.push(`<h${level}>${headingText}</h${level}>`);
+                    continue;
+                }
+
+                // Blockquotes & Alerts
+                const bqMatch = line.match(/^>\s?(.*)$/);
+                if (bqMatch) {
+                    flushList();
+                    flushTable();
+                    inBlockquote = true;
+                    bqLines.push(bqMatch[1]);
+                    continue;
+                } else if (inBlockquote) {
+                    flushBlockquote();
+                }
+
+                // GFM Pipe Tables
+                const isTableLine = line.trim().startsWith('|') && line.trim().endsWith('|');
+                if (isTableLine) {
+                    flushBlockquote();
+                    flushList();
+                    const cells = line.trim().slice(1, -1).split('|').map(c => c.trim());
+
+                    // Check if delimiter row: | :--- | ---: | :---: |
+                    const isSepRow = cells.length > 0 && cells.every(c => /^:?-+:?$/.test(c));
+                    if (isSepRow) {
+                        tableAligns = cells.map(c => {
+                            if (c.startsWith(':') && c.endsWith(':')) return 'center';
+                            if (c.endsWith(':')) return 'right';
+                            return 'left';
+                        });
+                        continue;
+                    }
+
+                    if (!inTable) {
+                        inTable = true;
+                        out.push('<div class="table-container"><table><thead><tr>');
+                        cells.forEach((c, idx) => {
+                            const align = tableAligns[idx] || 'left';
+                            out.push(`<th style="text-align: ${align}">${parseInline(c)}</th>`);
+                        });
+                        out.push('</tr></thead><tbody>');
+                    } else {
+                        out.push('<tr>');
+                        cells.forEach((c, idx) => {
+                            const align = tableAligns[idx] || 'left';
+                            out.push(`<td style="text-align: ${align}">${parseInline(c)}</td>`);
+                        });
+                        out.push('</tr>');
+                    }
+                    continue;
+                } else if (inTable) {
+                    flushTable();
+                }
+
+                // Task list items
+                const taskMatch = line.match(/^[-*]\s+\[([ xX])\]\s+(.*)$/);
+                if (taskMatch) {
+                    flushBlockquote();
+                    flushTable();
+                    if (!inList || listType !== 'ul') {
+                        flushList();
+                        inList = true;
+                        listType = 'ul';
+                        out.push('<ul>');
+                    }
+                    const checked = taskMatch[1].toLowerCase() === 'x' ? 'checked' : '';
+                    out.push(`<li class="task-list-item"><input type="checkbox" ${checked} disabled style="margin: 0; vertical-align: middle;"> <span>${parseInline(taskMatch[2])}</span></li>`);
+                    continue;
+                }
+
+                // Unordered lists
+                const ulMatch = line.match(/^[-*]\s+(.*)$/);
+                if (ulMatch) {
+                    flushBlockquote();
+                    flushTable();
+                    if (!inList || listType !== 'ul') {
+                        flushList();
+                        inList = true;
+                        listType = 'ul';
+                        out.push('<ul>');
+                    }
+                    out.push(`<li>${parseInline(ulMatch[1])}</li>`);
+                    continue;
+                }
+
+                // Ordered lists
+                const olMatch = line.match(/^(\d+)\.\s+(.*)$/);
+                if (olMatch) {
+                    flushBlockquote();
+                    flushTable();
+                    if (!inList || listType !== 'ol') {
+                        flushList();
+                        inList = true;
+                        listType = 'ol';
+                        out.push('<ol>');
+                    }
+                    out.push(`<li>${parseInline(olMatch[2])}</li>`);
+                    continue;
+                }
+
+                if (inList) {
+                    flushList();
+                }
+
+                // Blank line
+                if (!line.trim()) {
+                    continue;
+                }
+
+                // Standard paragraph
+                out.push(`<p>${parseInline(line)}</p>`);
+            }
+
+            flushBlockquote();
+            flushList();
+            flushTable();
+
+            let html = out.join('\n');
+
+            // 4. Restore Fenced Code Blocks
+            codeBlocks.forEach((item, idx) => {
+                const id = `__CODE_BLOCK_${idx}__`;
+                const escaped = escapeHtml(item.code);
+                const replacement = `
+                    <div class="code-block-wrapper">
+                        <div class="code-block-header">
+                            <span>${item.lang}</span>
+                            <button class="code-copy-btn" onclick="copySnippet(this)">Copy</button>
+                        </div>
+                        <pre><code>${escaped}</code></pre>
+                    </div>
+                `;
+                html = html.replace(id, replacement);
+            });
+
+            // 5. Restore Math Blocks
+            mathBlocks.forEach((math, idx) => {
+                const id = `__MATH_BLOCK_${idx}__`;
+                const replacement = `<div style="text-align: center; margin: 1.5rem 0; padding: 1rem; background: rgba(110, 118, 129, 0.1); border: 1px solid var(--border); border-radius: 6px; font-family: monospace; color: var(--quantum-violet);">$$ ${escapeHtml(math)} $$</div>`;
+                html = html.replace(id, replacement);
+            });
+
+            return html;
+        }
+
         function renderReadme() {
             const container = document.getElementById('readmeBody');
-            let content = rawReadme;
-            content = content
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-                .replace(/\*(.*)\*/gim, '<em>$1</em>')
-                .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2" />')
-                .replace(/`([^`]+)`/gim, '<code>$1</code>')
-                .replace(/\n\n/gim, '<br><br>');
-            container.innerHTML = content;
+            if (!container) return;
+            if (!rawReadme || rawReadme.trim() === '') {
+                const section = document.getElementById('readmeSection');
+                if (section) section.style.display = 'none';
+                return;
+            }
+            container.innerHTML = parseMarkdown(rawReadme);
         }
 
         // Init
