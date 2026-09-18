@@ -174,7 +174,7 @@ pub fn find_untracked_files(
         .filter_map(|e| e.ok())
     {
         let path = entry.path();
-        if path.starts_with(dft_dir) {
+        if !workdir.starts_with(dft_dir) && path.starts_with(dft_dir) {
             continue;
         }
 

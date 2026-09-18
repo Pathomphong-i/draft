@@ -62,7 +62,7 @@ pub fn check_fence_violations(
         let index = repo.index().ok();
         for entry in WalkDir::new(workdir).into_iter().filter_map(|e| e.ok()) {
             let path = entry.path();
-            if path.starts_with(repo.dft_dir()) {
+            if !workdir.starts_with(repo.dft_dir()) && path.starts_with(repo.dft_dir()) {
                 continue;
             }
             if entry.file_type().is_file() {
@@ -112,7 +112,7 @@ pub fn check_fence_violations(
             if full.is_dir() {
                 for entry in WalkDir::new(&full).into_iter().filter_map(|e| e.ok()) {
                     let path = entry.path();
-                    if path.starts_with(repo.dft_dir()) {
+                    if !workdir.starts_with(repo.dft_dir()) && path.starts_with(repo.dft_dir()) {
                         continue;
                     }
                     if entry.file_type().is_file() {
@@ -138,7 +138,9 @@ pub fn check_fence_violations(
 pub fn execute(args: AddArgs) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Repository::discover(&cwd)?;
-    let current_dim = crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir());
+    let current_dim = repo.dimension_name()
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir()));
 
     check_fence_violations(&repo, &args.pathspecs, args.all, &current_dim)?;
 

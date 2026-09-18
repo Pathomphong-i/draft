@@ -11,6 +11,8 @@ pub struct Repository {
     workdir: Option<PathBuf>,
     dft_dir: PathBuf,
     cas: Arc<ObjectStore>,
+    custom_index_path: Option<PathBuf>,
+    dimension_name: Option<String>,
 }
 
 impl Repository {
@@ -39,6 +41,8 @@ impl Repository {
             workdir,
             dft_dir: dft_dir_buf,
             cas,
+            custom_index_path: None,
+            dimension_name: None,
         })
     }
 
@@ -46,6 +50,35 @@ impl Repository {
         let canonical = start_path
             .canonicalize()
             .map_err(|_| RepoError::NotARepository(start_path.to_path_buf()))?;
+
+        // 0. Check if start_path is inside a dimension workspace:
+        //    <root>/.dft/dimensions/<dim_name>/workspace/...
+        let mut check_dim = canonical.as_path();
+        while let Some(parent) = check_dim.parent() {
+            if check_dim.file_name().map(|n| n == "workspace").unwrap_or(false) {
+                if let Some(dim_dir) = check_dim.parent() {
+                    if let Some(dims_dir) = dim_dir.parent() {
+                        if dims_dir.file_name().map(|n| n == "dimensions").unwrap_or(false) {
+                            if let Some(dft_dir) = dims_dir.parent() {
+                                if dft_dir.join("objects").is_dir() && dft_dir.join("HEAD").is_file() {
+                                    let dim_name = dim_dir.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+                                    let cas = Arc::new(ObjectStore::init(&dft_dir.join("objects"))?);
+                                    return Ok(Self {
+                                        workdir: Some(check_dim.to_path_buf()),
+                                        dft_dir: dft_dir.to_path_buf(),
+                                        cas,
+                                        custom_index_path: Some(dim_dir.join("index")),
+                                        dimension_name: Some(dim_name),
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            check_dim = parent;
+        }
+
         let mut current = canonical.as_path();
 
         loop {
@@ -92,7 +125,15 @@ impl Repository {
     }
 
     pub fn index_path(&self) -> PathBuf {
-        self.dft_dir.join("index")
+        if let Some(ref p) = self.custom_index_path {
+            p.clone()
+        } else {
+            self.dft_dir.join("index")
+        }
+    }
+
+    pub fn dimension_name(&self) -> Option<&str> {
+        self.dimension_name.as_deref()
     }
 
     pub fn index(&self) -> Result<Index, IndexError> {

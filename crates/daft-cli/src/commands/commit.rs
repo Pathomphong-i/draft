@@ -29,7 +29,10 @@ pub fn execute(args: CommitArgs, quiet: bool) -> Result<(), CliError> {
 
     let index = repo.index()?;
 
-    let current_dim = crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir());
+    let current_dim = repo
+        .dimension_name()
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir()));
 
     // Check fences
     for entry in index.entries() {

@@ -38,7 +38,7 @@ pub fn add_paths(
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
-            if path.starts_with(dft_dir) {
+            if !workdir.starts_with(dft_dir) && path.starts_with(dft_dir) {
                 continue;
             }
             if entry.file_type().is_file() {
@@ -104,7 +104,7 @@ pub fn add_paths(
                     .filter_map(|e| e.ok())
                 {
                     let path = entry.path();
-                    if path.starts_with(dft_dir) {
+                    if !workdir.starts_with(dft_dir) && path.starts_with(dft_dir) {
                         continue;
                     }
                     if entry.file_type().is_file() {
