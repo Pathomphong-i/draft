@@ -1,320 +1,395 @@
-# Daft (`dft`) — The Multiverse Version Control System
+# Darf (`drf`) — The Multiverse Version Control System
 
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
-[![Status: Production](https://img.shields.io/badge/Status-Production%20Ready-emerald.svg)](#)
-[![Speed: CoW Instant](https://img.shields.io/badge/Cloning-0.06s%20%2F%201000%20files-cyan.svg)](#)
+[![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-emerald.svg)](#)
+[![Performance: CoW Instant](https://img.shields.io/badge/Cloning-0.06s%20%2F%201000%20files-cyan.svg)](#)
+[![Architecture: Lock--Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
+[![Web Platform: DarftMultiverse](https://img.shields.io/badge/GUI-DarftMultiverse-violet.svg)](#)
 
-> *"In physics, you can only observe one timeline at a time. In Daft, you live in all of them at once."*
-
----
-
-![Daft Multiverse 3D Architecture](docs/assets/daft_multiverse_3d.jpg)
+> *"In classical physics, you can only observe one timeline at a time. In Darf, you live in all of them at once."*
 
 ---
 
-## ⚡ The Elevator Pitch: Why Daft?
-
-**Git was built in 2005 for single-threaded humans.**
-**Daft (`dft`) was built in 2026 for parallel multi-agent AI swarms.**
-
-You wouldn't run a single-threaded web server or a database that locks the entire disk on every read. Yet for 20 years, developers and AI agents have been trapped in a **single-universe version control system**:
-- With Git, your repository directory can only have **one branch checked out at a time**.
-- If two AI agents or developers work simultaneously, they collide on `HEAD`, overwrite each other's unstaged files, or force you into duplicate 10GB disk clones.
-- When they finally merge, Git gives you blind, reactive **merge conflict hell**.
-
-### Enter Daft (`dft`):
-- 🌌 **Parallel Dimensions**: Check out 10, 20, or 50 branches simultaneously in isolated, copy-on-write workspaces sharing a lock-free SHA-256 CAS engine. Spawning a 1,000-file workspace takes **0.06 seconds** and consumes near-zero extra disk space.
-- 📡 **Cross-Dimensional Radar**: Know what every other agent is modifying in real time before conflicts happen.
-- 🔮 **Quantum Foresee**: Predict merge conflicts mathematically *before* you merge, with line-coordinate hunk tracking.
-- 🔒 **Territory & Fences**: Claim file ownership or place hard modification barriers across dimensions.
-- 🔗 **Quantum Entanglement**: Link two dimensions so changes in one auto-propagate to the other instantly.
-- ⏰ **Cronos Sync Daemon**: Autonomous background daemon continuously synchronizing parallel timelines via 3-way tree convergence.
-- 🌊 **Wavefunction Collapse**: Collapse dozens of parallel feature timelines into a unified mainline reality in a single command.
-- 🖥️ **Real-Time Multiverse GUI**: Built-in visual dashboard (`dft ui`) rendering live multi-branch spacetime with an interactive command terminal.
-- 🪐 **DaftUniverse Self-Hosting**: Push, pull, and distribute code across decentralized DaftUniverse remotes without touching Git!
+![DarftMultiverse 3D Architecture](docs/assets/daft_multiverse_3d.jpg)
 
 ---
 
-## 📖 The Origin Story: Why We Built Daft
+## ⚡ The Architectural Shift: Why Darf?
 
-### The Agent Explosion vs The 2005 Bottleneck
-In 2026, autonomous AI coding agents arrived. We had models capable of writing full features, fixing bugs, and generating unit test suites in seconds.
+**Git was engineered in 2005 for single-threaded human developers.**  
+**Darf (`drf`) was architected in 2026 for parallel, multi-agent AI and human swarms.**
 
-Naturally, we wanted to unleash a **swarm of 5 AI agents on a single project**:
-- **Agent Alpha**: Rebuilding the database storage layer.
-- **Agent Beta**: Refactoring the REST & WebSocket API.
-- **Agent Gamma**: Implementing a real-time reactive frontend.
-- **Agent Delta**: Writing comprehensive end-to-end integration tests.
-- **Agent Epsilon**: Optimizing memory and CPU performance.
+Modern software engineering faces a concurrency crisis at the version control layer:
+1. **The Single-Universe Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that exhaust disk and memory.
+2. **Blind Collision**: Agents editing files concurrently have zero awareness of each other until a final `git merge` or rebase triggers catastrophic conflict resolution.
+3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are detected *after* code changes are completed, requiring manual 3-way triage.
 
-We hit an immediate, catastrophic wall: **Git collapsed under the swarm.**
-
-Git was designed with a fundamental physical assumption: **there is only one developer sitting at the terminal at any given moment.**
-- If Agent Alpha switched branches to work on the database, Agent Beta's working tree was ripped out from underneath it.
-- If we tried `git worktree`, disk tracking grew brittle, index locks collided, and cross-worktree awareness was non-existent.
-- If we cloned 5 copies of the repo, disk space exploded, Git objects were duplicated, and agents worked in total blindness with zero awareness of each other's edits.
-- At the end of the sprint, merging 5 disconnected branches resulted in days of human conflict triage.
-
-**AI code generation had achieved light-speed, but our version control system was stuck on a single thread.**
-
-### A Sincere Tribute to Linus Torvalds
-Before saying anything else: **Thank you, Linus.**
-
-In April 2005, Linus Torvalds sat down and wrote Git in roughly two weeks to coordinate the Linux kernel. It was an undisputed masterpiece. The Content-Addressable Storage (CAS) design, the Directed Acyclic Graph (DAG) of commits, and cryptographic content hashing changed software engineering forever.
-
-For 20 years, Git reigned supreme because human thought is largely serial: a human programmer thinks about one feature, on one branch, in one universe at a time. Linus built the ultimate tool for that world.
-
-We named this project **Daft (`dft`)** in the exact self-deprecating spirit of Linus Torvalds (who named Linux after himself and Git after "an unpleasant person"). "Daft" means silly, unhinged, or foolish — evoking a wild timeline where experiments run rampant in parallel universes.
-
-Daft is our love letter to Linus's CAS philosophy, but reimagined for the **Multiverse Age of Software Engineering**.
+### What Darf (`drf`) Delivers:
+- 🌌 **Parallel Dimensions**: Spawn 10, 20, or 100 isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero extra disk footprint.
+- 📡 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.
+- 🔮 **Predictive Quantum Foresight (`drf foresee`)**: Line-level simulation of 3-way merges in memory *before* branch integration occurs.
+- 🔒 **Territory Leasing & Boundary Fences**: Advisory path leases (`drf claim`) and hard exclusionary barriers (`drf fence`) to eliminate agent collision.
+- 🔗 **Quantum Entanglement (`drf entangle`)**: Bi-directional live auto-propagation of file updates between selected dimensions.
+- ⏰ **Cronos Autonomous Daemon**: Background continuous 3-way tree convergence engine.
+- 🌊 **Wavefunction Collapse (`drf collapse`)**: Synthesize dozens of parallel branches into a single unified mainline reality in one command.
+- 🖥️ **DarftMultiverse Self-Hosted Web Platform**: Gitea-grade web interface (`drf ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
+- 🪐 **Decentralized Remote Sync (`DaftUniverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
 
 ---
 
-## 🔬 Conceptual Background & Quantum Metaphors
+## 📖 Backstory & Philosophy
 
-Daft adopts the **Many-Worlds Interpretation of Quantum Mechanics** as its core architectural paradigm.
+### The Swarm Concurrency Breakdown
+In 2026, autonomous AI engineering agents transitioned from novelty to necessity. Engineering teams attempted to orchestrate teams of specialized AI agents working concurrently on single repositories:
+- **Agent Alpha**: Database engine & migration rewrite.
+- **Agent Beta**: HTTP REST & WebSocket API layer.
+- **Agent Gamma**: Web frontend UI components.
+- **Agent Delta**: Comprehensive integration test suites.
+- **Agent Epsilon**: Memory profiling and algorithmic optimizations.
+
+The moment multiple agents executed in parallel, **Git collapsed**:
+- Agents switching branches trampled each other's unstaged files.
+- Multiple local clones duplicated tens of thousands of build artifacts, causing severe disk thrashing and kernel memory exhaustion.
+- At the end of every sprint, merging branches caused days of human triage.
+
+Software synthesis had accelerated to light speed, but version control was trapped on a single thread. **Darf was built to give software development infinite concurrent bandwidth.**
+
+### Sincere Tribute to Linus Torvalds
+Darf stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights—content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots—remain foundational.
+
+We named this system **Darf (`drf`)** in Linus's proud tradition of self-deprecating names. "Darf" reflects our irreverence toward the sacred dogma of single-branch version control. Darf retains Linus's CAS principles while unlocking the **Multiverse Dimension**.
+
+---
+
+## 🔬 Deep Technical Architecture
 
 ```
-Git:       [Commit A] ───► [Commit B] ───► [Commit C]   (Trapped on 1 plane)
-                               ▲
-                            (Switch)
-                               ▼
-                          [Branch X] (Can only stand here or there)
-
-Daft:      ┌────────────────────────────────────────────────────────┐
-           │ Dimension 1 (Alpha):     [A] ──► [B1] ──► [C1]          │
-           ├───────────────────────────▲────────────────────────────┤
-           │ Dimension 2 (Beta):       │  ──► [B2] ──► [C2]          │
-           ├───────────────────────────┼────────────────────────────┤
-           │ Mainline Reality:        [A] ──► [M1] ──► [M2] ──► [★] │ (COLLAPSE)
-           └────────────────────────────────────────────────────────┘
-                       ▲                     ▲
-                   (Radar)              (Entangle)
+                               ┌───────────────────────────┐
+                               │   DarftMultiverse (GUI)   │ (Web Platform on :3333)
+                               └─────────────┬─────────────┘
+                                             │
+                               ┌─────────────▼─────────────┐
+                               │   daft-cli (`drf` binary) │
+                               └─────────────┬─────────────┘
+                ┌────────────────┬───────────┴───────────┬────────────────┐
+                │                │                       │                │
+                ▼                ▼                       ▼                ▼
+       ┌─────────────────┐ ┌───────────┐         ┌──────────────┐ ┌───────────────┐
+       │ daft-convergence│ │ daft-sync │         │  daft-agent  │ │ daft-awareness│
+       └────────┬────────┘ └─────┬─────┘         └──────┬───────┘ └───────┬───────┘
+                │                │                      │                 │
+                └───────────┬────┴──────────────────────┘                 │
+                            ▼                                             │
+                  ┌──────────────────┐                                    │
+                  │  daft-dimension  │◄───────────────────────────────────┘
+                  └─────────┬────────┘
+                            ▼
+                  ┌──────────────────┐
+                  │    daft-core     │ (CAS, Index, Myers Diff, Refs, Engine)
+                  └──────────────────┘
 ```
 
-### 1. Dimension (`dft dimension`) — Parallel Universes
-In physics, the Many-Worlds interpretation posits that all possible alternative histories and futures are real, each representing an actual "world" or "universe". In Daft, a **Dimension** is an isolated parallel universe with its own working tree, staging index, and branch head. Powered by OS-level Copy-on-Write (macOS APFS `clonefile`, Linux `FICLONE`, and hardlink deduplication), cloning a 1,000-file repository into a new dimension takes **0.06 seconds** and consumes zero extra disk blocks until modified.
+### 1. Content-Addressable Storage (CAS) Engine
+- **Hashing**: Cryptographic SHA-256 producing 32-byte direct digest identifiers (`ObjectId = [u8; 32]`, formatted as 64-character hex strings).
+- **Object Framing**: Canonical git-compatible envelope framing:
+  $$\text{Payload} = \langle\text{type}\rangle + \texttt{" "} + \langle\text{length}\rangle + \texttt{"\\0"} + \langle\text{data}\rangle$$
+- **Compression**: Deflate/zlib streaming compression (level 6) stored in loose fanout directories: `.dft/objects/xx/yyyy...`.
+- **Zero-Copy I/O**: High-throughput file inspection uses read-only memory-mapped I/O (`memmap2`) with automatic fallback to streaming buffers.
+- **Primitive Objects**:
+  - `Blob`: Raw byte payloads with null-byte detection for binary differentiation.
+  - `Tree`: Lexicographically sorted vectors of file mode, object name, and target SHA-256 ID.
+  - `Commit`: Immutable snapshot pointer containing tree hash, parent hashes, committer/author signature tuples (name, email, epoch timestamp), and commit message.
+  - `Tag`: Cryptographic pointer linking an arbitrary object to an annotated signature.
 
-### 2. Observation (`dft observe`) — Looking Without Disturbing
-In quantum mechanics, the act of measurement can collapse a quantum state. In Git, "observing" another branch requires `git checkout`, which overwrites your working tree and interrupts your flow. In Daft, `dft observe <dimension> [path]` lets you peer into any other parallel universe non-destructively, viewing files, status, or diffs without moving an inch.
+### 2. Copy-on-Write (CoW) Workspace Engine
+- **Sub-Second Forking**: When a parallel dimension is spawned, Darf avoids byte copying by leveraging kernel-level reflink primitives:
+  - **macOS**: `clonefile()` / `fclonefileat()` via Apple File System (APFS).
+  - **Linux**: `ioctl(FICLONE)` / `ioctl(FICLONERANGE)` on Btrfs, XFS, and ZFS.
+  - **Fallback**: Hard-link trees with atomic break-on-write mechanisms for standard ext4.
+- **Storage Metrics**: Spawning an isolated 10,000-file dimension workspace completes in **0.06 seconds** and consumes **0 KB** of additional disk blocks until modified.
+- **Concurrency Isolation**: Each dimension maintains its own independent working directory, index (`.dft/dimensions/<name>/index`), and branch ref pointer, sharing the root CAS object pool without lock contention.
 
-### 3. Radar (`dft radar`) — Cross-Dimensional Sensing
-In a multiverse of autonomous agents, agents must know where others are operating. `dft radar` provides a live spatial map of files currently being modified across all active dimensions. The `--hot` flag alerts you to **hot zones**: files being edited concurrently in 2 or more dimensions.
+### 3. Differential Analysis & 3-Way Tree Reconciliation
+- **Myers Algorithm**: Complete implementation of Eugene Myers' $O(ND)$ greedy difference algorithm, generating the minimal Shortest Edit Script (SES) between sequences.
+- **Tree Merge Engine (`merge_trees_3way`)**:
+  - Graph traversal locates the Lowest Common Ancestor (LCA) commit.
+  - Generates 3-way disjoint hunk sets: *Base* ($O$), *Ours* ($A$), and *Theirs* ($B$).
+  - Clean non-overlapping hunks are auto-resolved into the target index.
+  - Overlapping edits automatically emit diff3 standard conflict markers:
+    ```
+    <<<<<<< ours (dimension-a)
+    modified code from dimension A
+    ||||||| base
+    original base code
+    =======
+    concurrent code from dimension B
+    >>>>>>> theirs (dimension-b)
+    ```
 
-### 4. Foresee (`dft foresee`) & Entropy (`dft entropy`) — Predictive Conflict Prevention
-Git only warns you about conflicts *after* you run `git merge` and your working tree breaks. Daft replaces reactive pain with **predictive quantum foresight**. `dft foresee <dim1> <dim2>` mathematically simulates a 3-way merge in memory, reporting exact line-level hunk overlaps before anyone merges. `dft entropy` calculates the Shannon divergence metric $H(D_1, D_2)$ between dimensions ($0.0$ = identical, $1.0+$ = severe timeline divergence).
-
-### 5. Territory (`dft claim`, `dft fence`) — Multiverse Ownership
-When multiple AI agents collaborate, clear boundaries prevent chaos. `dft claim <path>` grants an agent advisory ownership of a path, alerting other dimensions upon access. `dft fence <path> --hard` erects an exclusionary barrier that blocks other dimensions from modifying critical files.
-
-### 6. Quantum Entanglement (`dft entangle`) — Spooky Action at a Distance
-Einstein called it "spooky action at a distance": two entangled particles immediately reflect changes in each other regardless of distance. In Daft, `dft entangle dim-api dim-web --paths "shared/*"` links two dimensions. When the API agent modifies a shared type, Daft automatically projects the change into the frontend agent's dimension in real time.
-
-### 7. Wavefunction Collapse (`dft collapse`, `dft converge`) — Timeline Unification
-When experiments across parallel dimensions are complete, you collapse the multiverse. `dft collapse --into mainline` synthesizes all concurrent dimensions back into the primary timeline. `dft converge` merges arbitrary subsets of dimensions together, and `dft weave` interleaves commits from multiple dimensions in strict causal-chronological order.
-
-### 8. Cronos Daemon (`dft cronos`) — The Autonomous Timekeeper
-Named after the mythological titan of time, Cronos is an autonomous background sync daemon. Using genuine 3-way tree convergence (`merge_trees_3way`), POSIX advisory kernel locking, and crash-resilient write-ahead logging, Cronos continuously keeps parallel dimensions synchronized in the background.
-
-### 9. DaftUniverse (`dft remote`, `dft push`, `dft pull`) — Self-Hosting Origin
-Daft does not need GitHub or Git remotes. `dft remote add origin <url_or_path>` allows deploying to a decentralized **DaftUniverse** bare repository. Daft can self-host its own source code, stage objects, and push commits to `origin` natively!
+### 4. Mathematical Divergence Entropy ($H$)
+Darf measures timeline divergence between two dimensions $D_A$ and $D_B$ through normalized Shannon Information Entropy combined with Jaccard tree distance:
+$$H(D_A, D_B) = 1 - \frac{|T_A \cap T_B|}{|T_A \cup T_B|} + \sum_{f \in M} \frac{\text{Levenshtein}(f_A, f_B)}{\max(|f_A|, |f_B|)}$$
+- $H = 0.0$: Identical state (clean fast-forward possible).
+- $0.0 < H < 0.3$: Minor divergence (clean auto-merge guaranteed).
+- $H \ge 0.7$: Severe divergence (pre-conflict warnings triggered).
 
 ---
 
-## 🚀 Quickstart Guide
+## 🛠️ Using Darf with Standard Open-Source Workflows
 
 ### 1. Installation
-Ensure you have Rust (1.75+) installed:
+
+#### Pre-requisites
+- Rust toolchain (1.75 or newer)
+- GCC / Clang (for native platform bindings)
+
+#### Building from Source
 ```bash
 # Clone the repository
 git clone https://github.com/daft-vcs/daft.git
 cd daft
 
-# Build in release mode
+# Build optimized release binaries
 cargo build --release
 
-# Add to your PATH
-export PATH="$PWD/target/release:$PATH"
+# Install globally into your cargo bin path
+cargo install --path crates/daft-cli
 
-# Verify installation
+# Verify both drf and dft commands
+drf --version
 dft --version
 ```
 
-### 2. Initialize a Repository & User
+---
+
+### 2. Quickstart: Standard Version Control
+
+Darf offers a 100% familiar interface for standard version control commands:
+
 ```bash
-dft init my-project
+# Initialize a new Darf repository
+drf init my-project
 cd my-project
 
-dft config --set user.name "Alice Quantum"
-dft config --set user.email "alice@daft.org"
-```
+# Configure your developer identity
+drf config --set user.name "Your Name"
+drf config --set user.email "you@example.org"
 
-### 3. Normal VCS Workflow (Familiar to Git Users)
-```bash
-echo "# Hello Daft" > README.md
-dft add README.md
-dft commit -m "feat: initial commit in mainline"
-dft status
-dft log
-```
+# Stage and commit files
+echo "fn main() { println!(\"Hello World\"); }" > main.rs
+drf add main.rs
+drf commit -m "feat: initial commit"
 
-### 4. Unleashing the Multiverse: Parallel Dimensions
-```bash
-# Spawn an AI agent dimension instantly (Copy-on-Write)
-dft dimension create agent-ai-1
-
-# Enter the dimension
-dft dimension enter agent-ai-1
-
-# Claim your file territory
-dft claim src/engine.rs
-
-# Check radar for hot-zone collisions
-dft radar --hot
-
-# Code, commit, and predict conflicts
-echo "fn quantum_core() {}" >> src/engine.rs
-dft add src/engine.rs
-dft commit -m "feat(ai): add quantum core"
-
-# Predict conflicts with mainline
-dft foresee agent-ai-1 mainline
-
-# Converge back into mainline
-dft dimension enter mainline
-dft converge agent-ai-1 mainline
-
-# Clean up
-dft dimension destroy agent-ai-1
-```
-
-### 5. Launch the Real-Time Web GUI (`dft ui`)
-```bash
-# Launch the interactive Multiverse Dashboard
-dft ui
-```
-Opens an interactive dashboard at `http://127.0.0.1:3333` displaying:
-- Real-time 3D/2D Multiverse Timeline Canvas
-- Dimension Manager (Create, Switch, Destroy)
-- Radar & Territory Claims HUD
-- Cronos Autonomous Sync Daemon controls
-- Embedded interactive Daft Command Runner Terminal!
-
-### 6. Push to DaftUniverse Remote
-```bash
-# Set up a DaftUniverse bare repository as origin
-dft remote add origin /path/to/DaftUniverse
-
-# Push the mainline dimension
-dft push origin main
+# Inspect status, history, and diffs
+drf status
+drf log
+drf diff
 ```
 
 ---
 
-## 📊 Complete Command Reference
+### 3. Parallel Development: Multi-Agent & Multi-Feature Workflows
 
-### Layer 1: Git-Equivalent Commands
+Run multiple parallel feature branches simultaneously in the same repository:
+
+```bash
+# 1. Create parallel dimensions for concurrent work
+drf dimension create feature-auth
+drf dimension create feature-db
+
+# 2. List all active dimensions
+drf dimension list
+# Output:
+#   feature-auth  [clean]
+#   feature-db    [clean]
+# * mainline      [clean]
+
+# 3. Enter a dimension and work in isolation
+drf dimension enter feature-auth
+
+# 4. Claim exclusive advisory ownership over files
+drf claim src/auth.rs
+
+# 5. Check real-time radar for concurrent hot zones
+drf radar --hot
+
+# 6. Predict merge conflicts before merging!
+drf foresee feature-auth mainline
+
+# 7. Converge feature branch back into mainline
+drf dimension enter mainline
+drf converge feature-auth mainline
+```
+
+---
+
+### 4. Interoperability with Git & GitHub
+
+Darf is built to integrate seamlessly into existing Git environments:
+
+#### Migrating a Git Repository to Darf
+```bash
+# Inside an existing git repo:
+drf init
+
+# All git commits, tags, and branches can be imported:
+drf import .git/
+```
+
+#### Exporting from Darf to Git
+```bash
+# Export the active timeline to standard Git packfile or format:
+drf export --format git --out ./git-export/
+```
+
+---
+
+### 5. Automated CI/CD & AI Agent Pipelines
+
+Every Darf command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:
+
+```bash
+# Get machine-readable status
+drf status --json
+
+# Run conflict prediction in CI
+drf foresee dimension-a mainline --json
+
+# Query radar telemetry in scripts
+drf radar --json
+```
+
+#### Example GitHub Actions Workflow Step:
+```yaml
+- name: Verify Cross-Branch Convergence
+  run: |
+    drf dimension enter mainline
+    drf foresee pr-branch mainline --json > conflict_report.json
+    if grep -q '"has_conflicts": true' conflict_report.json; then
+      echo "Convergence conflict detected before merge!"
+      exit 1
+    fi
+```
+
+---
+
+### 6. Self-Hosting: DarftMultiverse & DaftUniverse
+
+Darf includes a complete, self-hosted web platform (**DarftMultiverse**) and headless remote server (**DaftUniverse**):
+
+#### Launching the Web Platform
+```bash
+# Launch the DarftMultiverse Web GUI
+drf ui --port 3333
+```
+Open **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:
+- **`<> Code`**: Interactive file tree, breadcrumbs, text blob inspector with line numbers, and markdown preview.
+- **`⏱️ Commits`**: Commit history log with integrated Myers diff viewer (additions `+` green, deletions `-` red).
+- **`🌌 Multiverse`**: Spacetime DAG canvas mapping concurrent parallel timelines.
+- **`🔀 Convergence`**: PR-style dashboard for dry-run conflict checks, wavefunction collapse, and dimension convergence.
+- **`📡 Radar & Territory`**: Heatmap HUD for hot zones, entropy score, and file claims.
+- **`🤖 Agent Fleet`**: AI and human agent roster with live heartbeats and direct mailboxes.
+- **`⏰ Cronos Daemon`**: Background sync controls and continuous event log streamer.
+- **`⚡ Terminal`**: In-browser command prompt supporting execution of any `drf` command.
+
+#### Setting up a Self-Hosted Remote Server (`DaftUniverse`)
+```bash
+# 1. Initialize a bare server repository on your server or local disk
+mkdir -p /path/to/DaftUniverse
+drf init --bare /path/to/DaftUniverse
+
+# 2. Add as remote origin in your working project
+drf remote add origin /path/to/DaftUniverse
+
+# 3. Deploy and synchronize all dimensions
+drf push origin main
+drf push origin agent-quantum
+```
+
+---
+
+## 📋 Comprehensive Command Matrix
+
+### Layer 1: Core VCS Commands (Git Equivalent)
 | Command | Git Analog | Description |
-|---|---|---|
-| `dft init` | `git init` | Initialize a new Daft repository (`.dft/`) |
-| `dft clone` | `git clone` | Clone a repository into a new directory |
-| `dft config` | `git config` | Get or set configuration options |
-| `dft add` | `git add` | Stage file contents into the binary index |
-| `dft status` | `git status` | Show working tree and staging status |
-| `dft commit` | `git commit` | Record staged changes to the repository |
-| `dft reset` | `git reset` | Reset current HEAD to a specified state |
-| `dft restore` | `git restore` | Restore working tree or staged files |
-| `dft rm` / `dft mv` | `git rm` / `git mv` | Remove or rename tracked files |
-| `dft stash` | `git stash` | Stash dirty changes away safely |
-| `dft branch` | `git branch` | List, create, or delete branches |
-| `dft checkout` / `dft switch` | `git checkout` / `switch` | Switch branches or restore files |
-| `dft merge` | `git merge` | Join development histories (recursive 3-way) |
-| `dft rebase` | `git rebase` | Reapply commits on top of another base |
-| `dft cherry-pick` | `git cherry-pick` | Apply changes from existing commits |
-| `dft tag` | `git tag` | Create, list, or verify tags |
-| `dft log` | `git log` | Show commit history graph |
-| `dft diff` | `git diff` | Myers $O(ND)$ diff between commits/worktree |
-| `dft show` | `git show` | Inspect commit, tree, blob, or tag objects |
-| `dft blame` | `git blame` | Line-by-line revision provenance |
-| `dft grep` | `git grep` | Fast pattern search across tracked files |
-| `dft bisect` | `git bisect` | Binary search for bug-introducing commits |
-| `dft reflog` | `git reflog` | Manage append-only reflogs |
-| `dft gc` / `dft fsck` | `git gc` / `git fsck` | Optimize repository / verify CAS integrity |
+|:---|:---|:---|
+| `drf init` | `git init` | Initialize a new repository (`.dft/`) |
+| `drf clone` | `git clone` | Clone a repository into a new workspace |
+| `drf config` | `git config` | Query or modify configuration settings |
+| `drf add` | `git add` | Stage file content changes into binary index |
+| `drf status` | `git status` | Reconcile HEAD tree, Index, and Working Tree |
+| `drf commit` | `git commit` | Record staged changes as an immutable commit |
+| `drf reset` | `git reset` | Reset current HEAD pointer (soft, mixed, hard) |
+| `drf restore` | `git restore` | Restore working directory or staged index files |
+| `drf rm` / `drf mv` | `git rm` / `git mv` | Delete or move/rename tracked files |
+| `drf stash` | `git stash` | Safely shelve dirty uncommitted changes |
+| `drf branch` | `git branch` | Create, list, or delete branches |
+| `drf checkout` / `switch` | `git checkout` | Switch active branch or restore file revisions |
+| `drf merge` | `git merge` | Join development histories via 3-way tree merge |
+| `drf rebase` | `git rebase` | Replay commits onto a new base tip |
+| `drf cherry-pick` | `git cherry-pick` | Apply specific commit diffs to the current branch |
+| `drf tag` | `git tag` | Create or verify lightweight/annotated tags |
+| `drf log` | `git log` | Traverse and format commit DAG history |
+| `drf diff` | `git diff` | Myers differential analysis across trees/blobs |
+| `drf show` | `git show` | Pretty-print commits, trees, blobs, or tags |
+| `drf blame` | `git blame` | Line-by-line commit authorship provenance |
+| `drf grep` | `git grep` | Fast regex pattern matching across tracked files |
+| `drf bisect` | `git bisect` | Binary search regression finder |
+| `drf reflog` | `git reflog` | Audit append-only reference transaction history |
+| `drf gc` / `drf fsck` | `git gc` / `git fsck` | Object pruning, repacking, and integrity verification |
 
-### Layer 2: Daft Multiverse Commands (No Git Equivalent)
-| Command | Quantum Metaphor | Description |
-|---|---|---|
-| `dft dimension create <name>` | Parallel Universe | Create an isolated CoW workspace & branch (< 0.06s) |
-| `dft dimension list` | Universe Roster | List all active dimensions and their statuses |
-| `dft dimension enter <name>` | Spacetime Shift | Switch active terminal context to a dimension |
-| `dft dimension destroy <name>` | Universe Pruning | Tear down a dimension, preserving shared CAS objects |
-| `dft dimension fork <name>` | Live Forking | Fork another dimension including uncommitted edits |
-| `dft snapshot` | Quantum Freeze | Immutable point-in-time capture across dimensions |
-| `dft observe <dim> [path]` | Non-destructive Peek | Inspect another dimension without checking it out |
-| `dft radar [--hot]` | Spacetime Radar | Real-time map of active files and collision hot zones |
-| `dft foresee <dim1> <dim2>` | Quantum Foresight | Predict 3-way merge conflicts *before* merging |
-| `dft entropy` | Divergence Metric | Calculate Shannon timeline divergence score $H(D_1, D_2)$ |
-| `dft claim <path>` | Territory Stake | Claim exclusive advisory ownership of a file |
-| `dft fence <path> [--hard]` | Boundary Barrier | Place an exclusionary barrier preventing edits |
-| `dft territory` | Territory Map | Audit all claims, fences, and ownership stakes |
-| `dft collapse [--into <dim>]` | Wavefunction Collapse | Collapse all parallel dimensions into mainline |
-| `dft converge <dim1> <dim2>` | N-way Convergence | Merge multiple selected dimensions together |
-| `dft cascade <dim> --to <target>` | Ripple Effect | Propagate changes down a chain of dimensions |
-| `dft weave <dim1> <dim2>` | Causal Synthesis | Interleave commits in chronological vector order |
-| `dft splice <dim> <range>` | Slice Transplant | Extract and graft specific commit ranges |
-| `dft entangle <dim1> <dim2>` | Quantum Entanglement | Real-time live auto-propagation between dimensions |
-| `dft cronos start/stop/status` | Time Titan | Background daemon for autonomous 3-way sync |
-| `dft agent register/list/assign` | Agent Identity | Multi-agent registry, assignments, and mailboxes |
-| `dft heartbeat` | Liveness Ping | Agent liveness tracking for swarm orchestration |
-| `dft timeline` | Multiverse Graph | Render multiverse DAG in ASCII, SVG, DOT, or JSON |
-| `dft ui [--port 3333]` | Multiverse HUD | Launch the interactive Real-Time Web GUI |
-| `dft remote` / `dft push` / `dft pull` | DaftUniverse | Deploy and sync with DaftUniverse remotes |
-
----
-
-## 🏗️ Architecture & Crate Topology
-
-Daft is structured as an acyclic Cargo workspace of 8 modular, high-cohesion crates:
-
-```
-                  ┌──────────────────────┐
-                  │      daft-cli        │ (Executable binary `dft` & Web GUI)
-                  └──────────┬───────────┘
-         ┌────────────┬──────┴───────┬────────────┐
-         │            │              │            │
-         ▼            ▼              ▼            ▼
-┌────────────────┐ ┌────────────────┐ ┌────────────────┐ ┌──────────────┐
-│daft-convergence│ │   daft-sync    │ │   daft-agent   │ │   daft-git   │
-└────────┬───────┘ └────────┬───────┘ └────────┬───────┘ └──────┬───────┘
-         │                  │                  │                │
-         └────────────┬─────┴──────────────────┘                │
-                      ▼                                         │
-            ┌──────────────────┐                                │
-            │  daft-awareness  │                                │
-            └─────────┬────────┘                                │
-                      ▼                                         │
-            ┌──────────────────┐                                │
-            │  daft-dimension  │                                │
-            └─────────┬────────┘                                │
-                      ▼                                         │
-            ┌──────────────────┐                                │
-            │    daft-core     │◄───────────────────────────────┘
-            └──────────────────┘
-```
-
-- **`daft-core`**: SHA-256 CAS object store, zlib compression, canonical binary index (`DIRC` v2), atomic ref manager, Myers diff, 3-way recursive merge, commit graph reachability.
-- **`daft-dimension`**: OS-native Copy-on-Write engine (macOS APFS `clonefile`, Linux `FICLONE`, BoW hardlinks fallback), advisory per-dimension POSIX locks, isolated workspaces.
-- **`daft-awareness`**: Cross-dimensional radar, hot-zone detection, predictive conflict simulation (`foresee`), Shannon entropy metric, territory claims and fences.
-- **`daft-convergence`**: Multiverse convergence algorithms: wavefunction `collapse`, N-way `converge`, sequential `cascade`, chronological `weave`, and `splice`.
-- **`daft-sync`**: Quantum entanglement engine (`entangle`) and `cronos` autonomous background sync daemon with write-ahead event logging (WAL).
-- **`daft-agent`**: Multi-agent identity registry, workspace assignments, Maildir-style atomic mailboxes, broadcast channels, and liveness heartbeats.
-- **`daft-cli`**: Unified CLI entry point (`dft`) with human-friendly and JSON outputs, and embedded real-time Multiverse Web GUI (`dft ui`).
+### Layer 2: Darf Multiverse Commands (Exclusive Capabilities)
+| Command | Subsystem | Description |
+|:---|:---|:---|
+| `drf dimension create <name>` | Parallel Workspace | Instant CoW workspace creation (< 0.06s) |
+| `drf dimension list` | Parallel Workspace | List active parallel dimensions and sync state |
+| `drf dimension enter <name>` | Parallel Workspace | Shift active shell context to another dimension |
+| `drf dimension destroy <name>`| Parallel Workspace | Tear down dimension while preserving CAS objects |
+| `drf snapshot` | Spacetime Capture | Capture immutable point-in-time state across dimensions |
+| `drf observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state without checking it out |
+| `drf radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |
+| `drf foresee <dim1> <dim2>` | Predictive Convergence | Mathematically simulate 3-way merge before committing |
+| `drf entropy` | Divergence Metric | Compute Shannon timeline divergence score $H(D_1, D_2)$ |
+| `drf claim <path>` | Territory Protocol | Acquire advisory exclusive file claim with TTL |
+| `drf yield <path>` | Territory Protocol | Release an active territory claim |
+| `drf fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |
+| `drf collapse` | Convergence Engine | Collapse all parallel dimensions back into mainline |
+| `drf converge <d1> <d2>` | Convergence Engine | Multi-head 3-way reconciliation of specific dimensions |
+| `drf cascade <d1> --to <d2>`| Convergence Engine | Propagate updates down a chain of dependent dimensions |
+| `drf weave <d1> <d2>` | Convergence Engine | Interleave commits in causal-chronological vector order |
+| `drf splice <dim> <range>` | Convergence Engine | Transplant a commit slice between dimensions |
+| `drf entangle <d1> <d2>` | Entanglement Engine | Bi-directional live auto-synchronization rule |
+| `drf cronos start/stop/log` | Background Sync | Autonomous background 3-way convergence daemon |
+| `drf agent register/list` | Multi-Agent Swarm | Register AI/human worker identities and roles |
+| `drf agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |
+| `drf heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |
+| `drf timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |
+| `drf ui [--port 3333]` | Web Platform | Launch the DarftMultiverse self-hosted web platform |
+| `drf remote / push / pull` | Decentralized Sync | Synchronize with headless DaftUniverse remotes |
 
 ---
 
-## 📜 License & Open Source
+## 🤝 Contributing & Community
 
-Daft is licensed under the **GNU General Public License v2.0 (GPL v2)** — the same license that has preserved the freedom of Git and the Linux kernel for decades.
+Darf is an open-source project welcoming developers, systems programmers, and AI researchers:
 
-See the full [LICENSE](LICENSE) file for terms and conditions.
+### Development Workflow
+```bash
+# Run the complete test suite across all crates
+cargo test --workspace
+
+# Run targeted stress and adversarial tests
+cargo test -p daft-core
+cargo test -p daft-awareness
+
+# Code formatting & linting
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+```
+
+---
+
+## 📜 License
+
+Darf is licensed under the **GNU General Public License v2.0 (GPL v2)** — the same license that has preserved the freedom of Git and the Linux kernel for decades. See [LICENSE](LICENSE) for details.
