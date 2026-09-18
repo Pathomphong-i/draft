@@ -820,6 +820,8 @@
         // ==========================================
         // GITHUB PAGES / OFFLINE STATIC DEMO ENGINE
         // ==========================================
+        let isStaticMode = false;
+
         const DEMO_TREE = {
             "": [
                 { name: ".github", is_dir: true, size: 0 },
@@ -847,52 +849,152 @@
             ],
             "docs/assets": [
                 { name: "draft_icon.svg", is_dir: false, size: 5934 },
-                { name: "draft_github_meme.jpg", is_dir: false, size: 944025 },
+                { name: "draft_github_meme.jpg", is_dir: false, size: 1056649 },
                 { name: "draft_multiverse_3d.jpg", is_dir: false, size: 734624 }
             ],
             "scripts": [
                 { name: "install.sh", is_dir: false, size: 4536 }
+            ],
+            "packaging": [
+                { name: "homebrew", is_dir: true, size: 0 }
+            ],
+            "packaging/homebrew": [
+                { name: "Formula", is_dir: true, size: 0 }
+            ],
+            "packaging/homebrew/Formula": [
+                { name: "dft.rb", is_dir: false, size: 1820 }
             ]
         };
 
         const DEMO_COMMITS = [
-            { hash: "d888d36", summary: "chore(branding): harmonize naming strictly to DraftMultiverse", author: "Mos <mos@codedai.co>", date: "Today", additions: 42, deletions: 12 },
-            { hash: "9aa4f04", summary: "feat(ui): enlarge Multiverse icon to 96px in hero card, boost SVG stroke weight and glow", author: "Mos <mos@codedai.co>", date: "Today", additions: 188, deletions: 15 },
-            { hash: "819fdfd", summary: "feat: prepare Homebrew, standalone installer, release CI, and multiverse 3D icon", author: "Mos <mos@codedai.co>", date: "Yesterday", additions: 320, deletions: 4 }
+            { hash: "d888d36a3f12bc89", summary: "chore(branding): harmonize naming strictly to DraftMultiverse", message: "chore(branding): harmonize naming strictly to DraftMultiverse", author: "Mos <mos@codedai.co>", date: "Today", additions: 42, deletions: 12 },
+            { hash: "9aa4f04b87e21a44", summary: "feat(ui): enlarge Multiverse icon to 96px in hero card, boost SVG stroke weight and glow", message: "feat(ui): enlarge Multiverse icon to 96px in hero card, boost SVG stroke weight and glow", author: "Mos <mos@codedai.co>", date: "Today", additions: 188, deletions: 15 },
+            { hash: "819fdfde742b001c", summary: "feat: prepare Homebrew, standalone installer, release CI, and multiverse 3D icon", message: "feat: prepare Homebrew, standalone installer, release CI, and multiverse 3D icon", author: "Mos <mos@codedai.co>", date: "Yesterday", additions: 320, deletions: 4 }
         ];
 
         const DEMO_STATE = {
             active_dimension: "mainline",
-            dimensions: ["mainline", "agent-quantum", "feature-memory-engine"],
+            dimensions: [
+                { name: "mainline", is_active: true },
+                { name: "agent-quantum", is_active: false },
+                { name: "feature-memory-engine", is_active: false }
+            ],
+            territory: {
+                claims: { "crates/daft-core/src/cas.rs": "agent-quantum" },
+                fences: ["crates/daft-core/src/storage/"]
+            },
             radar: { hot_zones: [{ path: "crates/daft-core/src/cas.rs", collision_risk: 0.12 }] },
+            cronos: { running: true },
             agents: [
-                { id: "agent-alpha", role: "Database Refactor", status: "Active" },
-                { id: "agent-beta", role: "CLI & Web UI", status: "Active" },
-                { id: "human-architect", role: "Lead Systems Architect", status: "Active" }
+                { name: "agent-alpha", agent_type: "ai", dimension: "agent-quantum", role: "Database Refactor", status: "Active" },
+                { name: "agent-beta", agent_type: "ai", dimension: "feature-memory-engine", role: "CLI & Web UI", status: "Active" },
+                { name: "human-architect", agent_type: "human", dimension: "mainline", role: "Lead Systems Architect", status: "Active" }
             ]
         };
 
-        function renderTreeEntries(entries, path) {
-            const tbody = document.querySelector("#fileTable tbody");
-            tbody.innerHTML = "";
-            if (path !== "") {
-                const parentPath = path.includes("/") ? path.substring(0, path.lastIndexOf("/")) : "";
-                const tr = document.createElement("tr");
-                tr.innerHTML = `<td class="file-icon">📁</td><td class="file-name" onclick="loadTree('${parentPath}')">..</td><td class="file-size"></td>`;
-                tbody.appendChild(tr);
-            }
-            entries.forEach(e => {
-                const tr = document.createElement("tr");
-                const icon = e.is_dir ? "📁" : "📄";
-                const clickAction = e.is_dir ? `loadTree('${path ? path + "/" + e.name : e.name}')` : `loadFile('${path ? path + "/" + e.name : e.name}')`;
-                tr.innerHTML = `<td class="file-icon">${icon}</td><td class="file-name" onclick="${clickAction}">${e.name}</td><td class="file-size">${e.is_dir ? "" : formatBytes(e.size)}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
+        const DEMO_BLOBS = {
+            "Cargo.toml": `[workspace]
+members = [
+    "crates/daft-cli",
+    "crates/daft-core",
+    "crates/daft-awareness",
+    "crates/daft-dimension",
+    "crates/daft-merging",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Mos <mos@codedai.co>"]
+license = "GPL-2.0"`,
+            "LICENSE": `                    GNU GENERAL PUBLIC LICENSE
+                       Version 2, June 1991
+
+ Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.`,
+            "scripts/install.sh": `#!/bin/sh
+set -e
+echo "Installing Draft VCS (dft)..."
+REPO="Pathomphong-i/draft"
+VERSION="0.1.0"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+echo "Target: \${OS}-\${ARCH}"
+echo "Draft VCS installed successfully! Run 'dft --help' to get started."`,
+            "packaging/homebrew/Formula/dft.rb": `class Dft < Formula
+  desc "The Multiverse Version Control System for Parallel AI and Human Swarms"
+  homepage "https://draftmultiverse.org"
+  version "0.1.0"
+  license "GPL-2.0"
+
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/Pathomphong-i/draft/releases/download/v0.1.0/dft-v0.1.0-aarch64-apple-darwin.tar.gz"
+      sha256 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    end
+  end
+
+  def install
+    bin.install "dft"
+  end
+end`
+        };
+
+        const DEMO_TIMELINE = {
+            dimensions: [
+                { name: "mainline", is_active: true },
+                { name: "agent-quantum", is_active: false },
+                { name: "feature-memory-engine", is_active: false }
+            ],
+            nodes: [
+                { id: "d888d36a3f12bc89", short_id: "d888d36", summary: "chore(branding): harmonize naming strictly to DraftMultiverse", author: "Mos", timestamp: "Today", lane: 0 },
+                { id: "9aa4f04b87e21a44", short_id: "9aa4f04", summary: "feat(ui): enlarge Multiverse icon to 96px in hero card, boost SVG stroke weight and glow", author: "Mos", timestamp: "Today", lane: 1 },
+                { id: "819fdfde742b001c", short_id: "819fdfd", summary: "feat: prepare Homebrew, standalone installer, release CI, and multiverse 3D icon", author: "Mos", timestamp: "Yesterday", lane: 0 }
+            ],
+            edges: [
+                { from: "819fdfde742b001c", to: "d888d36a3f12bc89" },
+                { from: "819fdfde742b001c", to: "9aa4f04b87e21a44" }
+            ]
+        };
+
+        const DEMO_SVG = `<svg viewBox="0 0 760 160" width="100%" height="160" xmlns="http://www.w3.org/2000/svg" style="background: transparent;">
+  <line x1="40" y1="40" x2="720" y2="40" stroke="#30363d" stroke-dasharray="4,4" stroke-width="1" />
+  <line x1="40" y1="100" x2="720" y2="100" stroke="#30363d" stroke-dasharray="4,4" stroke-width="1" />
+  <text x="45" y="32" fill="#58a6ff" font-size="12" font-weight="600" font-family="monospace">mainline</text>
+  <text x="45" y="92" fill="#bc8cff" font-size="12" font-weight="600" font-family="monospace">agent-quantum</text>
+  <path d="M 160 40 L 480 40" stroke="#58a6ff" stroke-width="2.5" />
+  <path d="M 160 40 C 220 40, 260 100, 320 100" stroke="#bc8cff" stroke-width="2" stroke-dasharray="2,2" fill="none" />
+  <path d="M 320 100 L 480 40" stroke="#3fb950" stroke-width="2" stroke-dasharray="3,3" fill="none" />
+  <g id="node_819fdfd" style="cursor: pointer;">
+    <circle cx="160" cy="40" r="10" fill="#238636" stroke="#58a6ff" stroke-width="3" />
+    <text x="160" y="62" fill="#c9d1d9" font-size="11" text-anchor="middle" font-family="monospace">819fdfd</text>
+  </g>
+  <g id="node_9aa4f04" style="cursor: pointer;">
+    <circle cx="320" cy="100" r="10" fill="#8957e5" stroke="#bc8cff" stroke-width="3" />
+    <text x="320" y="122" fill="#c9d1d9" font-size="11" text-anchor="middle" font-family="monospace">9aa4f04</text>
+  </g>
+  <g id="node_d888d36" style="cursor: pointer;">
+    <circle cx="480" cy="40" r="12" fill="#1f6feb" stroke="#58a6ff" stroke-width="3" />
+    <text x="480" y="65" fill="#f0f6fc" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">d888d36</text>
+  </g>
+</svg>`;
+
+        const DEMO_ASCII = `* d888d36 (mainline) chore(branding): harmonize naming strictly to DraftMultiverse
+| * 9aa4f04 (agent-quantum) feat(ui): enlarge Multiverse icon to 96px in hero card
+|/
+* 819fdfd feat: prepare Homebrew, standalone installer, release CI`;
+
+        const DEMO_ANCESTRY = `mainline (d888d36)
+├── 819fdfd (base commit)
+└── [forked] agent-quantum (9aa4f04)
+    └── 819fdfd (base commit)`;
 
         let currentPath = "";
         let currentDim = "mainline";
-        const rawReadme = "<p align=\"center\">\n  <img src=\"docs/assets/draft_icon.svg\" width=\"160\" height=\"160\" alt=\"Draft VCS Logo\" style=\"border-radius: 32px; box-shadow: 0 0 35px rgba(88,166,255,0.45); border: 2px solid rgba(88,166,255,0.35);\" />\n</p>\n\n# Draft (`dft`) \u2014 The Multiverse Version Control System\n\n[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)\n[![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)\n[![Live Web Demo](https://img.shields.io/badge/Live_Demo-GitHub%20Pages-22c55e.svg)](https://pathomphong-i.github.io/draft/)\n[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_Us-GitHub%20Sponsors-ff69b4.svg)](https://github.com/open-source/sponsors)\n[![GitHub Stars](https://img.shields.io/github/stars/Pathomphong-i/draft?style=social)](https://github.com/Pathomphong-i/draft)\n[![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)\n[![Performance: CoW Reflink](https://img.shields.io/badge/Cloning-0.06s%20%2F%2010%2C000%20files-cyan.svg)](#)\n[![Architecture: Lock-Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)\n[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](https://pathomphong-i.github.io/draft/)\n\n> *\"In classical philosophy, Chronos (\u03a7\u03c1\u03cc\u03bd\u03bf\u03c2) forces all actions into a single linear sequence. In Draft, Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2) lets parallel minds build concurrently until the opportune moment of convergence.\"*\n\n---\n\n![DraftMultiverse 3D Architecture](docs/assets/draft_multiverse_3d.jpg)\n\n---\n\n## \ud83c\udfad The \"Multiverse on GitHub\" Paradox\n\n![Built a Multiverse Engine for Parallel AI Swarms... But We Still Need the GitHub Community!](docs/assets/draft_github_meme.jpg)\n\n> *\"We built Draft (`dft`) for concurrent AI swarms... but we still can't live without the GitHub community!\"* \ud83d\udc19\ud83d\udc96\n\nWhen Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel mail servers. But in 2026, **the developer world, open-source contributors, and AI swarms live in GitHub's gravity well**.\n\n- \ud83c\udf0c **We develop Draft using Draft**: Internally, our parallel dimensions, lock-free content-addressable storage (CAS), and predictive 3-way merges are 100% dogfooded with `dft`.\n- \ud83d\udc19 **We \u2764\ufe0f the GitHub Community**: We host our open-source project and interactive demo on GitHub because this is where developers star repositories, report issues, submit PRs, and collaborate. We are proud to build together with the open-source community!\n\n### \ud83d\udc96 Community Goal: Funding Sovereign `draftmultiverse.org`\n\n> [!TIP]\n> ### \ud83e\ude90 Sovereign Multiverse Infrastructure Goal\n> Today, Draft's code, releases, and interactive web playground are powered directly by **GitHub** and **GitHub Pages**.\n>\n> If the community finds Draft valuable and we receive enough community support through donations and sponsorships, **we will fund, build, and deploy a dedicated, 24/7 sovereign server cluster on `draftmultiverse.org`** \u2014 featuring decentralized remote repo synchronization, headless multiverse servers, and distributed AI agent fleet coordinators!\n>\n> \ud83d\udc49 **[Support the Project on GitHub Sponsors](https://github.com/open-source/sponsors)** | [Sponsor @Pathomphong-i](https://github.com/sponsors/Pathomphong-i)\n\n---\n\n## \u26a1 The Architectural Shift: Why Draft?\n\n**Git was engineered in 2005 around a single checked-out working tree and linear branch switching.**  \n**Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**\n\nModern software engineering faces concurrency bottlenecks at the version control layer:\n1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.\n2. **Blind Collision**: Agents editing files concurrently have zero cross-branch awareness of each other until a final merge or rebase triggers complex conflict triage.\n3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are discovered *after* code changes are completed, requiring manual 3-way triage.\n\n### What Draft (`dft`) Delivers:\n- \ud83c\udf0c **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.\n- \ud83d\udce1 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.\n- \ud83d\udd2e **Predictive Merge Foresight (`dft foresee`)**: In-memory simulation of 3-way merges *before* branch integration occurs.\n- \ud83d\udd12 **Territory Leasing & Boundary Fences**: Advisory path leases (`dft claim`) and hard exclusionary barriers (`dft fence`) to prevent accidental agent collisions.\n- \ud83d\udd17 **Continuous Entanglement (`dft entangle`)**: Bi-directional live auto-synchronization of specific files across parallel dimensions.\n- \u23f0 **Autonomous Sync Daemon (`dft cronos`)**: Background continuous 3-way tree convergence engine.\n- \ud83c\udf0a **Multi-Branch Collapse (`dft collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.\n- \ud83d\udda5\ufe0f **Self-Hosted Developer Web Platform**: Web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.\n- \ud83e\ude90 **Decentralized Remote Sync (`DraftMultiverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.\n\n---\n\n## \ud83d\udcd6 Backstory & Philosophy: From Chronos to Kairos\n\n### The Swarm Concurrency Bottleneck\nIn 2026, autonomous AI engineering agents transitioned from novelty to necessity. Engineering teams attempted to orchestrate teams of specialized AI agents working concurrently on single repositories:\n- **Agent Alpha**: Database engine & migration rewrite.\n- **Agent Beta**: HTTP REST & WebSocket API layer.\n- **Agent Gamma**: Web frontend UI components.\n- **Agent Delta**: Comprehensive integration test suites.\n- **Agent Epsilon**: Memory profiling and algorithmic optimizations.\n\nThe moment multiple agents executed in parallel, **traditional single-worktree Git workflows hit severe friction**:\n- Agents switching branches trampled each other's unstaged files.\n- Multiple local clones duplicated tens of thousands of build artifacts, causing disk thrashing and operating system resource exhaustion.\n- At the end of every sprint, merging diverged branches created painful manual triage.\n\nIn ancient thought, the Greeks distinguished two forms of time: **Chronos (\u03a7\u03c1\u03cc\u03bd\u03bf\u03c2)**, the quantitative, sequential progression of linear events, and **Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*\u2014a single linear arrow where only one branch could be active at a time. **Draft was built to bring Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2) and Metis (\u039c\u1fc6\u03c4\u03b9\u03c2, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (\u1f09\u03c1\u03bc\u03bf\u03bd\u03af\u03b1)** without collision.\n\n### Sincere Tribute to Linus Torvalds\nDraft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights\u2014content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots\u2014remain foundational.\n\nWe named this system **Draft (`draft` / `dft`)** because every parallel dimension represents an agile, working *draft* of your project. Where Git forces developers to commit every experiment to a single rigid working-tree sequence, Draft allows agents and developers to iterate on preliminary versions concurrently before bringing them together. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.\n\n---\n\n## \ud83d\udd2c Deep Technical Architecture\n\n```\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502   DraftMultiverse (GUI)    \u2502 (Web Platform on :3333)\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                             \u2502\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502   daft-cli (`dft` binary) \u2502\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                \u2502                \u2502                       \u2502                \u2502\n                \u25bc                \u25bc                       \u25bc                \u25bc\n       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n       \u2502 daft-convergence\u2502 \u2502 daft-sync \u2502         \u2502  daft-agent  \u2502 \u2502 daft-awareness\u2502\n       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                \u2502                \u2502                      \u2502                 \u2502\n                \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                 \u2502\n                            \u25bc                                             \u2502\n                  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                    \u2502\n                  \u2502  daft-dimension  \u2502\u25c4\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                            \u25bc\n                  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                  \u2502    daft-core     \u2502 (CAS, Index, Myers Diff, Refs, Engine)\n                  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### 1. Content-Addressable Storage (CAS) Engine\n- **Hashing**: Cryptographic SHA-256 producing 32-byte direct digest identifiers (`ObjectId = [u8; 32]`, formatted as 64-character hex strings).\n- **Object Framing**: Canonical git-compatible envelope framing:\n  $$\\text{Payload} = \\langle\\text{type}\\rangle + \\texttt{\" \"} + \\langle\\text{length}\\rangle + \\texttt{\"\\\\0\"} + \\langle\\text{data}\\rangle$$\n- **Compression**: Deflate/zlib streaming compression (level 6) stored in loose fanout directories: `.dft/objects/xx/yyyy...`.\n- **Zero-Copy I/O**: High-throughput file inspection uses read-only memory-mapped I/O (`memmap2`) with automatic fallback to streaming buffers.\n- **Primitive Objects**:\n  - `Blob`: Raw byte payloads with null-byte detection for binary differentiation.\n  - `Tree`: Lexicographically sorted vectors of file mode, object name, and target SHA-256 ID.\n  - `Commit`: Immutable snapshot pointer containing tree hash, parent hashes, committer/author signature tuples (name, email, epoch timestamp), and commit message.\n  - `Tag`: Cryptographic pointer linking an arbitrary object to an annotated signature.\n\n### 2. Copy-on-Write (CoW) Workspace Engine\n- **Sub-Second Forking**: When a parallel dimension is spawned, Draft avoids byte copying by leveraging kernel-level reflink primitives:\n  - **macOS**: `clonefile()` / `fclonefileat()` via Apple File System (APFS).\n  - **Linux**: `ioctl(FICLONE)` / `ioctl(FICLONERANGE)` on Btrfs, XFS, and ZFS.\n  - **Fallback**: Hard-link trees with atomic break-on-write mechanisms for standard ext4.\n- **Storage Metrics**: Spawning an isolated 10,000-file dimension workspace completes in **0.06 seconds** and consumes **0 KB** of additional disk blocks until modified.\n- **Concurrency Isolation**: Each dimension maintains its own independent working directory, index (`.dft/dimensions/<name>/index`), and branch ref pointer, sharing the root CAS object pool without lock contention.\n\n### 3. Differential Analysis & 3-Way Tree Reconciliation\n- **Myers Algorithm**: Complete implementation of Eugene Myers' $O(ND)$ greedy difference algorithm, generating the minimal Shortest Edit Script (SES) between sequences.\n- **Tree Merge Engine (`merge_trees_3way`)**:\n  - Graph traversal locates the Lowest Common Ancestor (LCA) commit.\n  - Generates 3-way disjoint hunk sets: *Base* ($O$), *Ours* ($A$), and *Theirs* ($B$).\n  - Clean non-overlapping hunks are auto-resolved into the target index.\n  - Overlapping edits automatically emit diff3 standard conflict markers:\n    ```\n    <<<<<<< ours (dimension-a)\n    modified code from dimension A\n    ||||||| base\n    original base code\n    =======\n    concurrent code from dimension B\n    >>>>>>> theirs (dimension-b)\n    ```\n\n### 4. Timeline Divergence Metric ($H$)\nDraft computes a quantitative divergence score $H(D_A, D_B) \\in [0.0, 1.0]$ between any two dimensions across four weighted components:\n$$H(D_A, D_B) = 0.50 \\cdot C_{\\text{commits}} + 0.25 \\cdot F_{\\text{files}} + 0.15 \\cdot T_{\\text{trees}} + 0.10 \\cdot L_{\\text{lines}}$$\n\n- **$C_{\\text{commits}}$**: Distance in the commit DAG from their Lowest Common Ancestor (LCA).\n- **$F_{\\text{files}}$**: Ratio of concurrently modified files over total tracked files.\n- **$T_{\\text{trees}}$**: Jaccard distance between the dimension tree snapshots: $1 - \\frac{|T_A \\cap T_B|}{|T_A \\cup T_B|}$.\n- **$L_{\\text{lines}}$**: Overlapping hunk modifications in shared files.\n\n#### Divergence Risk Tiers:\n- $H = 0.0$: Identical state (clean fast-forward possible).\n- $0.0 < H \\le 0.15$: Negligible divergence (clean auto-merge expected; minimal file overlap).\n- $0.15 < H \\le 0.35$: Low divergence (auto-merge expected).\n- $0.35 < H \\le 0.65$: Moderate divergence (cross-file edits require awareness).\n- $H > 0.65$: High divergence (elevated collision risk; pre-conflict warnings triggered).\n\n---\n\n## \ud83d\udee0\ufe0f Using Draft with Standard Open-Source Workflows\n\n### 1. Installation\n\n#### A. Homebrew (macOS & Linux)\nInstall directly from our official tap:\n```bash\nbrew install draft-vcs/draft/dft\n```\n\n#### B. Standalone Shell Script (macOS & Linux)\nZero-dependency instant installer for workstations and CI/CD runners:\n```bash\ncurl -fsSL https://draftmultiverse.org/install.sh | sh\n```\n\n#### C. Cargo (Rust Crates.io)\n```bash\ncargo install draft-vcs\n```\n\n#### D. Building from Source\n```bash\n# Clone the repository\ndft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse\n# or: git clone https://github.com/draft-vcs/draft.git\ncd draft\n\n# Build optimized release binaries\ncargo build --release\n\n# Install globally into your cargo bin path\ncargo install --path crates/daft-cli\n\n# Verify dft command\ndft --version\n```\n\n---\n\n### 2. Quickstart: Standard Version Control\n\nDraft offers a familiar interface for standard version control commands:\n\n```bash\n# Initialize a new Draft repository\ndft init my-project\ncd my-project\n\n# Configure your developer identity\ndft config --set user.name \"Your Name\"\ndft config --set user.email \"you@example.org\"\n\n# Stage and commit files\necho \"fn main() { println!(\\\"Hello World\\\"); }\" > main.rs\ndft add main.rs\ndft commit -m \"feat: initial commit\"\n\n# Inspect status, history, and diffs\ndft status\ndft log\ndft diff\n```\n\n---\n\n### 3. Parallel Development: Multi-Agent & Multi-Feature Workflows\n\nRun multiple parallel feature branches simultaneously in the same repository:\n\n```bash\n# 1. Create parallel dimensions for concurrent work\ndft dimension create feature-auth\ndft dimension create feature-db\n\n# 2. List all active dimensions\ndft dimension list\n# Output:\n#   feature-auth  [clean]\n#   feature-db    [clean]\n# * mainline      [clean]\n\n# 3. Enter a dimension and work in isolation\ndft dimension enter feature-auth\n\n# 4. Acquire an advisory lease on files\ndft claim src/auth.rs\n\n# 5. Check real-time radar for concurrent hot zones\ndft radar --hot\n\n# 6. Check for potential merge conflicts in memory before merging\ndft foresee feature-auth mainline\n\n# 7. Converge feature branch back into mainline\ndft dimension enter mainline\ndft converge feature-auth mainline\n```\n\n---\n\n### 4. Seamless Hybrid Workflow: Develop in Parallel with Draft \u2192 Push to Git\n\nYou do not need to replace your organization's Git infrastructure, GitHub Pull Request workflows, or existing CI/CD pipelines to harness the concurrency power of Draft. You can use **Draft as a local concurrency acceleration layer** on top of any existing Git repository:\n\n> **\"Develop in the Multiverse with Draft, Ship to the World with Git.\"**\n\n```\n                     \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                     \u2502              Existing Git Repository (.git)            \u2502\n                     \u2502          (GitHub / GitLab / Bitbucket / Upstream)      \u2502\n                     \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b2\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                 git push origin main / dft export\n                                                 \u2502\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502       Draft Mainline Working Tree   \u2502\n                               \u2502        (Converged, Tested, Clean)  \u2502\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b2\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                   dft collapse / dft converge\n                                                 \u2502\n                   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                   \u2502                             \u2502                             \u2502\n        \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n        \u2502  Dimension: dim-auth \u2502      \u2502  Dimension: dim-api  \u2502      \u2502  Dimension: dim-ui   \u2502\n        \u2502  (Agent / Dev 1)     \u2502      \u2502  (Agent / Dev 2)     \u2502      \u2502  (Agent / Dev 3)     \u2502\n        \u2502  \u2022 CoW Workspace     \u2502      \u2502  \u2022 CoW Workspace     \u2502      \u2502  \u2022 CoW Workspace     \u2502\n        \u2502  \u2022 Exclusive Claim   \u2502      \u2502  \u2022 Exclusive Claim   \u2502      \u2502  \u2022 Exclusive Claim   \u2502\n        \u2502  \u2022 Hot-Zone Radar    \u2502      \u2502  \u2022 Hot-Zone Radar    \u2502      \u2502  \u2022 Hot-Zone Radar    \u2502\n        \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518      \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518      \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                   \u25b2                             \u25b2                             \u25b2\n                   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                Shared Content-Addressable Storage (CAS)\n                                      Zero Duplicate Disk Blocks\n```\n\n#### Why Combine Draft with Git?\n\n| Concurrency Dimension | Traditional Git / Worktrees | Draft Multiverse Swarm |\n|:---|:---|:---|\n| **Workspace Creation Speed** | 2.5s \u2013 5.0s (full directory clone / worktree setup) | **0.06s** (instant APFS/Btrfs CoW reflink) |\n| **Disk Footprint** | Multiplies linearly per full clone or separate working tree (GBs) | **0 KB** additional blocks until modified (CoW) |\n| **Branch Switching Overhead** | Must stash, commit, or clean working tree | Zero overhead: each dimension is an isolated workspace |\n| **Multi-Agent Awareness** | Blind: agents overwrite shared files | **Real-Time Radar (`dft radar`)** & Territory Claims |\n| **Merge Conflict Triage** | Reactive: conflicts discovered after work | **Predictive: `dft foresee`** flags collisions in advance |\n| **Upstream Compatibility** | Native | **Fully Compatible**: push standard Git commits to GitHub/GitLab |\n\n---\n\n#### Step-by-Step Guide: The Parallel Draft \u2192 Git Push Flow\n\n##### Step 1: Enable Draft in Your Existing Git Repository\nNavigate to your current project. Draft lives harmoniously alongside `.git/` without altering your Git status:\n```bash\ncd my-existing-git-repo\n\n# Initialize Draft VCS engine (.dft/)\ndft init\n\n# Keep Draft internal state untracked in Git\necho \".dft/\" >> .gitignore\ngit add .gitignore && git commit -m \"chore: enable Draft parallel multiverse engine\"\n```\n\n##### Step 2: Spawn Parallel Dimensions for Features or AI Agents\nInstead of fighting branch switches or juggling multiple working tree clones, spawn parallel dimensions in milliseconds:\n```bash\n# Instant CoW branches for concurrent tasks\ndft dimension create feat-auth\ndft dimension create feat-billing\ndft dimension create feat-docs\n\n# Verify your multiverse fleet\ndft dimension list\n#   feat-auth     [clean]\n#   feat-billing  [clean]\n#   feat-docs     [clean]\n# * mainline      [clean]\n```\n\n##### Step 3: Work Concurrently in Parallel Dimensions\nEach dimension operates in complete filesystem isolation under `.dft/dimensions/<name>/workspace`:\n- **Developer / Agent Alpha** works on Authentication:\n  ```bash\n  cd .dft/dimensions/feat-auth/workspace\n  dft claim src/auth.rs                    # Claim advisory territory\n  # Edit, test, and commit locally within dimension\n  dft add src/auth.rs\n  dft commit -m \"feat(auth): implement JWT token verification\"\n  ```\n- **Developer / Agent Beta** works on Billing concurrently:\n  ```bash\n  cd .dft/dimensions/feat-billing/workspace\n  dft claim src/billing.rs                 # Claim advisory territory\n  # Edit, test, and commit locally within dimension\n  dft add src/billing.rs\n  dft commit -m \"feat(billing): add Stripe webhook handler\"\n  ```\n\n##### Step 4: Proactive Collision Check with Predictive Merge Foresight\nBefore bringing changes together, verify that no conflicting hunks exist:\n```bash\n# In-memory simulation of 3-way reconciliation without touching working code\ndft foresee feat-auth mainline\n# Output:\n#   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'\n#   [FORESEE] Clean auto-merge predicted: 0 conflicts detected.\n#   [FORESEE] Divergence Metric: H = 0.04 (minimal divergence)\n```\n\n##### Step 5: Converge & Collapse into Mainline\nWhen parallel work is finished and verified, collapse all dimensions or converge specific features back into `mainline`:\n```bash\n# Return to the root workspace (mainline)\ndft dimension enter mainline\n\n# Converge features into mainline\ndft converge feat-auth mainline\ndft converge feat-billing mainline\ndft converge feat-docs mainline\n\n# Or collapse all active dimensions into mainline in a single command:\ndft collapse\n```\n\n##### Step 6: Seamlessly Push to Git / GitHub / GitLab\nYour root working tree now contains all converged, tested, and conflict-free changes. Git sees standard working tree modifications ready for upstream:\n```bash\n# Inspect status using standard Git\ngit status\n\n# Stage the converged changes\ngit add src/auth.rs src/billing.rs docs/\n\n# Record as standard Git commits\ngit commit -m \"feat: integrate auth, billing, and docs from parallel swarm\"\n\n# Push straight to GitHub, GitLab, or your corporate Git remote!\ngit push origin main\n```\n\n##### Optional: Direct Git Bridge & Import/Export\nYou can also import existing Git history or export Draft dimensions:\n```bash\n# Import an existing Git repository into Draft\ndft import git\n\n# Export a specific dimension to standard Git format\ndft export git --dimension mainline\n\n# Verify compatibility bridge status\ndft compat git-bridge\n```\n\n> **Tip**: Because Draft converges changes directly into standard working tree files on mainline, you can push integrated commits upstream to GitHub or GitLab without altering your team's existing review processes or CI/CD pipelines.\n\n---\n\n### 5. Orchestrating AI Agents with `SKILL.md`\n\nDraft ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Draft repository.\n\n#### Why AI Agents Need `SKILL.md`\nStandard coding agents assume Git's single-working-tree model: when multiple agents run concurrently, they switch branches under each other, overwrite uncommitted files, and trigger race conditions. \n\nBy reading [`SKILL.md`](SKILL.md), agents understand how to:\n1. **Never work directly in `mainline`** during active feature development.\n2. **Spawn instant isolated CoW dimensions** (`dft dimension create`) with zero disk bloat.\n3. **Lease file paths** using advisory claims (`dft claim`) and respect boundary fences (`dft fence`).\n4. **Sense concurrent edits** across the agent fleet using real-time radar (`dft radar --hot`).\n5. **Communicate peer-to-peer** with other agents via asynchronous mailboxes (`dft agent send` / `dft agent read`).\n6. **Pre-test 3-way merge viability** (`dft foresee`) before converging into mainline.\n\n---\n\n#### How to Equip Your AI Agents with `SKILL.md`\n\n##### A. In Antigravity / Agentic IDEs\nDraft's `SKILL.md` adheres to the open-standard agent skill manifest format with YAML frontmatter:\n```markdown\n---\nname: draft-vcs\ndescription: Operational guide and multi-agent protocol for Draft ('dft')...\n---\n```\n- The IDE automatically discovers [`SKILL.md`](SKILL.md) in the workspace root.\n- Agents automatically adopt the Draft multi-agent lifecycle when assigned coding tasks.\n\n##### B. In Claude Code, Cursor, or Terminal Agent Prompts\nFeed [`SKILL.md`](SKILL.md) directly into your agent's context or system prompt:\n```bash\n# Example invocation with Claude Code or terminal LLMs:\nclaude \"Read SKILL.md and implement the JWT authentication module following the 8-step Draft agent protocol.\"\n```\nOr in Cursor / Copilot Chat:\n> *\"@SKILL.md Follow the Draft agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `dft foresee`, and converge back to mainline.\"*\n\n##### C. Programmatic Multi-Agent Swarms (Python / TypeScript / Rust)\nWhen orchestrating swarms with frameworks like CrewAI, LangGraph, or AutoGen, provide `SKILL.md` as the system instruction or tool reference:\n```python\n# Pass SKILL.md contents into the agent system prompt\nwith open(\"SKILL.md\") as f:\n    draft_skill_prompt = f.read()\n\nagent_worker = Agent(\n    role=\"Backend Engine Developer\",\n    system_prompt=f\"You operate in a Draft VCS repository. Follow this protocol:\\n{draft_skill_prompt}\"\n)\n```\n\n---\n\n#### The 8-Step Autonomous Agent Lifecycle\n\nEvery agent interacting with Draft follows a structured lifecycle:\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 1. Register:   dft agent register <id> --type ai       \u2502\n\u2502 2. Dimension:  dft dimension create <id>/<task_name>   \u2502\n\u2502 3. Radar:      dft radar --hot                         \u2502\n\u2502 4. Claim:      dft claim <file_path>                   \u2502\n\u2502 5. Code & Save:dft add . && dft commit -m \"feat: ...\"  \u2502\n\u2502 6. Foresee:    dft foresee <dimension> mainline        \u2502\n\u2502 7. Converge:   dft converge <dimension> mainline       \u2502\n\u2502 8. Yield:      dft yield <file_path>                   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n1. **Register**: The agent registers its worker identity and sends heartbeat pings:\n   ```bash\n   dft agent register agent-coder --type ai\n   dft heartbeat agent-coder\n   ```\n2. **Dimension Creation**: Spawns an isolated CoW parallel workspace in 0.06 seconds:\n   ```bash\n   dft dimension create agent-coder/auth-feature\n   dft dimension enter agent-coder/auth-feature\n   ```\n3. **Radar Inspection**: Checks whether other dimensions or developers are modifying overlapping paths:\n   ```bash\n   dft radar --hot\n   ```\n4. **Territory Lease**: Acquires an advisory lock on target files to signal ownership:\n   ```bash\n   dft claim src/auth.rs\n   ```\n5. **Implement & Commit**: Makes changes and records isolated commits within its private dimension without affecting other workers:\n   ```bash\n   dft add src/auth.rs\n   dft commit -m \"feat(auth): add bearer token verification\"\n   ```\n6. **Predictive Merge Foresight**: Runs an in-memory 3-way simulation to verify conflict-free integration before convergence:\n   ```bash\n   dft foresee agent-coder/auth-feature mainline\n   ```\n7. **Convergence**: Reconciles the dimension back into `mainline`:\n   ```bash\n   dft dimension enter mainline\n   dft converge agent-coder/auth-feature mainline\n   ```\n8. **Yield & Cleanup**: Releases file claims and tears down the ephemeral dimension:\n   ```bash\n   dft yield src/auth.rs\n   dft dimension destroy agent-coder/auth-feature\n   ```\n\n---\n\n#### Peer-to-Peer Agent Mailbox Protocol\nAgents can coordinate directly without third-party message brokers using Draft's built-in file-backed mailboxes:\n```bash\n# Agent Alpha notifies Agent Beta about updated API types\ndft agent send agent-beta \"New user payload types committed to shared/types/user.rs\"\n\n# Agent Beta checks its incoming mailbox\ndft agent read agent-beta\n```\n\n#### Real-World Verification: AetherDB Swarm\nThis exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent_team_miniproject), where 3 autonomous AI agents concurrently built a persistent Key-Value database (WAL storage, API parser, and REPL CLI) in parallel dimensions and converged cleanly into mainline without merge conflicts.\n\n---\n\n### 6. Automated CI/CD & AI Agent Pipelines\n\nEvery Draft command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:\n\n```bash\n# Get machine-readable status\ndft status --json\n\n# Run conflict prediction in CI\ndft foresee dimension-a mainline --json\n\n# Query radar telemetry in scripts\ndft radar --json\n```\n\n#### Example GitHub Actions Workflow Step:\n```yaml\n- name: Verify Cross-Branch Convergence\n  run: |\n    dft dimension enter mainline\n    dft foresee pr-branch mainline --json > conflict_report.json\n    if grep -q '\"has_conflicts\": true' conflict_report.json; then\n      echo \"Convergence conflict detected before merge!\"\n      exit 1\n    fi\n```\n\n---\n\n### 7. Self-Hosting: DraftMultiverse Web & Remote Server\n\nDraft includes a complete, self-hosted web platform and headless remote server (**DraftMultiverse**):\n\n#### Launching the Web Platform\n```bash\n# Launch the DraftMultiverse Web GUI\ndft ui --port 3333\n```\nOpen **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:\n- **`<> Code`**: Interactive file tree, breadcrumbs, text blob inspector with line numbers, and markdown preview.\n- **`\u23f1\ufe0f Commits`**: Commit history log with integrated Myers diff viewer (additions `+` green, deletions `-` red).\n- **`\ud83c\udf0c Multiverse`**: Spacetime DAG canvas mapping concurrent parallel timelines.\n- **`\ud83d\udd00 Convergence`**: PR-style dashboard for dry-run conflict checks, multi-branch collapse, and dimension convergence.\n- **`\ud83d\udce1 Radar & Territory`**: Heatmap HUD for hot zones, timeline divergence score, and file claims.\n- **`\ud83e\udd16 Agent Fleet`**: AI and human agent roster with live heartbeats and direct mailboxes.\n- **`\u23f0 Cronos Daemon`**: Background sync controls and continuous event log streamer.\n- **`\u26a1 Terminal`**: In-browser command prompt supporting execution of any `dft` command.\n\n#### Setting up a Self-Hosted Remote Server (`DraftMultiverse`)\n```bash\n# 1. Initialize a bare server repository on your server or local disk\nmkdir -p /path/to/DraftMultiverse\ndft init --bare /path/to/DraftMultiverse\n\n# 2. Add as remote origin in your working project\ndft remote add origin /path/to/DraftMultiverse\n\n# 3. Deploy and synchronize all dimensions\ndft push origin mainline\ndft push origin agent-quantum\n```\n\n---\n\n## \ud83d\udccb Comprehensive Command Matrix\n\n### Layer 1: Core VCS Commands (Git Equivalent)\n| Command | Git Analog | Description |\n|:---|:---|:---|\n| `dft init` | `git init` | Initialize a new repository (`.dft/`) |\n| `dft clone` | `git clone` | Clone a repository into a new workspace |\n| `dft config` | `git config` | Query or modify configuration settings |\n| `dft add` | `git add` | Stage file content changes into binary index |\n| `dft status` | `git status` | Reconcile HEAD tree, Index, and Working Tree |\n| `dft commit` | `git commit` | Record staged changes as an immutable commit |\n| `dft reset` | `git reset` | Reset current HEAD pointer (soft, mixed, hard) |\n| `dft restore` | `git restore` | Restore working directory or staged index files |\n| `dft rm` / `dft mv` | `git rm` / `git mv` | Delete or move/rename tracked files |\n| `dft stash` | `git stash` | Safely shelve dirty uncommitted changes |\n| `dft branch` | `git branch` | Create, list, or delete branches |\n| `dft checkout` / `dft switch` | `git checkout` / `git switch` | Switch active branch or restore file revisions |\n| `dft merge` | `git merge` | Join development histories via 3-way tree merge |\n| `dft rebase` | `git rebase` | Replay commits onto a new base tip |\n| `dft cherry-pick` | `git cherry-pick` | Apply specific commit diffs to the current branch |\n| `dft tag` | `git tag` | Create or verify lightweight/annotated tags |\n| `dft log` | `git log` | Traverse and format commit DAG history |\n| `dft diff` | `git diff` | Myers differential analysis across trees/blobs |\n| `dft show` | `git show` | Pretty-print commits, trees, blobs, or tags |\n| `dft blame` | `git blame` | Line-by-line commit authorship provenance |\n| `dft grep` | `git grep` | Fast regex pattern matching across tracked files |\n| `dft bisect` | `git bisect` | Binary search regression finder |\n| `dft reflog` | `git reflog` | Audit append-only reference transaction history |\n| `dft gc` / `dft fsck` | `git gc` / `git fsck` | Object pruning, repacking, and integrity verification |\n\n### Layer 2: Draft Multiverse Commands (Exclusive Capabilities)\n| Command | Subsystem | Description |\n|:---|:---|:---|\n| `dft dimension create <name>` | Parallel Workspace | Instant CoW workspace creation (< 0.06s) |\n| `dft dimension list` | Parallel Workspace | List active parallel dimensions and sync state |\n| `dft dimension enter <name>` | Parallel Workspace | Shift active shell context to another dimension |\n| `dft dimension destroy <name>`| Parallel Workspace | Tear down dimension while preserving CAS objects |\n| `dft snapshot` | Workspace Snapshot | Capture immutable point-in-time state across dimensions |\n| `dft observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state without checking it out |\n| `dft radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |\n| `dft foresee <dim1> <dim2>` | Predictive Merge | Simulate 3-way tree reconciliation in memory before merging |\n| `dft entropy` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \\in [0.0, 1.0]$ |\n| `dft claim <path>` | Territory Protocol | Acquire advisory file lease with TTL |\n| `dft yield <path>` | Territory Protocol | Release an active territory claim |\n| `dft fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |\n| `dft collapse` | Convergence Engine | Reconcile all active parallel dimensions back into mainline |\n| `dft converge <d1> <d2>` | Convergence Engine | Multi-head 3-way reconciliation of specific dimensions |\n| `dft cascade <d1> --to <d2>`| Convergence Engine | Propagate updates down a chain of dependent dimensions |\n| `dft weave <d1> <d2>` | Convergence Engine | Interleave commits in causal-chronological vector order |\n| `dft splice <dim> <range>` | Convergence Engine | Transplant a commit slice between dimensions |\n| `dft entangle <d1> <d2>` | Entanglement Engine | Continuous bi-directional file auto-synchronization rule |\n| `dft cronos start/stop/log` | Background Sync | Autonomous background 3-way convergence daemon |\n| `dft agent register/list` | Multi-Agent Swarm | Register AI/human worker identities and roles |\n| `dft agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |\n| `dft heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |\n| `dft timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |\n| `dft ui [--port 3333]` | Web Platform | Launch the DraftMultiverse self-hosted web platform |\n| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftMultiverse remotes |\n\n---\n\n## \ud83e\udd1d Contributing & Community\n\nDraft is an open-source project welcoming developers, systems programmers, and AI researchers:\n\n### Development Workflow\n```bash\n# Run the complete test suite across all crates\ncargo test --workspace\n\n# Run targeted stress and adversarial tests\ncargo test -p daft-core\ncargo test -p daft-awareness\n\n# Code formatting & linting\ncargo fmt --all -- --check\ncargo clippy --workspace --all-targets -- -D warnings\n```\n\n---\n\n## \ud83d\udcdc License\n\nDraft is licensed under the **GNU General Public License v2.0 (GPL v2)** \u2014 the same license that has preserved the freedom of Git and the Linux kernel for decades. See [LICENSE](LICENSE) for details.\n";
+        const rawReadme = "<p align=\"center\">\n  <img src=\"docs/assets/draft_icon.svg\" width=\"160\" height=\"160\" alt=\"Draft VCS Logo\" style=\"border-radius: 32px; box-shadow: 0 0 35px rgba(88,166,255,0.45); border: 2px solid rgba(88,166,255,0.35);\" />\n</p>\n\n# Draft (`dft`) \u2014 The Multiverse Version Control System\n\n[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)\n[![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)\n[![Live Web Demo](https://img.shields.io/badge/Live_Demo-GitHub%20Pages-22c55e.svg)](https://pathomphong-i.github.io/draft/)\n[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_Us-GitHub%20Sponsors-ff69b4.svg)](https://github.com/open-source/sponsors)\n[![GitHub Stars](https://img.shields.io/github/stars/Pathomphong-i/draft?style=social)](https://github.com/Pathomphong-i/draft)\n[![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)\n[![Performance: CoW Reflink](https://img.shields.io/badge/Cloning-0.06s%20%2F%2010%2C000%20files-cyan.svg)](#)\n[![Architecture: Lock-Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)\n[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](https://pathomphong-i.github.io/draft/)\n\n> *\"In classical philosophy, Chronos (\u03a7\u03c1\u03cc\u03bd\u03bf\u03c2) forces all actions into a single linear sequence. In Draft, Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2) lets parallel minds build concurrently until the opportune moment of convergence.\"*\n\n---\n\n![DraftMultiverse 3D Architecture](docs/assets/draft_multiverse_3d.jpg)\n\n---\n\n## \ud83c\udfad The \"Multiverse on GitHub\" Paradox\n\n![Built a Multiverse Engine for Parallel AI Swarms... But We Still Need the GitHub Community!](docs/assets/draft_github_meme.jpg)\n\n> *\"We built Draft (`dft`) for concurrent AI swarms... but we still can't live without the GitHub community!\"* \ud83d\udc19\ud83d\udc96\n\nWhen Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel mail servers. But in 2026, **the developer world, open-source contributors, and AI swarms live in GitHub's gravity well**.\n\n- \ud83c\udf0c **We develop Draft using Draft**: Internally, our parallel dimensions, lock-free content-addressable storage (CAS), and predictive 3-way merges are 100% dogfooded with `dft`.\n- \ud83d\udc19 **We \u2764\ufe0f the GitHub Community**: We host our open-source project and interactive demo on GitHub because this is where developers star repositories, report issues, submit PRs, and collaborate. We are proud to build together with the open-source community!\n\n### \ud83d\udc96 Community Goal: Funding Sovereign `draftmultiverse.org`\n\n> [!TIP]\n> ### \ud83e\ude90 Sovereign Multiverse Infrastructure Goal\n> Today, Draft's code, releases, and interactive web playground are powered directly by **GitHub** and **GitHub Pages**.\n>\n> If the community finds Draft valuable and we receive enough community support through donations and sponsorships, **we will fund, build, and deploy a dedicated, 24/7 sovereign server cluster on `draftmultiverse.org`** \u2014 featuring decentralized remote repo synchronization, headless multiverse servers, and distributed AI agent fleet coordinators!\n>\n> \ud83d\udc49 **[Support the Project on GitHub Sponsors](https://github.com/open-source/sponsors)** | [Sponsor @Pathomphong-i](https://github.com/sponsors/Pathomphong-i)\n\n---\n\n## \u26a1 The Architectural Shift: Why Draft?\n\n**Git was engineered in 2005 around a single checked-out working tree and linear branch switching.**  \n**Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**\n\nModern software engineering faces concurrency bottlenecks at the version control layer:\n1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.\n2. **Blind Collision**: Agents editing files concurrently have zero cross-branch awareness of each other until a final merge or rebase triggers complex conflict triage.\n3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are discovered *after* code changes are completed, requiring manual 3-way triage.\n\n### What Draft (`dft`) Delivers:\n- \ud83c\udf0c **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.\n- \ud83d\udce1 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.\n- \ud83d\udd2e **Predictive Merge Foresight (`dft foresee`)**: In-memory simulation of 3-way merges *before* branch integration occurs.\n- \ud83d\udd12 **Territory Leasing & Boundary Fences**: Advisory path leases (`dft claim`) and hard exclusionary barriers (`dft fence`) to prevent accidental agent collisions.\n- \ud83d\udd17 **Continuous Entanglement (`dft entangle`)**: Bi-directional live auto-synchronization of specific files across parallel dimensions.\n- \u23f0 **Autonomous Sync Daemon (`dft cronos`)**: Background continuous 3-way tree convergence engine.\n- \ud83c\udf0a **Multi-Branch Collapse (`dft collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.\n- \ud83d\udda5\ufe0f **Self-Hosted Developer Web Platform**: Web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.\n- \ud83e\ude90 **Decentralized Remote Sync (`DraftMultiverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.\n\n---\n\n## \ud83d\udcd6 Backstory & Philosophy: From Chronos to Kairos\n\n### The Swarm Concurrency Bottleneck\nIn 2026, autonomous AI engineering agents transitioned from novelty to necessity. Engineering teams attempted to orchestrate teams of specialized AI agents working concurrently on single repositories:\n- **Agent Alpha**: Database engine & migration rewrite.\n- **Agent Beta**: HTTP REST & WebSocket API layer.\n- **Agent Gamma**: Web frontend UI components.\n- **Agent Delta**: Comprehensive integration test suites.\n- **Agent Epsilon**: Memory profiling and algorithmic optimizations.\n\nThe moment multiple agents executed in parallel, **traditional single-worktree Git workflows hit severe friction**:\n- Agents switching branches trampled each other's unstaged files.\n- Multiple local clones duplicated tens of thousands of build artifacts, causing disk thrashing and operating system resource exhaustion.\n- At the end of every sprint, merging diverged branches created painful manual triage.\n\nIn ancient thought, the Greeks distinguished two forms of time: **Chronos (\u03a7\u03c1\u03cc\u03bd\u03bf\u03c2)**, the quantitative, sequential progression of linear events, and **Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*\u2014a single linear arrow where only one branch could be active at a time. **Draft was built to bring Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2) and Metis (\u039c\u1fc6\u03c4\u03b9\u03c2, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (\u1f09\u03c1\u03bc\u03bf\u03bd\u03af\u03b1)** without collision.\n\n### Sincere Tribute to Linus Torvalds\nDraft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights\u2014content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots\u2014remain foundational.\n\nWe named this system **Draft (`draft` / `dft`)** because every parallel dimension represents an agile, working *draft* of your project. Where Git forces developers to commit every experiment to a single rigid working-tree sequence, Draft allows agents and developers to iterate on preliminary versions concurrently before bringing them together. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.\n\n---\n\n## \ud83d\udd2c Deep Technical Architecture\n\n```\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502   DraftMultiverse (GUI)    \u2502 (Web Platform on :3333)\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                             \u2502\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502   daft-cli (`dft` binary) \u2502\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                \u2502                \u2502                       \u2502                \u2502\n                \u25bc                \u25bc                       \u25bc                \u25bc\n       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n       \u2502 daft-convergence\u2502 \u2502 daft-sync \u2502         \u2502  daft-agent  \u2502 \u2502 daft-awareness\u2502\n       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                \u2502                \u2502                      \u2502                 \u2502\n                \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                 \u2502\n                            \u25bc                                             \u2502\n                  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                    \u2502\n                  \u2502  daft-dimension  \u2502\u25c4\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                            \u25bc\n                  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                  \u2502    daft-core     \u2502 (CAS, Index, Myers Diff, Refs, Engine)\n                  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### 1. Content-Addressable Storage (CAS) Engine\n- **Hashing**: Cryptographic SHA-256 producing 32-byte direct digest identifiers (`ObjectId = [u8; 32]`, formatted as 64-character hex strings).\n- **Object Framing**: Canonical git-compatible envelope framing:\n  $$\\text{Payload} = \\langle\\text{type}\\rangle + \\texttt{\" \"} + \\langle\\text{length}\\rangle + \\texttt{\"\\\\0\"} + \\langle\\text{data}\\rangle$$\n- **Compression**: Deflate/zlib streaming compression (level 6) stored in loose fanout directories: `.dft/objects/xx/yyyy...`.\n- **Zero-Copy I/O**: High-throughput file inspection uses read-only memory-mapped I/O (`memmap2`) with automatic fallback to streaming buffers.\n- **Primitive Objects**:\n  - `Blob`: Raw byte payloads with null-byte detection for binary differentiation.\n  - `Tree`: Lexicographically sorted vectors of file mode, object name, and target SHA-256 ID.\n  - `Commit`: Immutable snapshot pointer containing tree hash, parent hashes, committer/author signature tuples (name, email, epoch timestamp), and commit message.\n  - `Tag`: Cryptographic pointer linking an arbitrary object to an annotated signature.\n\n### 2. Copy-on-Write (CoW) Workspace Engine\n- **Sub-Second Forking**: When a parallel dimension is spawned, Draft avoids byte copying by leveraging kernel-level reflink primitives:\n  - **macOS**: `clonefile()` / `fclonefileat()` via Apple File System (APFS).\n  - **Linux**: `ioctl(FICLONE)` / `ioctl(FICLONERANGE)` on Btrfs, XFS, and ZFS.\n  - **Fallback**: Hard-link trees with atomic break-on-write mechanisms for standard ext4.\n- **Storage Metrics**: Spawning an isolated 10,000-file dimension workspace completes in **0.06 seconds** and consumes **0 KB** of additional disk blocks until modified.\n- **Concurrency Isolation**: Each dimension maintains its own independent working directory, index (`.dft/dimensions/<name>/index`), and branch ref pointer, sharing the root CAS object pool without lock contention.\n\n### 3. Differential Analysis & 3-Way Tree Reconciliation\n- **Myers Algorithm**: Complete implementation of Eugene Myers' $O(ND)$ greedy difference algorithm, generating the minimal Shortest Edit Script (SES) between sequences.\n- **Tree Merge Engine (`merge_trees_3way`)**:\n  - Graph traversal locates the Lowest Common Ancestor (LCA) commit.\n  - Generates 3-way disjoint hunk sets: *Base* ($O$), *Ours* ($A$), and *Theirs* ($B$).\n  - Clean non-overlapping hunks are auto-resolved into the target index.\n  - Overlapping edits automatically emit diff3 standard conflict markers:\n    ```\n    <<<<<<< ours (dimension-a)\n    modified code from dimension A\n    ||||||| base\n    original base code\n    =======\n    concurrent code from dimension B\n    >>>>>>> theirs (dimension-b)\n    ```\n\n### 4. Timeline Divergence Metric ($H$)\nDraft computes a quantitative divergence score $H(D_A, D_B) \\in [0.0, 1.0]$ between any two dimensions across four weighted components:\n$$H(D_A, D_B) = 0.50 \\cdot C_{\\text{commits}} + 0.25 \\cdot F_{\\text{files}} + 0.15 \\cdot T_{\\text{trees}} + 0.10 \\cdot L_{\\text{lines}}$$\n\n- **$C_{\\text{commits}}$**: Distance in the commit DAG from their Lowest Common Ancestor (LCA).\n- **$F_{\\text{files}}$**: Ratio of concurrently modified files over total tracked files.\n- **$T_{\\text{trees}}$**: Jaccard distance between the dimension tree snapshots: $1 - \\frac{|T_A \\cap T_B|}{|T_A \\cup T_B|}$.\n- **$L_{\\text{lines}}$**: Overlapping hunk modifications in shared files.\n\n#### Divergence Risk Tiers:\n- $H = 0.0$: Identical state (clean fast-forward possible).\n- $0.0 < H \\le 0.15$: Negligible divergence (clean auto-merge expected; minimal file overlap).\n- $0.15 < H \\le 0.35$: Low divergence (auto-merge expected).\n- $0.35 < H \\le 0.65$: Moderate divergence (cross-file edits require awareness).\n- $H > 0.65$: High divergence (elevated collision risk; pre-conflict warnings triggered).\n\n---\n\n## \ud83d\udee0\ufe0f Using Draft with Standard Open-Source Workflows\n\n### 1. Installation\n\n#### A. Homebrew (macOS & Linux)\nInstall directly from our official tap:\n```bash\nbrew install Pathomphong-i/draft/dft\n```\n\n#### B. Standalone Shell Script (macOS & Linux)\nZero-dependency instant installer for workstations and CI/CD runners:\n```bash\ncurl -fsSL https://draftmultiverse.org/install.sh | sh\n```\n\n#### C. Cargo (Rust Crates.io)\n```bash\ncargo install draft-vcs\n```\n\n#### D. Building from Source\n```bash\n# Clone the repository\ndft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse\n# or: git clone https://github.com/Pathomphong-i/draft.git\ncd draft\n\n# Build optimized release binaries\ncargo build --release\n\n# Install globally into your cargo bin path\ncargo install --path crates/daft-cli\n\n# Verify dft command\ndft --version\n```\n\n---\n\n### 2. Quickstart: Standard Version Control\n\nDraft offers a familiar interface for standard version control commands:\n\n```bash\n# Initialize a new Draft repository\ndft init my-project\ncd my-project\n\n# Configure your developer identity\ndft config --set user.name \"Your Name\"\ndft config --set user.email \"you@example.org\"\n\n# Stage and commit files\necho \"fn main() { println!(\\\"Hello World\\\"); }\" > main.rs\ndft add main.rs\ndft commit -m \"feat: initial commit\"\n\n# Inspect status, history, and diffs\ndft status\ndft log\ndft diff\n```\n\n---\n\n### 3. Parallel Development: Multi-Agent & Multi-Feature Workflows\n\nRun multiple parallel feature branches simultaneously in the same repository:\n\n```bash\n# 1. Create parallel dimensions for concurrent work\ndft dimension create feature-auth\ndft dimension create feature-db\n\n# 2. List all active dimensions\ndft dimension list\n# Output:\n#   feature-auth  [clean]\n#   feature-db    [clean]\n# * mainline      [clean]\n\n# 3. Enter a dimension and work in isolation\ndft dimension enter feature-auth\n\n# 4. Acquire an advisory lease on files\ndft claim src/auth.rs\n\n# 5. Check real-time radar for concurrent hot zones\ndft radar --hot\n\n# 6. Check for potential merge conflicts in memory before merging\ndft foresee feature-auth mainline\n\n# 7. Converge feature branch back into mainline\ndft dimension enter mainline\ndft converge feature-auth mainline\n```\n\n---\n\n### 4. Seamless Hybrid Workflow: Develop in Parallel with Draft \u2192 Push to Git\n\nYou do not need to replace your organization's Git infrastructure, GitHub Pull Request workflows, or existing CI/CD pipelines to harness the concurrency power of Draft. You can use **Draft as a local concurrency acceleration layer** on top of any existing Git repository:\n\n> **\"Develop in the Multiverse with Draft, Ship to the World with Git.\"**\n\n```\n                     \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                     \u2502              Existing Git Repository (.git)            \u2502\n                     \u2502          (GitHub / GitLab / Bitbucket / Upstream)      \u2502\n                     \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b2\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                 git push origin main / dft export\n                                                 \u2502\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502       Draft Mainline Working Tree   \u2502\n                               \u2502        (Converged, Tested, Clean)  \u2502\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b2\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                   dft collapse / dft converge\n                                                 \u2502\n                   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                   \u2502                             \u2502                             \u2502\n        \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n        \u2502  Dimension: dim-auth \u2502      \u2502  Dimension: dim-api  \u2502      \u2502  Dimension: dim-ui   \u2502\n        \u2502  (Agent / Dev 1)     \u2502      \u2502  (Agent / Dev 2)     \u2502      \u2502  (Agent / Dev 3)     \u2502\n        \u2502  \u2022 CoW Workspace     \u2502      \u2502  \u2022 CoW Workspace     \u2502      \u2502  \u2022 CoW Workspace     \u2502\n        \u2502  \u2022 Exclusive Claim   \u2502      \u2502  \u2022 Exclusive Claim   \u2502      \u2502  \u2022 Exclusive Claim   \u2502\n        \u2502  \u2022 Hot-Zone Radar    \u2502      \u2502  \u2022 Hot-Zone Radar    \u2502      \u2502  \u2022 Hot-Zone Radar    \u2502\n        \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518      \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518      \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                   \u25b2                             \u25b2                             \u25b2\n                   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                Shared Content-Addressable Storage (CAS)\n                                      Zero Duplicate Disk Blocks\n```\n\n#### Why Combine Draft with Git?\n\n| Concurrency Dimension | Traditional Git / Worktrees | Draft Multiverse Swarm |\n|:---|:---|:---|\n| **Workspace Creation Speed** | 2.5s \u2013 5.0s (full directory clone / worktree setup) | **0.06s** (instant APFS/Btrfs CoW reflink) |\n| **Disk Footprint** | Multiplies linearly per full clone or separate working tree (GBs) | **0 KB** additional blocks until modified (CoW) |\n| **Branch Switching Overhead** | Must stash, commit, or clean working tree | Zero overhead: each dimension is an isolated workspace |\n| **Multi-Agent Awareness** | Blind: agents overwrite shared files | **Real-Time Radar (`dft radar`)** & Territory Claims |\n| **Merge Conflict Triage** | Reactive: conflicts discovered after work | **Predictive: `dft foresee`** flags collisions in advance |\n| **Upstream Compatibility** | Native | **Fully Compatible**: push standard Git commits to GitHub/GitLab |\n\n---\n\n#### Step-by-Step Guide: The Parallel Draft \u2192 Git Push Flow\n\n##### Step 1: Enable Draft in Your Existing Git Repository\nNavigate to your current project. Draft lives harmoniously alongside `.git/` without altering your Git status:\n```bash\ncd my-existing-git-repo\n\n# Initialize Draft VCS engine (.dft/)\ndft init\n\n# Keep Draft internal state untracked in Git\necho \".dft/\" >> .gitignore\ngit add .gitignore && git commit -m \"chore: enable Draft parallel multiverse engine\"\n```\n\n##### Step 2: Spawn Parallel Dimensions for Features or AI Agents\nInstead of fighting branch switches or juggling multiple working tree clones, spawn parallel dimensions in milliseconds:\n```bash\n# Instant CoW branches for concurrent tasks\ndft dimension create feat-auth\ndft dimension create feat-billing\ndft dimension create feat-docs\n\n# Verify your multiverse fleet\ndft dimension list\n#   feat-auth     [clean]\n#   feat-billing  [clean]\n#   feat-docs     [clean]\n# * mainline      [clean]\n```\n\n##### Step 3: Work Concurrently in Parallel Dimensions\nEach dimension operates in complete filesystem isolation under `.dft/dimensions/<name>/workspace`:\n- **Developer / Agent Alpha** works on Authentication:\n  ```bash\n  cd .dft/dimensions/feat-auth/workspace\n  dft claim src/auth.rs                    # Claim advisory territory\n  # Edit, test, and commit locally within dimension\n  dft add src/auth.rs\n  dft commit -m \"feat(auth): implement JWT token verification\"\n  ```\n- **Developer / Agent Beta** works on Billing concurrently:\n  ```bash\n  cd .dft/dimensions/feat-billing/workspace\n  dft claim src/billing.rs                 # Claim advisory territory\n  # Edit, test, and commit locally within dimension\n  dft add src/billing.rs\n  dft commit -m \"feat(billing): add Stripe webhook handler\"\n  ```\n\n##### Step 4: Proactive Collision Check with Predictive Merge Foresight\nBefore bringing changes together, verify that no conflicting hunks exist:\n```bash\n# In-memory simulation of 3-way reconciliation without touching working code\ndft foresee feat-auth mainline\n# Output:\n#   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'\n#   [FORESEE] Clean auto-merge predicted: 0 conflicts detected.\n#   [FORESEE] Divergence Metric: H = 0.04 (minimal divergence)\n```\n\n##### Step 5: Converge & Collapse into Mainline\nWhen parallel work is finished and verified, collapse all dimensions or converge specific features back into `mainline`:\n```bash\n# Return to the root workspace (mainline)\ndft dimension enter mainline\n\n# Converge features into mainline\ndft converge feat-auth mainline\ndft converge feat-billing mainline\ndft converge feat-docs mainline\n\n# Or collapse all active dimensions into mainline in a single command:\ndft collapse\n```\n\n##### Step 6: Seamlessly Push to Git / GitHub / GitLab\nYour root working tree now contains all converged, tested, and conflict-free changes. Git sees standard working tree modifications ready for upstream:\n```bash\n# Inspect status using standard Git\ngit status\n\n# Stage the converged changes\ngit add src/auth.rs src/billing.rs docs/\n\n# Record as standard Git commits\ngit commit -m \"feat: integrate auth, billing, and docs from parallel swarm\"\n\n# Push straight to GitHub, GitLab, or your corporate Git remote!\ngit push origin main\n```\n\n##### Optional: Direct Git Bridge & Import/Export\nYou can also import existing Git history or export Draft dimensions:\n```bash\n# Import an existing Git repository into Draft\ndft import git\n\n# Export a specific dimension to standard Git format\ndft export git --dimension mainline\n\n# Verify compatibility bridge status\ndft compat git-bridge\n```\n\n> **Tip**: Because Draft converges changes directly into standard working tree files on mainline, you can push integrated commits upstream to GitHub or GitLab without altering your team's existing review processes or CI/CD pipelines.\n\n---\n\n### 5. Orchestrating AI Agents with `SKILL.md`\n\nDraft ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Draft repository.\n\n#### Why AI Agents Need `SKILL.md`\nStandard coding agents assume Git's single-working-tree model: when multiple agents run concurrently, they switch branches under each other, overwrite uncommitted files, and trigger race conditions. \n\nBy reading [`SKILL.md`](SKILL.md), agents understand how to:\n1. **Never work directly in `mainline`** during active feature development.\n2. **Spawn instant isolated CoW dimensions** (`dft dimension create`) with zero disk bloat.\n3. **Lease file paths** using advisory claims (`dft claim`) and respect boundary fences (`dft fence`).\n4. **Sense concurrent edits** across the agent fleet using real-time radar (`dft radar --hot`).\n5. **Communicate peer-to-peer** with other agents via asynchronous mailboxes (`dft agent send` / `dft agent read`).\n6. **Pre-test 3-way merge viability** (`dft foresee`) before converging into mainline.\n\n---\n\n#### How to Equip Your AI Agents with `SKILL.md`\n\n##### A. In Antigravity / Agentic IDEs\nDraft's `SKILL.md` adheres to the open-standard agent skill manifest format with YAML frontmatter:\n```markdown\n---\nname: draft-vcs\ndescription: Operational guide and multi-agent protocol for Draft ('dft')...\n---\n```\n- The IDE automatically discovers [`SKILL.md`](SKILL.md) in the workspace root.\n- Agents automatically adopt the Draft multi-agent lifecycle when assigned coding tasks.\n\n##### B. In Claude Code, Cursor, or Terminal Agent Prompts\nFeed [`SKILL.md`](SKILL.md) directly into your agent's context or system prompt:\n```bash\n# Example invocation with Claude Code or terminal LLMs:\nclaude \"Read SKILL.md and implement the JWT authentication module following the 8-step Draft agent protocol.\"\n```\nOr in Cursor / Copilot Chat:\n> *\"@SKILL.md Follow the Draft agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `dft foresee`, and converge back to mainline.\"*\n\n##### C. Programmatic Multi-Agent Swarms (Python / TypeScript / Rust)\nWhen orchestrating swarms with frameworks like CrewAI, LangGraph, or AutoGen, provide `SKILL.md` as the system instruction or tool reference:\n```python\n# Pass SKILL.md contents into the agent system prompt\nwith open(\"SKILL.md\") as f:\n    draft_skill_prompt = f.read()\n\nagent_worker = Agent(\n    role=\"Backend Engine Developer\",\n    system_prompt=f\"You operate in a Draft VCS repository. Follow this protocol:\\n{draft_skill_prompt}\"\n)\n```\n\n---\n\n#### The 8-Step Autonomous Agent Lifecycle\n\nEvery agent interacting with Draft follows a structured lifecycle:\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 1. Register:   dft agent register <id> --type ai       \u2502\n\u2502 2. Dimension:  dft dimension create <id>/<task_name>   \u2502\n\u2502 3. Radar:      dft radar --hot                         \u2502\n\u2502 4. Claim:      dft claim <file_path>                   \u2502\n\u2502 5. Code & Save:dft add . && dft commit -m \"feat: ...\"  \u2502\n\u2502 6. Foresee:    dft foresee <dimension> mainline        \u2502\n\u2502 7. Converge:   dft converge <dimension> mainline       \u2502\n\u2502 8. Yield:      dft yield <file_path>                   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n1. **Register**: The agent registers its worker identity and sends heartbeat pings:\n   ```bash\n   dft agent register agent-coder --type ai\n   dft heartbeat agent-coder\n   ```\n2. **Dimension Creation**: Spawns an isolated CoW parallel workspace in 0.06 seconds:\n   ```bash\n   dft dimension create agent-coder/auth-feature\n   dft dimension enter agent-coder/auth-feature\n   ```\n3. **Radar Inspection**: Checks whether other dimensions or developers are modifying overlapping paths:\n   ```bash\n   dft radar --hot\n   ```\n4. **Territory Lease**: Acquires an advisory lock on target files to signal ownership:\n   ```bash\n   dft claim src/auth.rs\n   ```\n5. **Implement & Commit**: Makes changes and records isolated commits within its private dimension without affecting other workers:\n   ```bash\n   dft add src/auth.rs\n   dft commit -m \"feat(auth): add bearer token verification\"\n   ```\n6. **Predictive Merge Foresight**: Runs an in-memory 3-way simulation to verify conflict-free integration before convergence:\n   ```bash\n   dft foresee agent-coder/auth-feature mainline\n   ```\n7. **Convergence**: Reconciles the dimension back into `mainline`:\n   ```bash\n   dft dimension enter mainline\n   dft converge agent-coder/auth-feature mainline\n   ```\n8. **Yield & Cleanup**: Releases file claims and tears down the ephemeral dimension:\n   ```bash\n   dft yield src/auth.rs\n   dft dimension destroy agent-coder/auth-feature\n   ```\n\n---\n\n#### Peer-to-Peer Agent Mailbox Protocol\nAgents can coordinate directly without third-party message brokers using Draft's built-in file-backed mailboxes:\n```bash\n# Agent Alpha notifies Agent Beta about updated API types\ndft agent send agent-beta \"New user payload types committed to shared/types/user.rs\"\n\n# Agent Beta checks its incoming mailbox\ndft agent read agent-beta\n```\n\n#### Real-World Verification: AetherDB Swarm\nThis exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent_team_miniproject), where 3 autonomous AI agents concurrently built a persistent Key-Value database (WAL storage, API parser, and REPL CLI) in parallel dimensions and converged cleanly into mainline without merge conflicts.\n\n---\n\n### 6. Automated CI/CD & AI Agent Pipelines\n\nEvery Draft command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:\n\n```bash\n# Get machine-readable status\ndft status --json\n\n# Run conflict prediction in CI\ndft foresee dimension-a mainline --json\n\n# Query radar telemetry in scripts\ndft radar --json\n```\n\n#### Example GitHub Actions Workflow Step:\n```yaml\n- name: Verify Cross-Branch Convergence\n  run: |\n    dft dimension enter mainline\n    dft foresee pr-branch mainline --json > conflict_report.json\n    if grep -q '\"has_conflicts\": true' conflict_report.json; then\n      echo \"Convergence conflict detected before merge!\"\n      exit 1\n    fi\n```\n\n---\n\n### 7. Self-Hosting: DraftMultiverse Web & Remote Server\n\nDraft includes a complete, self-hosted web platform and headless remote server (**DraftMultiverse**):\n\n#### Launching the Web Platform\n```bash\n# Launch the DraftMultiverse Web GUI\ndft ui --port 3333\n```\nOpen **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:\n- **`<> Code`**: Interactive file tree, breadcrumbs, text blob inspector with line numbers, and markdown preview.\n- **`\u23f1\ufe0f Commits`**: Commit history log with integrated Myers diff viewer (additions `+` green, deletions `-` red).\n- **`\ud83c\udf0c Multiverse`**: Spacetime DAG canvas mapping concurrent parallel timelines.\n- **`\ud83d\udd00 Convergence`**: PR-style dashboard for dry-run conflict checks, multi-branch collapse, and dimension convergence.\n- **`\ud83d\udce1 Radar & Territory`**: Heatmap HUD for hot zones, timeline divergence score, and file claims.\n- **`\ud83e\udd16 Agent Fleet`**: AI and human agent roster with live heartbeats and direct mailboxes.\n- **`\u23f0 Cronos Daemon`**: Background sync controls and continuous event log streamer.\n- **`\u26a1 Terminal`**: In-browser command prompt supporting execution of any `dft` command.\n\n#### Setting up a Self-Hosted Remote Server (`DraftMultiverse`)\n```bash\n# 1. Initialize a bare server repository on your server or local disk\nmkdir -p /path/to/DraftMultiverse\ndft init --bare /path/to/DraftMultiverse\n\n# 2. Add as remote origin in your working project\ndft remote add origin /path/to/DraftMultiverse\n\n# 3. Deploy and synchronize all dimensions\ndft push origin mainline\ndft push origin agent-quantum\n```\n\n---\n\n## \ud83d\udccb Comprehensive Command Matrix\n\n### Layer 1: Core VCS Commands (Git Equivalent)\n| Command | Git Analog | Description |\n|:---|:---|:---|\n| `dft init` | `git init` | Initialize a new repository (`.dft/`) |\n| `dft clone` | `git clone` | Clone a repository into a new workspace |\n| `dft config` | `git config` | Query or modify configuration settings |\n| `dft add` | `git add` | Stage file content changes into binary index |\n| `dft status` | `git status` | Reconcile HEAD tree, Index, and Working Tree |\n| `dft commit` | `git commit` | Record staged changes as an immutable commit |\n| `dft reset` | `git reset` | Reset current HEAD pointer (soft, mixed, hard) |\n| `dft restore` | `git restore` | Restore working directory or staged index files |\n| `dft rm` / `dft mv` | `git rm` / `git mv` | Delete or move/rename tracked files |\n| `dft stash` | `git stash` | Safely shelve dirty uncommitted changes |\n| `dft branch` | `git branch` | Create, list, or delete branches |\n| `dft checkout` / `dft switch` | `git checkout` / `git switch` | Switch active branch or restore file revisions |\n| `dft merge` | `git merge` | Join development histories via 3-way tree merge |\n| `dft rebase` | `git rebase` | Replay commits onto a new base tip |\n| `dft cherry-pick` | `git cherry-pick` | Apply specific commit diffs to the current branch |\n| `dft tag` | `git tag` | Create or verify lightweight/annotated tags |\n| `dft log` | `git log` | Traverse and format commit DAG history |\n| `dft diff` | `git diff` | Myers differential analysis across trees/blobs |\n| `dft show` | `git show` | Pretty-print commits, trees, blobs, or tags |\n| `dft blame` | `git blame` | Line-by-line commit authorship provenance |\n| `dft grep` | `git grep` | Fast regex pattern matching across tracked files |\n| `dft bisect` | `git bisect` | Binary search regression finder |\n| `dft reflog` | `git reflog` | Audit append-only reference transaction history |\n| `dft gc` / `dft fsck` | `git gc` / `git fsck` | Object pruning, repacking, and integrity verification |\n\n### Layer 2: Draft Multiverse Commands (Exclusive Capabilities)\n| Command | Subsystem | Description |\n|:---|:---|:---|\n| `dft dimension create <name>` | Parallel Workspace | Instant CoW workspace creation (< 0.06s) |\n| `dft dimension list` | Parallel Workspace | List active parallel dimensions and sync state |\n| `dft dimension enter <name>` | Parallel Workspace | Shift active shell context to another dimension |\n| `dft dimension destroy <name>`| Parallel Workspace | Tear down dimension while preserving CAS objects |\n| `dft snapshot` | Workspace Snapshot | Capture immutable point-in-time state across dimensions |\n| `dft observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state without checking it out |\n| `dft radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |\n| `dft foresee <dim1> <dim2>` | Predictive Merge | Simulate 3-way tree reconciliation in memory before merging |\n| `dft entropy` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \\in [0.0, 1.0]$ |\n| `dft claim <path>` | Territory Protocol | Acquire advisory file lease with TTL |\n| `dft yield <path>` | Territory Protocol | Release an active territory claim |\n| `dft fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |\n| `dft collapse` | Convergence Engine | Reconcile all active parallel dimensions back into mainline |\n| `dft converge <d1> <d2>` | Convergence Engine | Multi-head 3-way reconciliation of specific dimensions |\n| `dft cascade <d1> --to <d2>`| Convergence Engine | Propagate updates down a chain of dependent dimensions |\n| `dft weave <d1> <d2>` | Convergence Engine | Interleave commits in causal-chronological vector order |\n| `dft splice <dim> <range>` | Convergence Engine | Transplant a commit slice between dimensions |\n| `dft entangle <d1> <d2>` | Entanglement Engine | Continuous bi-directional file auto-synchronization rule |\n| `dft cronos start/stop/log` | Background Sync | Autonomous background 3-way convergence daemon |\n| `dft agent register/list` | Multi-Agent Swarm | Register AI/human worker identities and roles |\n| `dft agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |\n| `dft heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |\n| `dft timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |\n| `dft ui [--port 3333]` | Web Platform | Launch the DraftMultiverse self-hosted web platform |\n| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftMultiverse remotes |\n\n---\n\n## \ud83e\udd1d Contributing & Community\n\nDraft is an open-source project welcoming developers, systems programmers, and AI researchers:\n\n### Development Workflow\n```bash\n# Run the complete test suite across all crates\ncargo test --workspace\n\n# Run targeted stress and adversarial tests\ncargo test -p daft-core\ncargo test -p daft-awareness\n\n# Code formatting & linting\ncargo fmt --all -- --check\ncargo clippy --workspace --all-targets -- -D warnings\n```\n\n---\n\n## \ud83d\udcdc License\n\nDraft is licensed under the **GNU General Public License v2.0 (GPL v2)** \u2014 the same license that has preserved the freedom of Git and the Linux kernel for decades. See [LICENSE](LICENSE) for details.\n";
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -914,37 +1016,53 @@
         async function loadTree(path = "") {
             currentPath = path;
             renderBreadcrumbs(path);
-            try {
-                const res = await fetch(`/api/tree?path=${encodeURIComponent(path)}`);
-                const data = await res.json();
-                const tbody = document.querySelector('#fileTable tbody');
-                tbody.innerHTML = '';
+            let entries = null;
 
-                if (path !== "") {
-                    const parentPath = path.includes('/') ? path.substring(0, path.lastIndexOf('/')) : '';
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="file-icon">📁</td>
-                        <td class="file-name" onclick="loadTree('${parentPath}')">..</td>
-                        <td class="file-size"></td>
-                    `;
-                    tbody.appendChild(tr);
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch(`/api/tree?path=${encodeURIComponent(path)}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.entries) entries = data.entries;
+                    } else {
+                        isStaticMode = true;
+                    }
+                } catch (_) {
+                    isStaticMode = true;
                 }
-
-                data.entries.forEach(e => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="file-icon">${e.is_dir ? '📁' : '📄'}</td>
-                        <td class="file-name" onclick="${e.is_dir ? `loadTree('${e.path}')` : `loadBlob('${e.path}')`}">${e.name}</td>
-                        <td class="file-size">${e.is_dir ? '-' : formatBytes(e.size)}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-                document.getElementById('fileCountBadge').textContent = `${data.entries.length} items`;
-            } catch (err) {
-                console.error("Failed to load tree:", err);
             }
+
+            if (!entries) {
+                const norm = path.replace(/^\/+|\/+$/g, '');
+                entries = DEMO_TREE[norm] || DEMO_TREE[""] || [];
+            }
+
+            const tbody = document.querySelector('#fileTable tbody');
+            tbody.innerHTML = '';
+
+            if (path !== "") {
+                const parentPath = path.includes('/') ? path.substring(0, path.lastIndexOf('/')) : '';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="file-icon">📁</td>
+                    <td class="file-name" onclick="loadTree('${parentPath}')">..</td>
+                    <td class="file-size"></td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            entries.forEach(e => {
+                const tr = document.createElement('tr');
+                const fullPath = e.path || (path ? (path + '/' + e.name) : e.name);
+                tr.innerHTML = `
+                    <td class="file-icon">${e.is_dir ? '📁' : '📄'}</td>
+                    <td class="file-name" onclick="${e.is_dir ? `loadTree('${fullPath}')` : `loadBlob('${fullPath}')`}">${e.name}</td>
+                    <td class="file-size">${e.is_dir ? '-' : formatBytes(e.size)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('fileCountBadge').textContent = `${entries.length} items`;
         }
 
         function renderBreadcrumbs(path) {
@@ -966,35 +1084,58 @@
         let currentMarkdownMode = 'preview';
 
         async function loadBlob(filePath) {
-            try {
-                const res = await fetch(`/api/blob?path=${encodeURIComponent(filePath)}`);
-                const data = await res.json();
-                if (data.content !== undefined) {
-                    currentBlobData = data;
-                    currentBlobPath = filePath;
-                    document.getElementById('fileBrowserView').style.display = 'none';
-                    document.getElementById('readmeSection').style.display = 'none';
-                    document.getElementById('codeViewer').style.display = 'block';
-                    document.getElementById('codeFileName').textContent = filePath;
-                    document.getElementById('codeFileMeta').textContent = `${data.lines} lines | ${formatBytes(data.size)}`;
-                    document.getElementById('codeContent').textContent = data.content;
-
-                    const isMd = filePath.toLowerCase().endsWith('.md') || filePath.toLowerCase().endsWith('.markdown');
-                    const toggleBox = document.getElementById('mdViewToggle');
-                    const mdContainer = document.getElementById('markdownContent');
-                    const rawPre = document.getElementById('codeContent');
-
-                    if (isMd) {
-                        toggleBox.style.display = 'flex';
-                        setMarkdownMode(currentMarkdownMode);
+            let data = null;
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch(`/api/blob?path=${encodeURIComponent(filePath)}`);
+                    if (res.ok) {
+                        data = await res.json();
                     } else {
-                        toggleBox.style.display = 'none';
-                        mdContainer.style.display = 'none';
-                        rawPre.style.display = 'block';
+                        isStaticMode = true;
+                    }
+                } catch (_) {
+                    isStaticMode = true;
+                }
+            }
+
+            if (!data || data.content === undefined) {
+                let content = DEMO_BLOBS[filePath];
+                if (!content) {
+                    if (filePath === "README.md") {
+                        content = rawReadme;
+                    } else {
+                        content = `// Draft Multiverse File: ${filePath}\n// Active Dimension: mainline\n\n// Content rendered in interactive offline demo mode.\n`;
                     }
                 }
-            } catch (e) {
-                console.error(e);
+                const lines = content.split('\n').length;
+                data = {
+                    content: content,
+                    lines: lines,
+                    size: content.length
+                };
+            }
+
+            currentBlobData = data;
+            currentBlobPath = filePath;
+            document.getElementById('fileBrowserView').style.display = 'none';
+            document.getElementById('readmeSection').style.display = 'none';
+            document.getElementById('codeViewer').style.display = 'block';
+            document.getElementById('codeFileName').textContent = filePath;
+            document.getElementById('codeFileMeta').textContent = `${data.lines} lines | ${formatBytes(data.size)}`;
+            document.getElementById('codeContent').textContent = data.content;
+
+            const isMd = filePath.toLowerCase().endsWith('.md') || filePath.toLowerCase().endsWith('.markdown');
+            const toggleBox = document.getElementById('mdViewToggle');
+            const mdContainer = document.getElementById('markdownContent');
+            const rawPre = document.getElementById('codeContent');
+
+            if (isMd) {
+                toggleBox.style.display = 'flex';
+                setMarkdownMode(currentMarkdownMode);
+            } else {
+                toggleBox.style.display = 'none';
+                mdContainer.style.display = 'none';
+                rawPre.style.display = 'block';
             }
         }
 
@@ -1034,69 +1175,114 @@
         }
 
         async function loadCommits() {
-            try {
-                const res = await fetch('/api/commits');
-                const data = await res.json();
-                const list = document.getElementById('commitList');
-                list.innerHTML = '';
-                if (!data.commits || data.commits.length === 0) {
-                    list.innerHTML = '<div style="padding: 2rem; text-align: center;">No commits found</div>';
-                    return;
+            let commits = null;
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch('/api/commits');
+                    if (res.ok) {
+                        const data = await res.json();
+                        commits = data.commits;
+                    } else {
+                        isStaticMode = true;
+                    }
+                } catch (_) {
+                    isStaticMode = true;
                 }
-                data.commits.forEach(c => {
-                    const div = document.createElement('div');
-                    div.className = 'commit-item';
-                    div.innerHTML = `
-                        <div>
-                            <div class="commit-title">${c.message || 'No commit message'}</div>
-                            <div class="commit-meta">${c.author || 'Author'} &bull; ${c.date || ''}</div>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <span class="commit-sha">${c.hash ? c.hash.substring(0, 10) : ''}</span>
-                            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="viewCommitDiff('${c.hash}')">Myers Diff</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
+            }
 
-                if (data.commits[0]) {
-                    document.getElementById('latestCommitHeader').innerHTML = `
-                        <strong>${data.commits[0].author || 'Author'}</strong>: ${data.commits[0].message || ''}
-                        <span class="commit-sha" style="margin-left: 0.5rem;">${data.commits[0].hash.substring(0, 7)}</span>
-                    `;
-                }
-            } catch (e) {
-                console.error(e);
+            if (!commits || commits.length === 0) {
+                commits = DEMO_COMMITS;
+            }
+
+            const list = document.getElementById('commitList');
+            list.innerHTML = '';
+            if (!commits || commits.length === 0) {
+                list.innerHTML = '<div style="padding: 2rem; text-align: center;">No commits found</div>';
+                return;
+            }
+
+            commits.forEach(c => {
+                const msg = c.message || c.summary || 'No commit message';
+                const div = document.createElement('div');
+                div.className = 'commit-item';
+                div.innerHTML = `
+                    <div>
+                        <div class="commit-title">${escapeHtml(msg)}</div>
+                        <div class="commit-meta">${escapeHtml(c.author || 'Author')} &bull; ${escapeHtml(c.date || 'Today')}</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <span class="commit-sha">${c.hash ? c.hash.substring(0, 10) : ''}</span>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="viewCommitDiff('${c.hash}')">Myers Diff</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            if (commits[0]) {
+                const firstMsg = commits[0].message || commits[0].summary || '';
+                document.getElementById('latestCommitHeader').innerHTML = `
+                    <strong>${escapeHtml(commits[0].author || 'Author')}</strong>: ${escapeHtml(firstMsg)}
+                    <span class="commit-sha" style="margin-left: 0.5rem;">${commits[0].hash.substring(0, 7)}</span>
+                `;
             }
         }
 
         async function viewCommitDiff(hash) {
-            try {
-                const res = await fetch(`/api/commit?hash=${hash}`);
-                const data = await res.json();
-                const box = document.getElementById('diffViewerBox');
-                const content = document.getElementById('diffViewerContent');
-                box.style.display = 'block';
-                document.getElementById('diffViewerTitle').textContent = `Commit Myers Diff: ${hash.substring(0, 10)}`;
-
-                let formatted = '';
-                const lines = (data.output || '').split('\n');
-                lines.forEach(l => {
-                    if (l.startsWith('+') && !l.startsWith('+++')) {
-                        formatted += `<span class="diff-add">${escapeHtml(l)}</span>\n`;
-                    } else if (l.startsWith('-') && !l.startsWith('---')) {
-                        formatted += `<span class="diff-del">${escapeHtml(l)}</span>\n`;
-                    } else if (l.startsWith('@@')) {
-                        formatted += `<span class="diff-hunk">${escapeHtml(l)}</span>\n`;
+            let output = null;
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch(`/api/commit?hash=${hash}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        output = data.output;
                     } else {
-                        formatted += `${escapeHtml(l)}\n`;
+                        isStaticMode = true;
                     }
-                });
-                content.innerHTML = formatted || 'No diff output.';
-                box.scrollIntoView({ behavior: 'smooth' });
-            } catch (e) {
-                console.error(e);
+                } catch (_) {
+                    isStaticMode = true;
+                }
             }
+
+            if (!output) {
+                output = `commit ${hash}
+Author: Mos <mos@codedai.co>
+Date:   Today
+
+    feat(multiverse): APFS/Btrfs CoW parallel dimensions and predictive 3-way merge
+
+diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.rs
+--- a/crates/daft-core/src/dimension.rs
++++ b/crates/daft-core/src/dimension.rs
+@@ -42,6 +42,12 @@ pub struct DimensionManager {
++    /// Instant APFS/Btrfs CoW clone in <0.06s
++    pub fn spawn_cow_workspace(&self, name: &str) -> Result<PathBuf> {
++        let target = self.dimensions_dir.join(name);
++        reflink_or_hardlink_tree(&self.root, &target)?;
++        Ok(target)
++    }
+`;
+            }
+
+            const box = document.getElementById('diffViewerBox');
+            const content = document.getElementById('diffViewerContent');
+            box.style.display = 'block';
+            document.getElementById('diffViewerTitle').textContent = `Commit Myers Diff: ${hash.substring(0, 10)}`;
+
+            let formatted = '';
+            const lines = output.split('\n');
+            lines.forEach(l => {
+                if (l.startsWith('+') && !l.startsWith('+++')) {
+                    formatted += `<span class="diff-add">${escapeHtml(l)}</span>\n`;
+                } else if (l.startsWith('-') && !l.startsWith('---')) {
+                    formatted += `<span class="diff-del">${escapeHtml(l)}</span>\n`;
+                } else if (l.startsWith('@@')) {
+                    formatted += `<span class="diff-hunk">${escapeHtml(l)}</span>\n`;
+                } else {
+                    formatted += `${escapeHtml(l)}\n`;
+                }
+            });
+            content.innerHTML = formatted || 'No diff output.';
+            box.scrollIntoView({ behavior: 'smooth' });
         }
 
         function closeDiffViewer() {
@@ -1104,47 +1290,77 @@
         }
 
         function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         async function fetchState() {
-            try {
-                const res = await fetch('/api/state');
-                const state = await res.json();
-                currentDim = state.active_dimension;
+            let state = null;
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch('/api/state');
+                    if (res.ok) {
+                        state = await res.json();
+                    } else {
+                        isStaticMode = true;
+                    }
+                } catch (_) {
+                    isStaticMode = true;
+                }
+            }
 
-                // Populate Dim Select
-                const sel = document.getElementById('dimSelect');
+            if (!state) {
+                state = DEMO_STATE;
+            }
+
+            currentDim = state.active_dimension;
+
+            // Populate Dim Select
+            const sel = document.getElementById('dimSelect');
+            if (sel) {
                 sel.innerHTML = '';
-                state.dimensions.forEach(d => {
+                (state.dimensions || []).forEach(d => {
                     const opt = document.createElement('option');
                     opt.value = d.name;
                     opt.textContent = `Dimension: ${d.name} ${d.is_active ? '★' : ''}`;
                     if (d.is_active) opt.selected = true;
                     sel.appendChild(opt);
                 });
+            }
 
-                // Territory
-                const claims = Object.keys(state.territory.claims || {});
-                document.getElementById('territoryClaimsList').innerHTML = claims.length > 0
+            // Territory
+            const claims = Object.keys((state.territory && state.territory.claims) || {});
+            const claimsEl = document.getElementById('territoryClaimsList');
+            if (claimsEl) {
+                claimsEl.innerHTML = claims.length > 0
                     ? claims.map(c => `<div>🔒 <code>${c}</code> (claimed) <button class="btn" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="runCmd('yield ${c}')">Yield</button></div>`).join('')
                     : 'No active file claims.';
-                const fences = state.territory.fences || [];
-                document.getElementById('territoryFencesList').innerHTML = fences.length > 0
+            }
+            const fences = (state.territory && state.territory.fences) || [];
+            const fencesEl = document.getElementById('territoryFencesList');
+            if (fencesEl) {
+                fencesEl.innerHTML = fences.length > 0
                     ? fences.map(f => `<div>🚧 <code>${f}</code> (hard boundary fence)</div>`).join('')
                     : 'No active boundary fences.';
+            }
 
-                // Agents
-                const fleetBox = document.getElementById('agentFleetBox');
+            // Agents
+            const fleetBox = document.getElementById('agentFleetBox');
+            if (fleetBox) {
                 if (state.agents && state.agents.length > 0) {
                     fleetBox.innerHTML = state.agents.map(a => `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border);">
                             <div>
-                                <span>🤖 <strong>${a.name || a.agent_type || 'agent'}</strong> <span class="repo-badge">${a.agent_type || 'ai'}</span></span>
-                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Dimension: <code>${a.dimension || 'mainline'}</code></div>
+                                <span>🤖 <strong>${escapeHtml(a.name || a.agent_type || 'agent')}</strong> <span class="repo-badge">${escapeHtml(a.agent_type || 'ai')}</span></span>
+                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Dimension: <code>${escapeHtml(a.dimension || 'mainline')}</code> &bull; Role: ${escapeHtml(a.role || 'Worker')}</div>
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent read ${a.name || a.agent_type}')">Mailbox</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent read ${escapeHtml(a.name || a.agent_type)}')">Mailbox</button>
                                 <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('heartbeat')">Heartbeat</button>
                             </div>
                         </div>
@@ -1152,23 +1368,24 @@
                 } else {
                     fleetBox.innerHTML = '<div style="color: var(--text-muted); padding: 1rem 0;">No agents registered. Click "+ Register Agent" to recruit an AI agent.</div>';
                 }
+            }
 
-                // Cronos
-                document.getElementById('cronosStatusText').innerHTML = `Status: ${state.cronos.running ? '<span style="color: var(--success);"><span class="badge-live"></span>RUNNING (Autonomous 3-way sync active)</span>' : '<span style="color: var(--text-muted);">STANDBY (Stopped)</span>'}`;
+            // Cronos
+            const cronosEl = document.getElementById('cronosStatusText');
+            if (cronosEl) {
+                cronosEl.innerHTML = `Status: ${state.cronos && state.cronos.running ? '<span style="color: var(--success);"><span class="badge-live"></span>RUNNING (Autonomous 3-way sync active)</span>' : '<span style="color: var(--text-muted);">STANDBY (Stopped)</span>'}`;
+            }
 
-                if (state.dimensions && state.dimensions.length > 0) {
-                    const filterSelect = document.getElementById('timelineDimFilter');
-                    if (filterSelect && filterSelect.options.length <= 1) {
-                        state.dimensions.forEach(d => {
-                            const opt = document.createElement('option');
-                            opt.value = d.name;
-                            opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
-                            filterSelect.appendChild(opt);
-                        });
-                    }
+            if (state.dimensions && state.dimensions.length > 0) {
+                const filterSelect = document.getElementById('timelineDimFilter');
+                if (filterSelect && filterSelect.options.length <= 1) {
+                    state.dimensions.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.name;
+                        opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
+                        filterSelect.appendChild(opt);
+                    });
                 }
-            } catch (e) {
-                console.error(e);
             }
         }
 
@@ -1211,51 +1428,73 @@
             const dimQuery = dim ? `&dimension=${encodeURIComponent(dim)}` : '';
 
             // 1. Fetch metadata JSON for stats
-            try {
-                const jsonRes = await fetch(`/api/timeline?format=json${dimQuery}`);
-                timelineGraphData = await jsonRes.json();
-
-                if (timelineGraphData && timelineGraphData.dimensions) {
-                    document.getElementById('tlStatDims').textContent = timelineGraphData.dimensions.length;
-                    const activeDim = timelineGraphData.dimensions.find(d => d.is_active);
-                    document.getElementById('tlStatActive').textContent = activeDim ? activeDim.name : (currentDim || 'mainline');
-                    document.getElementById('tlStatCommits').textContent = timelineGraphData.nodes ? timelineGraphData.nodes.length : 0;
-                    document.getElementById('tlStatEdges').textContent = timelineGraphData.edges ? timelineGraphData.edges.length : 0;
-
-                    // Populate filter dropdown if empty
-                    if (filterSelect && filterSelect.options.length <= 1) {
-                        timelineGraphData.dimensions.forEach(d => {
-                            const opt = document.createElement('option');
-                            opt.value = d.name;
-                            opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
-                            filterSelect.appendChild(opt);
-                        });
+            timelineGraphData = null;
+            if (!isStaticMode) {
+                try {
+                    const jsonRes = await fetch(`/api/timeline?format=json${dimQuery}`);
+                    if (jsonRes.ok) {
+                        timelineGraphData = await jsonRes.json();
+                    } else {
+                        isStaticMode = true;
                     }
+                } catch (_) {
+                    isStaticMode = true;
                 }
-            } catch (err) {
-                console.error("Failed to load timeline metadata:", err);
+            }
+
+            if (!timelineGraphData) {
+                timelineGraphData = DEMO_TIMELINE;
+            }
+
+            if (timelineGraphData && timelineGraphData.dimensions) {
+                const dimsEl = document.getElementById('tlStatDims');
+                if (dimsEl) dimsEl.textContent = timelineGraphData.dimensions.length;
+                const activeDim = timelineGraphData.dimensions.find(d => d.is_active);
+                const activeEl = document.getElementById('tlStatActive');
+                if (activeEl) activeEl.textContent = activeDim ? activeDim.name : (currentDim || 'mainline');
+                const commitsEl = document.getElementById('tlStatCommits');
+                if (commitsEl) commitsEl.textContent = timelineGraphData.nodes ? timelineGraphData.nodes.length : 0;
+                const edgesEl = document.getElementById('tlStatEdges');
+                if (edgesEl) edgesEl.textContent = timelineGraphData.edges ? timelineGraphData.edges.length : 0;
+
+                // Populate filter dropdown if empty
+                if (filterSelect && filterSelect.options.length <= 1) {
+                    timelineGraphData.dimensions.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.name;
+                        opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
+                        filterSelect.appendChild(opt);
+                    });
+                }
             }
 
             // 2. Fetch specific format according to currentTimelineMode
-            try {
-                if (currentTimelineMode === 'svg') {
-                    const svgRes = await fetch(`/api/timeline?format=svg${dimQuery}`);
-                    const svgText = await svgRes.text();
-                    const container = document.getElementById('timelineSvgContent');
-                    container.innerHTML = svgText;
+            let contentText = null;
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch(`/api/timeline?format=${currentTimelineMode}${dimQuery}`);
+                    if (res.ok) {
+                        contentText = await res.text();
+                    } else {
+                        isStaticMode = true;
+                    }
+                } catch (_) {
+                    isStaticMode = true;
+                }
+            }
 
-                    // Bind interactivity to commit nodes
+            if (currentTimelineMode === 'svg') {
+                const svgText = contentText || DEMO_SVG;
+                const container = document.getElementById('timelineSvgContent');
+                if (container) {
+                    container.innerHTML = svgText;
                     if (timelineGraphData && timelineGraphData.nodes) {
                         timelineGraphData.nodes.forEach(node => {
                             const el = document.getElementById(`node_${node.short_id}`);
                             if (el) {
                                 el.style.cursor = 'pointer';
-                                el.addEventListener('mouseenter', () => {
-                                    el.style.opacity = '0.75';
-                                });
-                                el.addEventListener('mouseleave', () => {
-                                    el.style.opacity = '1.0';
-                                });
+                                el.addEventListener('mouseenter', () => { el.style.opacity = '0.75'; });
+                                el.addEventListener('mouseleave', () => { el.style.opacity = '1.0'; });
                                 el.addEventListener('click', (e) => {
                                     e.stopPropagation();
                                     inspectTimelineNode(node);
@@ -1263,19 +1502,18 @@
                             }
                         });
                     }
-                } else if (currentTimelineMode === 'ascii') {
-                    const asciiRes = await fetch(`/api/timeline?format=ascii${dimQuery}`);
-                    const text = await asciiRes.text();
-                    document.getElementById('timelineAsciiContent').textContent = text;
-                } else if (currentTimelineMode === 'ancestry') {
-                    const ancRes = await fetch(`/api/timeline?format=ancestry${dimQuery}`);
-                    const text = await ancRes.text();
-                    document.getElementById('timelineAncestryContent').textContent = text;
-                } else if (currentTimelineMode === 'json') {
-                    document.getElementById('timelineJsonContent').textContent = JSON.stringify(timelineGraphData, null, 2);
                 }
-            } catch (err) {
-                console.error(`Failed to load timeline in ${currentTimelineMode} mode:`, err);
+            } else if (currentTimelineMode === 'ascii') {
+                const text = contentText || DEMO_ASCII;
+                const el = document.getElementById('timelineAsciiContent');
+                if (el) el.textContent = text;
+            } else if (currentTimelineMode === 'ancestry') {
+                const text = contentText || DEMO_ANCESTRY;
+                const el = document.getElementById('timelineAncestryContent');
+                if (el) el.textContent = text;
+            } else if (currentTimelineMode === 'json') {
+                const el = document.getElementById('timelineJsonContent');
+                if (el) el.textContent = JSON.stringify(timelineGraphData, null, 2);
             }
         }
 
@@ -1297,7 +1535,7 @@
 
             const diffBtn = document.getElementById('tlInspectDiffBtn');
             diffBtn.onclick = () => {
-                viewDiff(node.id);
+                viewCommitDiff(node.id);
             };
             inspector.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -1321,22 +1559,73 @@
             term.scrollTop = term.scrollHeight;
             document.getElementById('termStatus').textContent = 'RUNNING...';
 
-            try {
-                const res = await fetch('/api/exec', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: cmd })
-                });
-                const data = await res.json();
-                if (data.stdout) term.textContent += data.stdout;
-                if (data.stderr) term.textContent += `[ERR] ${data.stderr}`;
-                term.scrollTop = term.scrollHeight;
-                fetchState();
-            } catch (e) {
-                term.textContent += `[ERROR] Failed: ${e}\n`;
-            } finally {
-                document.getElementById('termStatus').textContent = 'READY';
+            let executed = false;
+            if (!isStaticMode) {
+                try {
+                    const res = await fetch('/api/exec', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ command: cmd })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.stdout) term.textContent += data.stdout;
+                        if (data.stderr) term.textContent += `[ERR] ${data.stderr}`;
+                        executed = true;
+                        fetchState();
+                    } else {
+                        isStaticMode = true;
+                    }
+                } catch (_) {
+                    isStaticMode = true;
+                }
             }
+
+            if (!executed) {
+                const trimmed = cmd.trim();
+                const lower = trimmed.toLowerCase();
+                let output = '';
+
+                if (lower.startsWith('dft status') || lower === 'status') {
+                    output = `On dimension: mainline\nYour dimension is up to date with 'origin/mainline'.\n\nChanges to be committed:\n  (use "dft restore --staged <file>..." to unstage)\n\tmodified:   README.md\n\tmodified:   docs/index.html\n\nUntracked files:\n  (working tree clean)\n`;
+                } else if (lower.startsWith('dft dimension list') || lower === 'dimension list') {
+                    output = `  agent-quantum          [clean, divergence H=0.08]\n  feature-memory-engine  [clean, divergence H=0.04]\n* mainline               [clean, active]\n`;
+                } else if (lower.startsWith('dft dimension enter') || lower.startsWith('dimension enter')) {
+                    const dim = trimmed.split(' ').pop();
+                    output = `Switched to dimension '${dim}'\nWorkspace reflink updated in 0.04s (0 KB copied).\n`;
+                } else if (lower.startsWith('dft dimension create') || lower.startsWith('dimension create')) {
+                    const dim = trimmed.split(' ').pop();
+                    output = `Created dimension '${dim}' from mainline.\nCoW snapshot ready in 0.05s.\n`;
+                } else if (lower.startsWith('dft radar') || lower === 'radar') {
+                    output = `[RADAR] Active Dimensions: 3 | Claims: 1 | Fences: 1\n  Hot Zone: crates/daft-core/src/cas.rs (Collision Risk: 12% - Low)\n  Claimed by: agent-quantum (TTL: 14m remaining)\n`;
+                } else if (lower.startsWith('dft foresee') || lower === 'foresee') {
+                    output = `[FORESEE] In-memory 3-way reconciliation simulation:\n  Source: agent-quantum | Target: mainline\n  Result: Clean auto-merge predicted (0 conflicts detected).\n  Divergence Metric: H = 0.08 (negligible divergence)\n`;
+                } else if (lower.startsWith('dft claim') || lower.startsWith('claim')) {
+                    const path = trimmed.split(' ').pop();
+                    output = `[CLAIM] Acquired advisory territory lease on '${path}' (TTL: 15m).\n`;
+                } else if (lower.startsWith('dft yield') || lower.startsWith('yield')) {
+                    const path = trimmed.split(' ').pop();
+                    output = `[YIELD] Released advisory territory lease on '${path}'.\n`;
+                } else if (lower.startsWith('dft fence') || lower.startsWith('fence')) {
+                    const path = trimmed.split(' ').pop();
+                    output = `[FENCE] Erected hard boundary fence on '${path}'. All writes blocked.\n`;
+                } else if (lower.startsWith('dft converge') || lower.startsWith('converge')) {
+                    output = `[CONVERGE] Reconciled parallel dimensions.\n3-way merge completed cleanly with 0 conflicts.\n`;
+                } else if (lower.startsWith('dft agent') || lower.startsWith('agent')) {
+                    output = `[AGENT] Swarm coordinator processed agent request.\nMailbox updated.\n`;
+                } else if (lower.startsWith('dft heartbeat') || lower === 'heartbeat') {
+                    output = `[HEARTBEAT] Ping sent. Active agent locks renewed.\n`;
+                } else if (lower.startsWith('dft help') || lower === 'help' || lower === '--help') {
+                    output = `Draft (dft) - The Multiverse Version Control System\n\nUsage: dft <COMMAND> [OPTIONS]\n\nCommands:\n  init         Initialize a new repository\n  status       Show working tree and dimension status\n  dimension    Manage parallel development dimensions\n  radar        Scan for concurrent hot-zones and edit collisions\n  foresee      Predictive 3-way merge conflict detection\n  claim/yield  Acquire or release advisory file leases\n  converge     Reconcile parallel dimensions into mainline\n  collapse     Atomic reconciliation of all parallel dimensions\n`;
+                } else {
+                    output = `[DFT] Executed '${trimmed}' successfully.\n`;
+                }
+
+                term.textContent += output;
+            }
+
+            term.scrollTop = term.scrollHeight;
+            document.getElementById('termStatus').textContent = 'READY';
         }
 
         document.getElementById('termInput').addEventListener('keydown', (e) => {
@@ -1439,8 +1728,12 @@
             let s = str.replace(/<\/?(?:p|div|img|span|a|b|i|strong|em|br|hr)(?:\s+[^>]*?)?\/?>/gi, (match) => {
                 let fixed = match.replace(/src=["']([^"']+)["']/i, (m, srcVal) => {
                     let c = srcVal.trim();
-                    if (!c.startsWith('http') && !c.startsWith('/') && !c.startsWith('data:')) {
-                        c = '/' + c;
+                    if (c.startsWith('/docs/assets/')) {
+                        c = 'assets/' + c.substring('/docs/assets/'.length);
+                    } else if (c.startsWith('docs/assets/')) {
+                        c = 'assets/' + c.substring('docs/assets/'.length);
+                    } else if (c.startsWith('/assets/')) {
+                        c = 'assets/' + c.substring('/assets/'.length);
                     }
                     return `src="${c}"`;
                 });
@@ -1460,8 +1753,12 @@
             // 3. Images: ![alt](url)
             s = s.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
                 let cleanSrc = src.trim();
-                if (!cleanSrc.startsWith('http://') && !cleanSrc.startsWith('https://') && !cleanSrc.startsWith('data:') && !cleanSrc.startsWith('/')) {
-                    cleanSrc = '/' + cleanSrc;
+                if (cleanSrc.startsWith('/docs/assets/')) {
+                    cleanSrc = 'assets/' + cleanSrc.substring('/docs/assets/'.length);
+                } else if (cleanSrc.startsWith('docs/assets/')) {
+                    cleanSrc = 'assets/' + cleanSrc.substring('docs/assets/'.length);
+                } else if (cleanSrc.startsWith('/assets/')) {
+                    cleanSrc = 'assets/' + cleanSrc.substring('/assets/'.length);
                 }
                 const isLogo = alt.toLowerCase().includes('logo') || alt.toLowerCase().includes('icon');
                 const imgStyle = isLogo
@@ -1752,7 +2049,11 @@
         fetchState();
         loadTimeline();
         renderReadme();
-        setInterval(fetchState, 3000);
+        setInterval(() => {
+            if (!isStaticMode) {
+                fetchState();
+            }
+        }, 3000);
     </script>
 </body>
 </html>

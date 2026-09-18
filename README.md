@@ -182,7 +182,7 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 #### A. Homebrew (macOS & Linux)
 Install directly from our official tap:
 ```bash
-brew install draft-vcs/draft/dft
+brew install Pathomphong-i/draft/dft
 ```
 
 #### B. Standalone Shell Script (macOS & Linux)
@@ -200,7 +200,7 @@ cargo install draft-vcs
 ```bash
 # Clone the repository
 dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse
-# or: git clone https://github.com/draft-vcs/draft.git
+# or: git clone https://github.com/Pathomphong-i/draft.git
 cd draft
 
 # Build optimized release binaries
