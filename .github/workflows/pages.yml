@@ -28,10 +28,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Ensure docs/assets path compatibility
+      - name: Ensure docs/assets and documentation compatibility
         run: |
           mkdir -p ./docs/docs
           cp -r ./docs/assets ./docs/docs/
+          cp ./SKILL.md ./docs/SKILL.md
+          cp ./LICENSE ./docs/LICENSE
+          touch ./docs/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

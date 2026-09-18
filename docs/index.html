@@ -838,7 +838,8 @@
                 { name: "Cargo.toml", is_dir: false, size: 1483 },
                 { name: "Dockerfile", is_dir: false, size: 1388 },
                 { name: "LICENSE", is_dir: false, size: 2893 },
-                { name: "README.md", is_dir: false, size: 38570 }
+                { name: "README.md", is_dir: false, size: 38570 },
+                { name: "SKILL.md", is_dir: false, size: 7438 }
             ],
             "crates": [
                 { name: "daft-cli", is_dir: true, size: 0 },
@@ -850,7 +851,9 @@
             "docs": [
                 { name: "assets", is_dir: true, size: 0 },
                 { name: "docs", is_dir: true, size: 0 },
-                { name: "index.html", is_dir: false, size: 142000 }
+                { name: "index.html", is_dir: false, size: 142000 },
+                { name: "LICENSE", is_dir: false, size: 2893 },
+                { name: "SKILL.md", is_dir: false, size: 7438 }
             ],
             "docs/assets": [
                 { name: "draft_icon.svg", is_dir: false, size: 5934 },
@@ -953,7 +956,8 @@ echo "Draft VCS installed successfully! Run 'dft --help' to get started."`,
   def install
     bin.install "dft"
   end
-end`
+end`,
+            "SKILL.md": "---\nname: draft-vcs\ndescription: Operational guide and multi-agent protocol for Draft ('draft' / 'dft'), the high-performance parallel version control system designed for AI agent swarms and human-agent collaboration.\n---\n\n# Draft (`draft` / `dft`) Multi-Agent VCS Skill\n\n## 1. Conceptual Model: From Git 1D to Draft Multiverse\n\nTraditional Git enforces a **single universe, single timeline**:\n- Only one branch can be checked out at a time in a working tree.\n- If multiple AI agents work concurrently, they overwrite `HEAD`, collide on files, corrupt uncommitted work, and block each other.\n\n**Draft (`draft` / `dft`)** is built for **Parallel Swarm Concurrency**:\n- **Dimensions (`dft dimension`)**: Isolated parallel workspaces existing simultaneously. Each dimension is an independent working tree with its own index and branch, powered by OS-native Copy-on-Write (macOS APFS `clonefile` / Linux `FICLONE`) sharing a lock-free SHA-256 Content-Addressable Object Store (`.dft/objects/`).\n- **Radar (`dft radar`)**: Cross-dimensional awareness showing which files are being modified by other agents across all dimensions in real time.\n- **Foresee (`dft foresee`)**: Predictive conflict detection that simulates 3-way merges in memory *before* merging by analyzing overlapping edits.\n- **Territory (`dft claim`, `dft fence`)**: Claim-based advisory file leases and boundary fences so agents do not overwrite shared files.\n- **Entanglement (`dft entangle`)**: Continuous bi-directional synchronization rules propagating file changes between selected dimensions.\n- **Cronos (`dft cronos`)**: Background daemon providing autonomous 3-way tree reconciliation.\n- **Convergence (`dft collapse`, `dft converge`)**: Reconciliation engine merging parallel dimension timelines back into mainline.\n- **Agent Fleet (`dft agent`)**: Worker registry and Maildir-style asynchronous mailbox queue for direct agent-to-agent coordination.\n\n---\n\n## 2. Standard Autonomous Agent Protocol\n\nEvery AI agent working on a Draft repository **MUST** follow this 8-step lifecycle:\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 1. Register:   dft agent register agent-alpha --type ai\u2502\n\u2502 2. Dimension:  dft dimension create agent-alpha/task-1 \u2502\n\u2502 3. Radar:      dft radar --hot                         \u2502\n\u2502 4. Claim:      dft claim src/core/engine.rs            \u2502\n\u2502 5. Code & Save:dft add . && dft commit -m \"feat: ...\"  \u2502\n\u2502 6. Foresee:    dft foresee agent-alpha/task-1 mainline \u2502\n\u2502 7. Converge:   dft converge agent-alpha/task-1 mainline\u2502\n\u2502 8. Yield:      dft yield src/core/engine.rs            \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### Step 1: Register Your Agent Identity & Heartbeat\nBefore executing tasks, register yourself in the repository:\n```bash\ndft agent register <agent_id> --type ai\ndft heartbeat <agent_id>\n```\n\n### Step 2: Spawn Your Own Dimension\nNever work directly in `mainline` alongside other agents. Spawn an isolated parallel dimension:\n```bash\n# Creates an isolated CoW workspace instantly (< 0.06s)\ndft dimension create <agent_id>/<task_name>\ndft dimension enter <agent_id>/<task_name>\n```\n\n### Step 3: Inspect Radar Before Modifying Files\nAlways scan the radar to see if other dimensions are touching the same files:\n```bash\n# View active modifications across all dimensions\ndft radar\n\n# Check for collision hot-zones (files touched in 2+ dimensions)\ndft radar --hot\n```\n\n### Step 4: Claim Your File Territory\nDeclare advisory ownership of the files you will modify to prevent collisions:\n```bash\n# Claim exclusive advisory ownership\ndft claim src/module_a.rs\n\n# Or place a boundary fence across all dimensions\ndft fence src/critical_config.toml\n\n# Audit active claims\ndft territory\n```\n\n### Step 5: Implement, Stage, and Commit\nWrite code normally. Commits in your dimension are isolated and do not disrupt any other agents:\n```bash\ndft status\ndft add src/module_a.rs\ndft commit -m \"feat(module_a): implement vector optimization\"\n```\n\n### Step 6: Predictive Conflict Detection (Foresee)\nBefore merging back, verify that your timeline has no conflicting hunks:\n```bash\n# Predict conflicts between your dimension and mainline\ndft foresee <your_dimension> mainline\n\n# Calculate timeline divergence metric (0.0 = identical, 1.0 = high divergence)\ndft entropy\n```\n\n### Step 7: Converge Timelines & Release Territory\nWhen your feature is complete and verified:\n```bash\n# Return to mainline\ndft dimension enter mainline\n\n# Option A: Converge your specific dimension into mainline\ndft converge <your_dimension> mainline\n\n# Option B: Multi-branch collapse (collapse all active work into mainline)\ndft collapse\n\n# Release your file claims\ndft yield src/module_a.rs\n\n# Clean up your ephemeral dimension\ndft dimension destroy <your_dimension>\n```\n\n---\n\n## 3. Multi-Agent Swarm Communication & Recipes\n\n### Recipe A: Agent-to-Agent Direct Mailbox\nAI agents can send structured messages and coordination payloads directly through Draft without external network dependencies:\n```bash\n# Send a message to another agent's mailbox\ndft agent send agent-beta \"API types updated in shared/types/api.rs\"\n\n# Read messages in your own mailbox\ndft agent read agent-alpha\n```\n\n### Recipe B: Continuous Entanglement (Pair Programming)\nWhen two agents are working on tightly coupled features (e.g. Frontend Agent & API Agent):\n```bash\n# Entangle dimension-api and dimension-frontend on shared API types\ndft entangle dimension-api dimension-frontend --paths \"shared/types/*\"\n```\nWhenever Agent 1 updates `shared/types/api.rs`, Draft automatically propagates the change into Agent 2's workspace in real time.\n\n### Recipe C: Autonomous Background Synchronization (Cronos)\nFor swarms of 3+ agents working concurrently, activate Cronos:\n```bash\n# Start background sync daemon with 3-way tree convergence\ndft cronos start\n\n# Inspect sync history and auto-resolutions\ndft cronos log\n```\n\n### Recipe D: Non-Destructive Dimension Inspection\nPeek into another agent's dimension without switching branches or disrupting your working tree:\n```bash\n# View files in another dimension directly\ndft observe dimension-beta src/engine.rs\n\n# Diff two other dimensions from your current vantage point\ndft diff dimension-alpha..dimension-beta\n```\n\n### Recipe E: Deploying to DraftMultiverse Remote\nPush your commits and dimensions to the shared DraftMultiverse origin:\n```bash\n# Add origin remote\ndft remote add origin /path/to/DraftMultiverse\n\n# Push dimension or branch\ndft push origin main\ndft push origin feature-dimension\n```\n\n---\n\n## 4. Safety Invariants for AI Agents\n\n1. **NEVER touch fenced paths**: If `dft territory` shows a path has a hard fence owned by another dimension, DO NOT edit that file until the fence is lifted.\n2. **Always check `dft radar --hot`**: If a file is in a hot zone, coordinate with the other agent using `dft agent send <id> \"<msg>\"` or check `dft foresee`.\n3. **Keep dimensions ephemeral**: Create dimensions for discrete tasks, converge them when done, and destroy them to preserve workspace hygiene.\n4. **Use CoW Workspaces**: Draft automatically uses kernel-level copy-on-write. Never manually copy entire repositories into subfolders.\n\n"
         };
 
         const DEMO_TIMELINE = {
@@ -1116,6 +1120,10 @@ end`
                 if (!content) {
                     if (filePath === "README.md") {
                         content = rawReadme;
+                    } else if (filePath === "SKILL.md" || filePath === "docs/SKILL.md") {
+                        content = DEMO_BLOBS["SKILL.md"];
+                    } else if (filePath === "LICENSE" || filePath === "docs/LICENSE") {
+                        content = DEMO_BLOBS["LICENSE"];
                     } else {
                         content = `// Draft Multiverse File: ${filePath}\n// Active Dimension: mainline\n\n// Content rendered in interactive offline demo mode.\n`;
                     }
@@ -1795,32 +1803,45 @@ diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.
                 return stash(`<img alt="${alt}" src="${cleanSrc}" style="${imgStyle}" loading="lazy" />`);
             });
 
+            // Helper to format inline text (bold, italic, strikethrough)
+            function formatText(txt) {
+                return txt
+                    .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/__(.*?)__/g, '<strong>$1</strong>')
+                    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+                    .replace(/~~(.*?)~~/g, '<del>$1</del>');
+            }
+
             // 4. Standard links: [text](url)
             s = s.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
-                return stash(`<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+                let cleanUrl = url.trim();
+                // Resolve relative documentation and file links to GitHub repository so they never 404 on GitHub Pages
+                if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://') && !cleanUrl.startsWith('#') && !cleanUrl.startsWith('mailto:') && !cleanUrl.startsWith('assets/')) {
+                    const isDir = cleanUrl.endsWith('/') || cleanUrl.startsWith('demos/') || cleanUrl.startsWith('crates/');
+                    cleanUrl = `https://github.com/Pathomphong-i/draft/${isDir ? 'tree' : 'blob'}/main/${cleanUrl}`;
+                }
+                const formattedText = formatText(text);
+                return stash(`<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${formattedText}</a>`);
             });
 
-            // 5. Bold + Italic: ***text***
-            s = s.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            // 5. Bold, Italic, Strikethrough for text outside links
+            s = formatText(s);
 
-            // 6. Bold: **text** or __text__
-            s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            s = s.replace(/__(.*?)__/g, '<strong>$1</strong>');
-
-            // 7. Italic: *text* or _text_
-            s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+            // 6. Italic with single underscore
             s = s.replace(/(?:^|\s)_(?!_)([^\s_][^_\n]*[^\s_]|[^_\s])_(?=\s|$|[.,;:!?])/g, ' <em>$1</em>');
 
-            // 8. Strikethrough: ~~text~~
-            s = s.replace(/~~(.*?)~~/g, '<del>$1</del>');
-
-            // 9. Inline math: $formula$
+            // 7. Inline math: $formula$
             s = s.replace(/\$([^$\n]+)\$/g, '<code style="color: var(--quantum-violet); font-style: italic;">$$1$</code>');
 
-            // 10. Restore stashed elements
-            placeholders.forEach((html, idx) => {
-                s = s.replace(`@@INLINE_PH_${idx}@@`, html);
-            });
+            // 8. Restore stashed elements recursively until all placeholders are fully resolved
+            let maxPasses = 10;
+            while (/@@INLINE_PH_\d+@@/.test(s) && maxPasses-- > 0) {
+                s = s.replace(/@@INLINE_PH_(\d+)@@/g, (match, id) => {
+                    const idx = parseInt(id, 10);
+                    return idx in placeholders ? placeholders[idx] : match;
+                });
+            }
 
             return s;
         }
