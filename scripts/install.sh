@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-REPO="draft-vcs/draft"
+REPO="Pathomphong-i/draft"
 VERSION="${DFT_VERSION:-latest}"
 INSTALL_DIR="${DFT_INSTALL_DIR:-$HOME/.local/bin}"
 

@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DraftMultiverse</title>
+    <link rel="icon" type="image/svg+xml" href="assets/draft_icon.svg">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --header-bg: #161b22;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.25);
+            --quantum-violet: #bc8cff;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --text-muted: #8b949e;
+            --btn-bg: #21262d;
+            --btn-hover: #30363d;
+            --btn-primary: #238636;
+            --btn-primary-hover: #2ea043;
+            --card-bg: #161b22;
+            --danger: #f85149;
+            --danger-bg: rgba(248, 81, 73, 0.15);
+            --success: #3fb950;
+            --success-bg: rgba(63, 185, 80, 0.15);
+            --code-bg: #0d1117;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+        .gitea-navbar {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-heading); }
+        .brand-logo {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--quantum-violet));
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.95rem; color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .repo-title { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+        .repo-badge { font-size: 0.75rem; border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 12px; color: var(--text-muted); }
+
+        .repo-header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem 0 2rem;
+        }
+        .repo-meta-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .repo-path { font-size: 1.25rem; font-weight: 700; color: var(--text-heading); }
+        .repo-path span { color: var(--text-muted); font-weight: 400; }
+
+        .gitea-tabs {
+            display: flex;
+            gap: 1.5rem;
+            border-bottom: 1px solid transparent;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.65rem 0.25rem;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-heading); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .main-container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap; gap: 0.75rem;
+        }
+        .btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--border);
+            color: var(--text-heading);
+            padding: 0.45rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            transition: background 0.15s;
+        }
+        .btn:hover { background: var(--btn-hover); }
+        .btn-primary { background: var(--btn-primary); border-color: rgba(240, 246, 252, 0.1); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-danger { background: #b62324; border-color: transparent; color: #fff; }
+
+        select.btn { outline: none; }
+
+        .file-box {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .file-box-header {
+            background: #1c2128;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem;
+        }
+        .file-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .file-table tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.1s;
+        }
+        .file-table tr:last-child { border-bottom: none; }
+        .file-table tr:hover { background: #1f242c; }
+        .file-table td { padding: 0.6rem 1rem; vertical-align: middle; }
+        .file-icon { width: 20px; text-align: center; color: var(--text-muted); font-size: 1.05rem; }
+        .file-name { font-weight: 500; cursor: pointer; color: var(--accent); }
+        .file-name:hover { text-decoration: underline; }
+        .file-size { color: var(--text-muted); font-size: 0.8rem; text-align: right; }
+
+        .breadcrumbs {
+            display: flex; align-items: center; gap: 0.35rem;
+            font-size: 0.95rem; font-weight: 600; color: var(--text-heading);
+        }
+        .breadcrumb-link { color: var(--accent); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+
+        .code-viewer {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .code-header {
+            background: #161b22;
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem;
+        }
+        pre.code-content {
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #f0f6fc;
+        }
+
+        .commit-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .commit-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.85rem 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: border-color 0.15s;
+        }
+        .commit-item:hover { border-color: var(--accent); }
+        .commit-title { font-weight: 600; color: var(--text-heading); font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .commit-meta { font-size: 0.8rem; color: var(--text-muted); }
+        .commit-sha {
+            font-family: monospace;
+            background: rgba(110, 118, 129, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
+        .diff-container {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .diff-header {
+            background: #161b22;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .diff-content {
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            line-height: 1.45;
+        }
+        .diff-add { background: var(--success-bg); color: #7ee787; display: block; }
+        .diff-del { background: var(--danger-bg); color: #ffa198; display: block; }
+        .diff-hunk { color: var(--quantum-violet); font-weight: bold; display: block; }
+
+        .terminal-box {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            height: 520px;
+        }
+        .terminal-header {
+            background: #161b22;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .terminal-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #58a6ff;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .terminal-input-row {
+            display: flex;
+            background: #0d1117;
+            border-top: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+        }
+        .term-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .readme-box {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            padding: 2rem;
+            margin-top: 2rem;
+            line-height: 1.6;
+        }
+
+        /* Gitea/GitHub-grade Markdown Styling */
+        .markdown-body {
+            color: var(--text);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            word-wrap: break-word;
+        }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+            color: var(--text-heading);
+            font-weight: 600;
+            margin-top: 1.75rem;
+            margin-bottom: 0.85rem;
+            line-height: 1.3;
+        }
+        .markdown-body h1 {
+            font-size: 1.8rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .markdown-body h2 {
+            font-size: 1.35rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.4rem;
+        }
+        .markdown-body h3 { font-size: 1.15rem; }
+        .markdown-body h4 { font-size: 1rem; }
+        .markdown-body p { margin-top: 0; margin-bottom: 1rem; }
+        .markdown-body a { color: var(--accent); text-decoration: none; }
+        .markdown-body a:hover { text-decoration: underline; }
+        .markdown-body strong { color: var(--text-heading); font-weight: 600; }
+        .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+        /* Tables */
+        .markdown-body .table-container {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .markdown-body table {
+            border-collapse: collapse;
+            width: 100%;
+            display: table;
+        }
+        .markdown-body th, .markdown-body td {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .markdown-body th {
+            background-color: var(--header-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+        .markdown-body tr:nth-child(2n) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Code Blocks */
+        .markdown-body .code-block-wrapper {
+            margin: 1.25rem 0;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #0d1117;
+            overflow: hidden;
+        }
+        .markdown-body .code-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            font-family: monospace;
+        }
+        .markdown-body .code-copy-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .markdown-body .code-copy-btn:hover {
+            background: var(--btn-hover);
+            color: #fff;
+        }
+        .markdown-body pre {
+            padding: 1rem;
+            margin: 0;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #e6edf3;
+        }
+        .markdown-body code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85em;
+            background: rgba(110, 118, 129, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: #f0f6fc;
+        }
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* Lists */
+        .markdown-body ul, .markdown-body ol {
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        .markdown-body li { margin-bottom: 0.25rem; }
+        .markdown-body li.task-list-item {
+            list-style-type: none;
+            margin-left: -1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Blockquotes & Alerts */
+        .markdown-body blockquote {
+            margin: 1rem 0;
+            padding: 0.5rem 1rem;
+            border-left: 4px solid var(--border);
+            color: var(--text-muted);
+            background: rgba(110, 118, 129, 0.05);
+            border-radius: 0 6px 6px 0;
+        }
+        .markdown-body .markdown-alert {
+            margin: 1.25rem 0;
+            padding: 0.85rem 1rem;
+            border-left: 4px solid;
+            border-radius: 0 6px 6px 0;
+        }
+        .markdown-body .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            font-size: 0.9rem;
+        }
+        .markdown-body .alert-note {
+            border-left-color: #58a6ff;
+            background: rgba(56, 139, 253, 0.1);
+        }
+        .markdown-body .alert-note .alert-title { color: #58a6ff; }
+        .markdown-body .alert-tip {
+            border-left-color: #3fb950;
+            background: rgba(63, 185, 80, 0.1);
+        }
+        .markdown-body .alert-tip .alert-title { color: #3fb950; }
+        .markdown-body .alert-important {
+            border-left-color: #bc8cff;
+            background: rgba(188, 140, 255, 0.1);
+        }
+        .markdown-body .alert-important .alert-title { color: #bc8cff; }
+        .markdown-body .alert-warning {
+            border-left-color: #d29922;
+            background: rgba(210, 153, 34, 0.1);
+        }
+        .markdown-body .alert-warning .alert-title { color: #d29922; }
+        .markdown-body .alert-caution {
+            border-left-color: #f85149;
+            background: rgba(248, 81, 73, 0.1);
+        }
+        .markdown-body .alert-caution .alert-title { color: #f85149; }
+
+        /* Images & Badges */
+        .markdown-body img {
+            max-width: 100%;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin: 0.25rem 0;
+        }
+
+        /* Toggle button styling */
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .toggle-btn:hover { color: var(--text-heading); }
+        .toggle-btn.active {
+            background: var(--btn-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        .badge-live {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success); margin-right: 6px;
+            box-shadow: 0 0 8px var(--success);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar (Gitea-style) -->
+    <nav class="gitea-navbar">
+        <a href="/" class="brand">
+            <img src="assets/draft_icon.svg" style="width: 36px; height: 36px; border-radius: 8px; margin-right: 10px; vertical-align: middle; box-shadow: 0 0 14px rgba(88,166,255,0.4); border: 1px solid rgba(88,166,255,0.3);" alt="Draft Logo" />
+            <div class="repo-title">DraftMultiverse</div>
+            <span class="repo-badge">v0.1.0 Draft Multiverse</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <button class="btn" onclick="switchTab('terminal')">⚡ Terminal</button>
+            <button class="btn btn-primary" onclick="copyClone()">📋 Clone</button>
+        </div>
+    </nav>
+
+    <!-- Repo Subheader -->
+    <header class="repo-header">
+        <div class="repo-meta-bar">
+            <div class="repo-path">
+                DraftMultiverse / <strong>Draft</strong>
+            </div>
+            <div>
+                <a href="https://github.com/open-source/sponsors" target="_blank" class="btn" style="text-decoration: none; border-color: rgba(244, 63, 94, 0.4); color: #fda4af; background: rgba(244, 63, 94, 0.1);"><span class="badge-live" style="background: #f43f5e; box-shadow: 0 0 8px #f43f5e;"></span>💖 Sponsor draftmultiverse.org</a>
+       <span class="btn" style="cursor: default;"><span class="badge-live"></span>🪐 Live Demo: GitHub Pages</span>
+            </div>
+        </div>
+
+        <!-- Multiverse Hero Banner (Big Size Icon Showcase) -->
+        <div class="repo-hero-card" style="display: flex; align-items: center; gap: 1.75rem; padding: 1.25rem 2rem; background: linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(188, 140, 255, 0.08) 50%, rgba(63, 185, 80, 0.05) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+            <div class="hero-icon-container" style="position: relative; flex-shrink: 0;">
+                <img src="assets/draft_icon.svg" style="width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 0 35px rgba(88, 166, 255, 0.5), 0 8px 24px rgba(0, 0, 0, 0.6); border: 2px solid rgba(88, 166, 255, 0.45); display: block;" alt="Draft Multiverse Icon" />
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+                    <h1 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: -0.5px;">Draft <span style="color: var(--cyan); font-weight: 600; font-size: 1.2rem;">(`dft`)</span></h1>
+                    <span style="font-size: 0.75rem; background: rgba(88, 166, 255, 0.15); color: var(--cyan); border: 1px solid rgba(88, 166, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🌌 Multiverse VCS</span>
+                    <span style="font-size: 0.75rem; background: rgba(188, 140, 255, 0.15); color: var(--quantum-violet); border: 1px solid rgba(188, 140, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🤖 AI Swarm Native</span>
+                    <span style="font-size: 0.75rem; background: rgba(63, 185, 80, 0.15); color: var(--emerald); border: 1px solid rgba(63, 185, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">v0.1.0</span>
+                </div>
+                <p style="margin: 0 0 0.6rem 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.45;">
+                    The Multiverse Version Control System engineered for concurrent AI agent swarms and parallel dimensions.
+                </p>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; font-size: 0.82rem;">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted);">
+                        <span style="color: var(--text-heading); font-weight: 500;">Quick Install:</span>
+                        <code style="background: rgba(0, 0, 0, 0.35); padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); color: var(--cyan); font-family: monospace;">curl -fsSL https://draftmultiverse.org/install.sh | sh</code>
+                        <button class="btn" style="padding: 2px 8px; font-size: 0.75rem;" onclick="navigator.clipboard.writeText('curl -fsSL https://draftmultiverse.org/install.sh | sh'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy', 1500);">Copy</button>
+                    </span>
+                    <span style="color: var(--border);">•</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted);">
+                        <code style="background: rgba(0, 0, 0, 0.35); padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); color: var(--quantum-violet); font-family: monospace;">brew install Pathomphong-i/draft/dft</code>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gitea Tabs -->
+        <div class="gitea-tabs">
+            <button class="tab-btn active" id="tab-code" onclick="switchTab('code')">&lt;&gt; Code</button>
+            <button class="tab-btn" id="tab-commits" onclick="switchTab('commits')">⏱️ Commits</button>
+            <button class="tab-btn" id="tab-multiverse" onclick="switchTab('multiverse')">🌌 Multiverse</button>
+            <button class="tab-btn" id="tab-convergence" onclick="switchTab('convergence')">🔀 Convergence &amp; Collapse</button>
+            <button class="tab-btn" id="tab-radar" onclick="switchTab('radar')">📡 Radar &amp; Territory</button>
+            <button class="tab-btn" id="tab-agents" onclick="switchTab('agents')">🤖 Agent Fleet</button>
+            <button class="tab-btn" id="tab-cronos" onclick="switchTab('cronos')">⏰ Cronos Daemon</button>
+            <button class="tab-btn" id="tab-terminal" onclick="switchTab('terminal')">⚡ Terminal</button>
+        </div>
+    </header>
+
+    <!-- Main Tab Viewers -->
+    <main class="main-container">
+        <!-- TAB 1: CODE BROWSER (Gitea-style) -->
+        <section id="view-code" class="tab-content active">
+            <div class="toolbar">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <!-- Dimension Switcher Dropdown -->
+                    <select class="btn" id="dimSelect" onchange="changeDimension(this.value)">
+                        <option value="mainline">Dimension: mainline</option>
+                    </select>
+                    <!-- Breadcrumbs -->
+                    <div class="breadcrumbs" id="breadcrumbsBar">
+                        <span>Draft</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="promptNewDim()">+ New Dimension</button>
+                    <button class="btn" onclick="copyCloneCmd()">Clone URL</button>
+                </div>
+            </div>
+
+            <!-- File Table / Code View -->
+            <div id="fileBrowserView" class="file-box">
+                <div class="file-box-header">
+                    <span id="latestCommitHeader">Loading latest commit...</span>
+                    <span id="fileCountBadge" style="color: var(--text-muted);">...</span>
+                </div>
+                <table class="file-table" id="fileTable">
+                    <tbody>
+                        <tr><td colspan="3" style="text-align: center; padding: 2rem;">Loading files...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Single File Blob Viewer (Hidden by default) -->
+            <div id="codeViewer" class="code-viewer" style="display: none;">
+                <div class="code-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span id="codeFileName" style="font-weight: 600;">file</span>
+                        <div id="mdViewToggle" style="display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; padding: 2px;">
+                            <button class="toggle-btn active" id="btnPreview" onclick="setMarkdownMode('preview')">👁️ Preview</button>
+                            <button class="toggle-btn" id="btnRaw" onclick="setMarkdownMode('raw')">📝 Source</button>
+                        </div>
+                    </div>
+                    <div>
+                        <span id="codeFileMeta" style="color: var(--text-muted); margin-right: 1rem;"></span>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="copyCodeContent()">Copy</button>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="closeCodeViewer()">Close</button>
+                    </div>
+                </div>
+                <div id="markdownContent" class="markdown-body" style="display: none; padding: 2rem; background: var(--card-bg); border-top: 1px solid var(--border);"></div>
+                <pre class="code-content" id="codeContent"></pre>
+            </div>
+
+            <!-- Rendered Readme -->
+            <div class="readme-box" id="readmeSection">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                    <span style="font-weight: 600; color: var(--text-heading);">📖 README.md</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px;">Markdown Rendered</span>
+                </div>
+                <div id="readmeBody" class="markdown-body">Loading README...</div>
+            </div>
+        </section>
+
+        <!-- TAB 2: COMMITS (Gitea-style) -->
+        <section id="view-commits" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Commit History</div>
+                <button class="btn" onclick="loadCommits()">Refresh</button>
+            </div>
+            <div class="commit-list" id="commitList">
+                <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading commits...</div>
+            </div>
+            <div id="diffViewerBox" class="diff-container" style="display: none;">
+                <div class="diff-header">
+                    <span id="diffViewerTitle">Commit Myers Diff</span>
+                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="closeDiffViewer()">Close</button>
+                </div>
+                <div class="diff-content" id="diffViewerContent"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: MULTIVERSE GRAPH & TIMELINE -->
+        <section id="view-multiverse" class="tab-content">
+            <div class="toolbar" style="flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-heading); display: flex; align-items: center; gap: 0.5rem;">
+                        <span>🌌</span> Multiverse Spacetime DAG <span style="font-size: 0.75rem; font-weight: 400; padding: 2px 8px; border-radius: 12px; background: rgba(88, 166, 255, 0.15); color: #58a6ff; border: 1px solid rgba(88, 166, 255, 0.3);">dft timeline</span>
+                    </div>
+                    <select id="timelineDimFilter" class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onchange="loadTimeline()">
+                        <option value="">All Dimensions (Multiverse)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <div class="toggle-group" style="display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px;">
+                        <button class="toggle-btn active" id="btnTimelineSvg" onclick="setTimelineViewMode('svg')">👁️ Visual DAG</button>
+                        <button class="toggle-btn" id="btnTimelineAscii" onclick="setTimelineViewMode('ascii')">💻 Terminal Graph</button>
+                        <button class="toggle-btn" id="btnTimelineAncestry" onclick="setTimelineViewMode('ancestry')">🌲 Ancestry</button>
+                        <button class="toggle-btn" id="btnTimelineJson" onclick="setTimelineViewMode('json')">📊 JSON</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="promptNewDim()">+ New Dimension</button>
+                    <button class="btn" onclick="loadTimeline()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div id="timelineStatsBar" style="display: flex; gap: 1.5rem; margin-bottom: 1rem; padding: 0.75rem 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; flex-wrap: wrap;">
+                <div><strong style="color: var(--text-muted);">Dimensions:</strong> <span id="tlStatDims" style="color: var(--accent); font-weight: 600;">--</span></div>
+                <div><strong style="color: var(--text-muted);">Active Dimension:</strong> <span id="tlStatActive" style="color: var(--success); font-weight: 600;">--</span></div>
+                <div><strong style="color: var(--text-muted);">DAG Nodes:</strong> <span id="tlStatCommits" style="color: #bc8cff; font-weight: 600;">--</span></div>
+                <div><strong style="color: var(--text-muted);">Inter-Dimension Edges:</strong> <span id="tlStatEdges" style="color: var(--text); font-weight: 600;">--</span></div>
+            </div>
+
+            <!-- Visual SVG Container -->
+            <div id="timelineSvgContainer" style="min-height: 480px; max-height: 650px; overflow: auto; background: #0b1120; border: 1px solid var(--border); border-radius: 6px; padding: 1rem; position: relative;">
+                <div id="timelineSvgContent" style="display: flex; justify-content: center;">
+                    <div style="padding: 2rem; color: var(--text-muted);">Loading Spacetime DAG...</div>
+                </div>
+            </div>
+
+            <!-- Terminal ASCII Container -->
+            <div id="timelineAsciiContainer" style="display: none; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.88rem; line-height: 1.6; color: #c9d1d9; max-height: 600px; overflow: auto; white-space: pre;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                    <span style="color: var(--quantum-violet); font-weight: 600;">$ dft timeline</span>
+                    <button class="code-copy-btn" onclick="copyTimelineAscii()">Copy Output</button>
+                </div>
+                <div id="timelineAsciiContent">Loading terminal graph...</div>
+            </div>
+
+            <!-- Ancestry Container -->
+            <div id="timelineAncestryContainer" style="display: none; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.88rem; line-height: 1.6; color: #c9d1d9; max-height: 600px; overflow: auto; white-space: pre;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                    <span style="color: var(--quantum-violet); font-weight: 600;">$ dft timeline --ancestry</span>
+                    <button class="code-copy-btn" onclick="copyTimelineAncestry()">Copy Output</button>
+                </div>
+                <div id="timelineAncestryContent">Loading ancestry tree...</div>
+            </div>
+
+            <!-- JSON Container -->
+            <div id="timelineJsonContainer" style="display: none; background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.8rem; line-height: 1.5; color: #7ee787; max-height: 600px; overflow: auto; white-space: pre;">
+                <pre id="timelineJsonContent">Loading timeline JSON...</pre>
+            </div>
+
+            <!-- Node Inspector Card (shows when clicking a commit) -->
+            <div id="timelineNodeInspector" style="margin-top: 1rem; display: none; padding: 1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1rem; font-weight: 600;" id="tlInspectTitle">Commit Details</span>
+                        <span id="tlInspectSha" class="commit-sha"></span>
+                        <span id="tlInspectDimPill" style="padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);"></span>
+                    </div>
+                    <button class="btn btn-primary" id="tlInspectDiffBtn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">View Myers Diff</button>
+                </div>
+                <div id="tlInspectMsg" style="font-weight: 500; color: var(--text-heading); margin-bottom: 0.25rem;"></div>
+                <div id="tlInspectMeta" style="font-size: 0.8rem; color: var(--text-muted);"></div>
+            </div>
+        </section>
+
+        <!-- TAB 4: CONVERGENCE & COLLAPSE (PR EQUIVALENT) -->
+        <section id="view-convergence" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Parallel Convergence &amp; Wavefunction Collapse</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="runCmd('foresee')">🔮 Dry-Run Conflict Check</button>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="file-box" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🌌 Wavefunction Collapse</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Collapse all concurrent active dimensions down into mainline, applying 3-way reconciliation across spacetime.
+                    </p>
+                    <button class="btn btn-primary" onclick="runCmd('collapse')">Execute dft collapse</button>
+                </div>
+                <div class="file-box" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🔀 Multi-Dimension Convergence</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Converge specific parallel dimensions into a unified target branch.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <input type="text" id="convergeSourceInput" class="btn" style="flex: 1; text-align: left;" placeholder="Source dimension (e.g. agent-quantum)">
+                        <input type="text" id="convergeTargetInput" class="btn" style="flex: 1; text-align: left;" placeholder="Target (e.g. mainline)">
+                    </div>
+                    <button class="btn" onclick="executeConverge()">Execute dft converge</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: RADAR & TERRITORY -->
+        <section id="view-radar" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Cross-Dimensional Radar &amp; Territory Claims</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="runCmd('radar --hot')">📡 Radar --hot</button>
+                    <button class="btn" onclick="runCmd('foresee')">🔮 Foresee</button>
+                    <button class="btn" onclick="runCmd('entropy')">⚡ Entropy</button>
+                    <button class="btn" onclick="promptClaim()">🔒 Claim Path</button>
+                    <button class="btn" onclick="promptFence()">🚧 Fence Path</button>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="file-box" style="padding: 1.25rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🔒 Claimed Territories</h3>
+                    <div id="territoryClaimsList" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">None</div>
+                </div>
+                <div class="file-box" style="padding: 1.25rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🚧 Boundary Fences</h3>
+                    <div id="territoryFencesList" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">None</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: AGENT FLEET -->
+        <section id="view-agents" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">AI &amp; Human Agent Fleet</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="promptRegisterAgent()">+ Register Agent</button>
+                    <button class="btn" onclick="promptSendMessage()">✉️ Dispatch Message</button>
+                </div>
+            </div>
+            <div class="file-box" id="agentFleetBox" style="padding: 1rem;">
+                Loading fleet...
+            </div>
+        </section>
+
+        <!-- TAB 7: CRONOS DAEMON -->
+        <section id="view-cronos" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Cronos Autonomous 3-Way Sync Daemon</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="runCmd('cronos start')">Start Daemon</button>
+                    <button class="btn btn-danger" onclick="runCmd('cronos stop')">Stop Daemon</button>
+                    <button class="btn" onclick="runCmd('cronos log')">View Event Log</button>
+                </div>
+            </div>
+            <div class="file-box" style="padding: 1.5rem;">
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Continuous 3-way tree convergence engine operating across parallel dimensions.</p>
+                <div id="cronosStatusText" style="font-size: 0.95rem; margin-bottom: 1rem; font-weight: 600;">Daemon status: Checking...</div>
+                <div style="background: #0d1117; padding: 1rem; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem;">
+                    Strategy: 3-way recursive continuous convergence<br>
+                    State: Autonomous background observer
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 8: TERMINAL -->
+        <section id="view-terminal" class="tab-content">
+            <div class="terminal-box">
+                <div class="terminal-header">
+                    <span>⚡ DraftMultiverse Interactive Console</span>
+                    <span id="termStatus" style="color: var(--success); font-weight: bold;">READY</span>
+                </div>
+                <div class="terminal-body" id="termBody">DraftMultiverse v0.1.0 Ready. Type any dft command (e.g. status, radar, foresee, timeline, dimension)</div>
+                <div class="terminal-input-row">
+                    <span style="color: var(--quantum-violet); font-weight: 700; margin-right: 0.5rem;">dft$</span>
+                    <input type="text" class="term-input" id="termInput" placeholder="Enter command..." autofocus>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+
+        // ==========================================
+        // GITHUB PAGES / OFFLINE STATIC DEMO ENGINE
+        // ==========================================
+        const DEMO_TREE = {
+            "": [
+                { name: ".github", is_dir: true, size: 0 },
+                { name: "crates", is_dir: true, size: 0 },
+                { name: "docs", is_dir: true, size: 0 },
+                { name: "packaging", is_dir: true, size: 0 },
+                { name: "scripts", is_dir: true, size: 0 },
+                { name: "tests", is_dir: true, size: 0 },
+                { name: "Cargo.lock", is_dir: false, size: 25619 },
+                { name: "Cargo.toml", is_dir: false, size: 1483 },
+                { name: "Dockerfile", is_dir: false, size: 1388 },
+                { name: "LICENSE", is_dir: false, size: 2893 },
+                { name: "README.md", is_dir: false, size: 38570 }
+            ],
+            "crates": [
+                { name: "daft-cli", is_dir: true, size: 0 },
+                { name: "daft-core", is_dir: true, size: 0 },
+                { name: "daft-awareness", is_dir: true, size: 0 },
+                { name: "daft-dimension", is_dir: true, size: 0 },
+                { name: "daft-merging", is_dir: true, size: 0 }
+            ],
+            "docs": [
+                { name: "assets", is_dir: true, size: 0 },
+                { name: "index.html", is_dir: false, size: 125000 }
+            ],
+            "docs/assets": [
+                { name: "draft_icon.svg", is_dir: false, size: 5934 },
+                { name: "draft_github_meme.jpg", is_dir: false, size: 944025 },
+                { name: "draft_multiverse_3d.jpg", is_dir: false, size: 734624 }
+            ],
+            "scripts": [
+                { name: "install.sh", is_dir: false, size: 4536 }
+            ]
+        };
+
+        const DEMO_COMMITS = [
+            { hash: "d888d36", summary: "chore(branding): harmonize naming strictly to DraftMultiverse", author: "Mos <mos@codedai.co>", date: "Today", additions: 42, deletions: 12 },
+            { hash: "9aa4f04", summary: "feat(ui): enlarge Multiverse icon to 96px in hero card, boost SVG stroke weight and glow", author: "Mos <mos@codedai.co>", date: "Today", additions: 188, deletions: 15 },
+            { hash: "819fdfd", summary: "feat: prepare Homebrew, standalone installer, release CI, and multiverse 3D icon", author: "Mos <mos@codedai.co>", date: "Yesterday", additions: 320, deletions: 4 }
+        ];
+
+        const DEMO_STATE = {
+            active_dimension: "mainline",
+            dimensions: ["mainline", "agent-quantum", "feature-memory-engine"],
+            radar: { hot_zones: [{ path: "crates/daft-core/src/cas.rs", collision_risk: 0.12 }] },
+            agents: [
+                { id: "agent-alpha", role: "Database Refactor", status: "Active" },
+                { id: "agent-beta", role: "CLI & Web UI", status: "Active" },
+                { id: "human-architect", role: "Lead Systems Architect", status: "Active" }
+            ]
+        };
+
+        function renderTreeEntries(entries, path) {
+            const tbody = document.querySelector("#fileTable tbody");
+            tbody.innerHTML = "";
+            if (path !== "") {
+                const parentPath = path.includes("/") ? path.substring(0, path.lastIndexOf("/")) : "";
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td class="file-icon">📁</td><td class="file-name" onclick="loadTree('${parentPath}')">..</td><td class="file-size"></td>`;
+                tbody.appendChild(tr);
+            }
+            entries.forEach(e => {
+                const tr = document.createElement("tr");
+                const icon = e.is_dir ? "📁" : "📄";
+                const clickAction = e.is_dir ? `loadTree('${path ? path + "/" + e.name : e.name}')` : `loadFile('${path ? path + "/" + e.name : e.name}')`;
+                tr.innerHTML = `<td class="file-icon">${icon}</td><td class="file-name" onclick="${clickAction}">${e.name}</td><td class="file-size">${e.is_dir ? "" : formatBytes(e.size)}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        let currentPath = "";
+        let currentDim = "mainline";
+        const rawReadme = "<p align=\"center\">\n  <img src=\"docs/assets/draft_icon.svg\" width=\"160\" height=\"160\" alt=\"Draft VCS Logo\" style=\"border-radius: 32px; box-shadow: 0 0 35px rgba(88,166,255,0.45); border: 2px solid rgba(88,166,255,0.35);\" />\n</p>\n\n# Draft (`dft`) \u2014 The Multiverse Version Control System\n\n[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)\n[![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)\n[![Live Web Demo](https://img.shields.io/badge/Live_Demo-GitHub%20Pages-22c55e.svg)](https://pathomphong-i.github.io/draft/)\n[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_Us-GitHub%20Sponsors-ff69b4.svg)](https://github.com/open-source/sponsors)\n[![GitHub Stars](https://img.shields.io/github/stars/Pathomphong-i/draft?style=social)](https://github.com/Pathomphong-i/draft)\n[![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)\n[![Performance: CoW Reflink](https://img.shields.io/badge/Cloning-0.06s%20%2F%2010%2C000%20files-cyan.svg)](#)\n[![Architecture: Lock-Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)\n[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](https://pathomphong-i.github.io/draft/)\n\n> *\"In classical philosophy, Chronos (\u03a7\u03c1\u03cc\u03bd\u03bf\u03c2) forces all actions into a single linear sequence. In Draft, Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2) lets parallel minds build concurrently until the opportune moment of convergence.\"*\n\n---\n\n![DraftMultiverse 3D Architecture](docs/assets/draft_multiverse_3d.jpg)\n\n---\n\n## \ud83c\udfad The \"Multiverse on GitHub\" Paradox\n\n![Built a Multiverse Engine for Parallel AI Swarms... But We Still Need the GitHub Community!](docs/assets/draft_github_meme.jpg)\n\n> *\"We built Draft (`dft`) for concurrent AI swarms... but we still can't live without the GitHub community!\"* \ud83d\udc19\ud83d\udc96\n\nWhen Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel mail servers. But in 2026, **the developer world, open-source contributors, and AI swarms live in GitHub's gravity well**.\n\n- \ud83c\udf0c **We develop Draft using Draft**: Internally, our parallel dimensions, lock-free content-addressable storage (CAS), and predictive 3-way merges are 100% dogfooded with `dft`.\n- \ud83d\udc19 **We \u2764\ufe0f the GitHub Community**: We host our open-source project and interactive demo on GitHub because this is where developers star repositories, report issues, submit PRs, and collaborate. We are proud to build together with the open-source community!\n\n### \ud83d\udc96 Community Goal: Funding Sovereign `draftmultiverse.org`\n\n> [!TIP]\n> ### \ud83e\ude90 Sovereign Multiverse Infrastructure Goal\n> Today, Draft's code, releases, and interactive web playground are powered directly by **GitHub** and **GitHub Pages**.\n>\n> If the community finds Draft valuable and we receive enough community support through donations and sponsorships, **we will fund, build, and deploy a dedicated, 24/7 sovereign server cluster on `draftmultiverse.org`** \u2014 featuring decentralized remote repo synchronization, headless multiverse servers, and distributed AI agent fleet coordinators!\n>\n> \ud83d\udc49 **[Support the Project on GitHub Sponsors](https://github.com/open-source/sponsors)** | [Sponsor @Pathomphong-i](https://github.com/sponsors/Pathomphong-i)\n\n---\n\n## \u26a1 The Architectural Shift: Why Draft?\n\n**Git was engineered in 2005 around a single checked-out working tree and linear branch switching.**  \n**Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**\n\nModern software engineering faces concurrency bottlenecks at the version control layer:\n1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.\n2. **Blind Collision**: Agents editing files concurrently have zero cross-branch awareness of each other until a final merge or rebase triggers complex conflict triage.\n3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are discovered *after* code changes are completed, requiring manual 3-way triage.\n\n### What Draft (`dft`) Delivers:\n- \ud83c\udf0c **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.\n- \ud83d\udce1 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.\n- \ud83d\udd2e **Predictive Merge Foresight (`dft foresee`)**: In-memory simulation of 3-way merges *before* branch integration occurs.\n- \ud83d\udd12 **Territory Leasing & Boundary Fences**: Advisory path leases (`dft claim`) and hard exclusionary barriers (`dft fence`) to prevent accidental agent collisions.\n- \ud83d\udd17 **Continuous Entanglement (`dft entangle`)**: Bi-directional live auto-synchronization of specific files across parallel dimensions.\n- \u23f0 **Autonomous Sync Daemon (`dft cronos`)**: Background continuous 3-way tree convergence engine.\n- \ud83c\udf0a **Multi-Branch Collapse (`dft collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.\n- \ud83d\udda5\ufe0f **Self-Hosted Developer Web Platform**: Web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.\n- \ud83e\ude90 **Decentralized Remote Sync (`DraftMultiverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.\n\n---\n\n## \ud83d\udcd6 Backstory & Philosophy: From Chronos to Kairos\n\n### The Swarm Concurrency Bottleneck\nIn 2026, autonomous AI engineering agents transitioned from novelty to necessity. Engineering teams attempted to orchestrate teams of specialized AI agents working concurrently on single repositories:\n- **Agent Alpha**: Database engine & migration rewrite.\n- **Agent Beta**: HTTP REST & WebSocket API layer.\n- **Agent Gamma**: Web frontend UI components.\n- **Agent Delta**: Comprehensive integration test suites.\n- **Agent Epsilon**: Memory profiling and algorithmic optimizations.\n\nThe moment multiple agents executed in parallel, **traditional single-worktree Git workflows hit severe friction**:\n- Agents switching branches trampled each other's unstaged files.\n- Multiple local clones duplicated tens of thousands of build artifacts, causing disk thrashing and operating system resource exhaustion.\n- At the end of every sprint, merging diverged branches created painful manual triage.\n\nIn ancient thought, the Greeks distinguished two forms of time: **Chronos (\u03a7\u03c1\u03cc\u03bd\u03bf\u03c2)**, the quantitative, sequential progression of linear events, and **Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*\u2014a single linear arrow where only one branch could be active at a time. **Draft was built to bring Kairos (\u039a\u03b1\u03b9\u03c1\u03cc\u03c2) and Metis (\u039c\u1fc6\u03c4\u03b9\u03c2, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (\u1f09\u03c1\u03bc\u03bf\u03bd\u03af\u03b1)** without collision.\n\n### Sincere Tribute to Linus Torvalds\nDraft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights\u2014content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots\u2014remain foundational.\n\nWe named this system **Draft (`draft` / `dft`)** because every parallel dimension represents an agile, working *draft* of your project. Where Git forces developers to commit every experiment to a single rigid working-tree sequence, Draft allows agents and developers to iterate on preliminary versions concurrently before bringing them together. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.\n\n---\n\n## \ud83d\udd2c Deep Technical Architecture\n\n```\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502   DraftMultiverse (GUI)    \u2502 (Web Platform on :3333)\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                             \u2502\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502   daft-cli (`dft` binary) \u2502\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                \u2502                \u2502                       \u2502                \u2502\n                \u25bc                \u25bc                       \u25bc                \u25bc\n       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510         \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510 \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n       \u2502 daft-convergence\u2502 \u2502 daft-sync \u2502         \u2502  daft-agent  \u2502 \u2502 daft-awareness\u2502\n       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518         \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518 \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                \u2502                \u2502                      \u2502                 \u2502\n                \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                 \u2502\n                            \u25bc                                             \u2502\n                  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                                    \u2502\n                  \u2502  daft-dimension  \u2502\u25c4\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                            \u25bc\n                  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                  \u2502    daft-core     \u2502 (CAS, Index, Myers Diff, Refs, Engine)\n                  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### 1. Content-Addressable Storage (CAS) Engine\n- **Hashing**: Cryptographic SHA-256 producing 32-byte direct digest identifiers (`ObjectId = [u8; 32]`, formatted as 64-character hex strings).\n- **Object Framing**: Canonical git-compatible envelope framing:\n  $$\\text{Payload} = \\langle\\text{type}\\rangle + \\texttt{\" \"} + \\langle\\text{length}\\rangle + \\texttt{\"\\\\0\"} + \\langle\\text{data}\\rangle$$\n- **Compression**: Deflate/zlib streaming compression (level 6) stored in loose fanout directories: `.dft/objects/xx/yyyy...`.\n- **Zero-Copy I/O**: High-throughput file inspection uses read-only memory-mapped I/O (`memmap2`) with automatic fallback to streaming buffers.\n- **Primitive Objects**:\n  - `Blob`: Raw byte payloads with null-byte detection for binary differentiation.\n  - `Tree`: Lexicographically sorted vectors of file mode, object name, and target SHA-256 ID.\n  - `Commit`: Immutable snapshot pointer containing tree hash, parent hashes, committer/author signature tuples (name, email, epoch timestamp), and commit message.\n  - `Tag`: Cryptographic pointer linking an arbitrary object to an annotated signature.\n\n### 2. Copy-on-Write (CoW) Workspace Engine\n- **Sub-Second Forking**: When a parallel dimension is spawned, Draft avoids byte copying by leveraging kernel-level reflink primitives:\n  - **macOS**: `clonefile()` / `fclonefileat()` via Apple File System (APFS).\n  - **Linux**: `ioctl(FICLONE)` / `ioctl(FICLONERANGE)` on Btrfs, XFS, and ZFS.\n  - **Fallback**: Hard-link trees with atomic break-on-write mechanisms for standard ext4.\n- **Storage Metrics**: Spawning an isolated 10,000-file dimension workspace completes in **0.06 seconds** and consumes **0 KB** of additional disk blocks until modified.\n- **Concurrency Isolation**: Each dimension maintains its own independent working directory, index (`.dft/dimensions/<name>/index`), and branch ref pointer, sharing the root CAS object pool without lock contention.\n\n### 3. Differential Analysis & 3-Way Tree Reconciliation\n- **Myers Algorithm**: Complete implementation of Eugene Myers' $O(ND)$ greedy difference algorithm, generating the minimal Shortest Edit Script (SES) between sequences.\n- **Tree Merge Engine (`merge_trees_3way`)**:\n  - Graph traversal locates the Lowest Common Ancestor (LCA) commit.\n  - Generates 3-way disjoint hunk sets: *Base* ($O$), *Ours* ($A$), and *Theirs* ($B$).\n  - Clean non-overlapping hunks are auto-resolved into the target index.\n  - Overlapping edits automatically emit diff3 standard conflict markers:\n    ```\n    <<<<<<< ours (dimension-a)\n    modified code from dimension A\n    ||||||| base\n    original base code\n    =======\n    concurrent code from dimension B\n    >>>>>>> theirs (dimension-b)\n    ```\n\n### 4. Timeline Divergence Metric ($H$)\nDraft computes a quantitative divergence score $H(D_A, D_B) \\in [0.0, 1.0]$ between any two dimensions across four weighted components:\n$$H(D_A, D_B) = 0.50 \\cdot C_{\\text{commits}} + 0.25 \\cdot F_{\\text{files}} + 0.15 \\cdot T_{\\text{trees}} + 0.10 \\cdot L_{\\text{lines}}$$\n\n- **$C_{\\text{commits}}$**: Distance in the commit DAG from their Lowest Common Ancestor (LCA).\n- **$F_{\\text{files}}$**: Ratio of concurrently modified files over total tracked files.\n- **$T_{\\text{trees}}$**: Jaccard distance between the dimension tree snapshots: $1 - \\frac{|T_A \\cap T_B|}{|T_A \\cup T_B|}$.\n- **$L_{\\text{lines}}$**: Overlapping hunk modifications in shared files.\n\n#### Divergence Risk Tiers:\n- $H = 0.0$: Identical state (clean fast-forward possible).\n- $0.0 < H \\le 0.15$: Negligible divergence (clean auto-merge expected; minimal file overlap).\n- $0.15 < H \\le 0.35$: Low divergence (auto-merge expected).\n- $0.35 < H \\le 0.65$: Moderate divergence (cross-file edits require awareness).\n- $H > 0.65$: High divergence (elevated collision risk; pre-conflict warnings triggered).\n\n---\n\n## \ud83d\udee0\ufe0f Using Draft with Standard Open-Source Workflows\n\n### 1. Installation\n\n#### A. Homebrew (macOS & Linux)\nInstall directly from our official tap:\n```bash\nbrew install draft-vcs/draft/dft\n```\n\n#### B. Standalone Shell Script (macOS & Linux)\nZero-dependency instant installer for workstations and CI/CD runners:\n```bash\ncurl -fsSL https://draftmultiverse.org/install.sh | sh\n```\n\n#### C. Cargo (Rust Crates.io)\n```bash\ncargo install draft-vcs\n```\n\n#### D. Building from Source\n```bash\n# Clone the repository\ndft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse\n# or: git clone https://github.com/draft-vcs/draft.git\ncd draft\n\n# Build optimized release binaries\ncargo build --release\n\n# Install globally into your cargo bin path\ncargo install --path crates/daft-cli\n\n# Verify dft command\ndft --version\n```\n\n---\n\n### 2. Quickstart: Standard Version Control\n\nDraft offers a familiar interface for standard version control commands:\n\n```bash\n# Initialize a new Draft repository\ndft init my-project\ncd my-project\n\n# Configure your developer identity\ndft config --set user.name \"Your Name\"\ndft config --set user.email \"you@example.org\"\n\n# Stage and commit files\necho \"fn main() { println!(\\\"Hello World\\\"); }\" > main.rs\ndft add main.rs\ndft commit -m \"feat: initial commit\"\n\n# Inspect status, history, and diffs\ndft status\ndft log\ndft diff\n```\n\n---\n\n### 3. Parallel Development: Multi-Agent & Multi-Feature Workflows\n\nRun multiple parallel feature branches simultaneously in the same repository:\n\n```bash\n# 1. Create parallel dimensions for concurrent work\ndft dimension create feature-auth\ndft dimension create feature-db\n\n# 2. List all active dimensions\ndft dimension list\n# Output:\n#   feature-auth  [clean]\n#   feature-db    [clean]\n# * mainline      [clean]\n\n# 3. Enter a dimension and work in isolation\ndft dimension enter feature-auth\n\n# 4. Acquire an advisory lease on files\ndft claim src/auth.rs\n\n# 5. Check real-time radar for concurrent hot zones\ndft radar --hot\n\n# 6. Check for potential merge conflicts in memory before merging\ndft foresee feature-auth mainline\n\n# 7. Converge feature branch back into mainline\ndft dimension enter mainline\ndft converge feature-auth mainline\n```\n\n---\n\n### 4. Seamless Hybrid Workflow: Develop in Parallel with Draft \u2192 Push to Git\n\nYou do not need to replace your organization's Git infrastructure, GitHub Pull Request workflows, or existing CI/CD pipelines to harness the concurrency power of Draft. You can use **Draft as a local concurrency acceleration layer** on top of any existing Git repository:\n\n> **\"Develop in the Multiverse with Draft, Ship to the World with Git.\"**\n\n```\n                     \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                     \u2502              Existing Git Repository (.git)            \u2502\n                     \u2502          (GitHub / GitLab / Bitbucket / Upstream)      \u2502\n                     \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b2\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                 git push origin main / dft export\n                                                 \u2502\n                               \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                               \u2502       Draft Mainline Working Tree   \u2502\n                               \u2502        (Converged, Tested, Clean)  \u2502\n                               \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25b2\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                   dft collapse / dft converge\n                                                 \u2502\n                   \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                   \u2502                             \u2502                             \u2502\n        \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510      \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n        \u2502  Dimension: dim-auth \u2502      \u2502  Dimension: dim-api  \u2502      \u2502  Dimension: dim-ui   \u2502\n        \u2502  (Agent / Dev 1)     \u2502      \u2502  (Agent / Dev 2)     \u2502      \u2502  (Agent / Dev 3)     \u2502\n        \u2502  \u2022 CoW Workspace     \u2502      \u2502  \u2022 CoW Workspace     \u2502      \u2502  \u2022 CoW Workspace     \u2502\n        \u2502  \u2022 Exclusive Claim   \u2502      \u2502  \u2022 Exclusive Claim   \u2502      \u2502  \u2022 Exclusive Claim   \u2502\n        \u2502  \u2022 Hot-Zone Radar    \u2502      \u2502  \u2022 Hot-Zone Radar    \u2502      \u2502  \u2022 Hot-Zone Radar    \u2502\n        \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518      \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518      \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                   \u25b2                             \u25b2                             \u25b2\n                   \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                                 \u2502\n                                Shared Content-Addressable Storage (CAS)\n                                      Zero Duplicate Disk Blocks\n```\n\n#### Why Combine Draft with Git?\n\n| Concurrency Dimension | Traditional Git / Worktrees | Draft Multiverse Swarm |\n|:---|:---|:---|\n| **Workspace Creation Speed** | 2.5s \u2013 5.0s (full directory clone / worktree setup) | **0.06s** (instant APFS/Btrfs CoW reflink) |\n| **Disk Footprint** | Multiplies linearly per full clone or separate working tree (GBs) | **0 KB** additional blocks until modified (CoW) |\n| **Branch Switching Overhead** | Must stash, commit, or clean working tree | Zero overhead: each dimension is an isolated workspace |\n| **Multi-Agent Awareness** | Blind: agents overwrite shared files | **Real-Time Radar (`dft radar`)** & Territory Claims |\n| **Merge Conflict Triage** | Reactive: conflicts discovered after work | **Predictive: `dft foresee`** flags collisions in advance |\n| **Upstream Compatibility** | Native | **Fully Compatible**: push standard Git commits to GitHub/GitLab |\n\n---\n\n#### Step-by-Step Guide: The Parallel Draft \u2192 Git Push Flow\n\n##### Step 1: Enable Draft in Your Existing Git Repository\nNavigate to your current project. Draft lives harmoniously alongside `.git/` without altering your Git status:\n```bash\ncd my-existing-git-repo\n\n# Initialize Draft VCS engine (.dft/)\ndft init\n\n# Keep Draft internal state untracked in Git\necho \".dft/\" >> .gitignore\ngit add .gitignore && git commit -m \"chore: enable Draft parallel multiverse engine\"\n```\n\n##### Step 2: Spawn Parallel Dimensions for Features or AI Agents\nInstead of fighting branch switches or juggling multiple working tree clones, spawn parallel dimensions in milliseconds:\n```bash\n# Instant CoW branches for concurrent tasks\ndft dimension create feat-auth\ndft dimension create feat-billing\ndft dimension create feat-docs\n\n# Verify your multiverse fleet\ndft dimension list\n#   feat-auth     [clean]\n#   feat-billing  [clean]\n#   feat-docs     [clean]\n# * mainline      [clean]\n```\n\n##### Step 3: Work Concurrently in Parallel Dimensions\nEach dimension operates in complete filesystem isolation under `.dft/dimensions/<name>/workspace`:\n- **Developer / Agent Alpha** works on Authentication:\n  ```bash\n  cd .dft/dimensions/feat-auth/workspace\n  dft claim src/auth.rs                    # Claim advisory territory\n  # Edit, test, and commit locally within dimension\n  dft add src/auth.rs\n  dft commit -m \"feat(auth): implement JWT token verification\"\n  ```\n- **Developer / Agent Beta** works on Billing concurrently:\n  ```bash\n  cd .dft/dimensions/feat-billing/workspace\n  dft claim src/billing.rs                 # Claim advisory territory\n  # Edit, test, and commit locally within dimension\n  dft add src/billing.rs\n  dft commit -m \"feat(billing): add Stripe webhook handler\"\n  ```\n\n##### Step 4: Proactive Collision Check with Predictive Merge Foresight\nBefore bringing changes together, verify that no conflicting hunks exist:\n```bash\n# In-memory simulation of 3-way reconciliation without touching working code\ndft foresee feat-auth mainline\n# Output:\n#   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'\n#   [FORESEE] Clean auto-merge predicted: 0 conflicts detected.\n#   [FORESEE] Divergence Metric: H = 0.04 (minimal divergence)\n```\n\n##### Step 5: Converge & Collapse into Mainline\nWhen parallel work is finished and verified, collapse all dimensions or converge specific features back into `mainline`:\n```bash\n# Return to the root workspace (mainline)\ndft dimension enter mainline\n\n# Converge features into mainline\ndft converge feat-auth mainline\ndft converge feat-billing mainline\ndft converge feat-docs mainline\n\n# Or collapse all active dimensions into mainline in a single command:\ndft collapse\n```\n\n##### Step 6: Seamlessly Push to Git / GitHub / GitLab\nYour root working tree now contains all converged, tested, and conflict-free changes. Git sees standard working tree modifications ready for upstream:\n```bash\n# Inspect status using standard Git\ngit status\n\n# Stage the converged changes\ngit add src/auth.rs src/billing.rs docs/\n\n# Record as standard Git commits\ngit commit -m \"feat: integrate auth, billing, and docs from parallel swarm\"\n\n# Push straight to GitHub, GitLab, or your corporate Git remote!\ngit push origin main\n```\n\n##### Optional: Direct Git Bridge & Import/Export\nYou can also import existing Git history or export Draft dimensions:\n```bash\n# Import an existing Git repository into Draft\ndft import git\n\n# Export a specific dimension to standard Git format\ndft export git --dimension mainline\n\n# Verify compatibility bridge status\ndft compat git-bridge\n```\n\n> **Tip**: Because Draft converges changes directly into standard working tree files on mainline, you can push integrated commits upstream to GitHub or GitLab without altering your team's existing review processes or CI/CD pipelines.\n\n---\n\n### 5. Orchestrating AI Agents with `SKILL.md`\n\nDraft ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Draft repository.\n\n#### Why AI Agents Need `SKILL.md`\nStandard coding agents assume Git's single-working-tree model: when multiple agents run concurrently, they switch branches under each other, overwrite uncommitted files, and trigger race conditions. \n\nBy reading [`SKILL.md`](SKILL.md), agents understand how to:\n1. **Never work directly in `mainline`** during active feature development.\n2. **Spawn instant isolated CoW dimensions** (`dft dimension create`) with zero disk bloat.\n3. **Lease file paths** using advisory claims (`dft claim`) and respect boundary fences (`dft fence`).\n4. **Sense concurrent edits** across the agent fleet using real-time radar (`dft radar --hot`).\n5. **Communicate peer-to-peer** with other agents via asynchronous mailboxes (`dft agent send` / `dft agent read`).\n6. **Pre-test 3-way merge viability** (`dft foresee`) before converging into mainline.\n\n---\n\n#### How to Equip Your AI Agents with `SKILL.md`\n\n##### A. In Antigravity / Agentic IDEs\nDraft's `SKILL.md` adheres to the open-standard agent skill manifest format with YAML frontmatter:\n```markdown\n---\nname: draft-vcs\ndescription: Operational guide and multi-agent protocol for Draft ('dft')...\n---\n```\n- The IDE automatically discovers [`SKILL.md`](SKILL.md) in the workspace root.\n- Agents automatically adopt the Draft multi-agent lifecycle when assigned coding tasks.\n\n##### B. In Claude Code, Cursor, or Terminal Agent Prompts\nFeed [`SKILL.md`](SKILL.md) directly into your agent's context or system prompt:\n```bash\n# Example invocation with Claude Code or terminal LLMs:\nclaude \"Read SKILL.md and implement the JWT authentication module following the 8-step Draft agent protocol.\"\n```\nOr in Cursor / Copilot Chat:\n> *\"@SKILL.md Follow the Draft agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `dft foresee`, and converge back to mainline.\"*\n\n##### C. Programmatic Multi-Agent Swarms (Python / TypeScript / Rust)\nWhen orchestrating swarms with frameworks like CrewAI, LangGraph, or AutoGen, provide `SKILL.md` as the system instruction or tool reference:\n```python\n# Pass SKILL.md contents into the agent system prompt\nwith open(\"SKILL.md\") as f:\n    draft_skill_prompt = f.read()\n\nagent_worker = Agent(\n    role=\"Backend Engine Developer\",\n    system_prompt=f\"You operate in a Draft VCS repository. Follow this protocol:\\n{draft_skill_prompt}\"\n)\n```\n\n---\n\n#### The 8-Step Autonomous Agent Lifecycle\n\nEvery agent interacting with Draft follows a structured lifecycle:\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 1. Register:   dft agent register <id> --type ai       \u2502\n\u2502 2. Dimension:  dft dimension create <id>/<task_name>   \u2502\n\u2502 3. Radar:      dft radar --hot                         \u2502\n\u2502 4. Claim:      dft claim <file_path>                   \u2502\n\u2502 5. Code & Save:dft add . && dft commit -m \"feat: ...\"  \u2502\n\u2502 6. Foresee:    dft foresee <dimension> mainline        \u2502\n\u2502 7. Converge:   dft converge <dimension> mainline       \u2502\n\u2502 8. Yield:      dft yield <file_path>                   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n1. **Register**: The agent registers its worker identity and sends heartbeat pings:\n   ```bash\n   dft agent register agent-coder --type ai\n   dft heartbeat agent-coder\n   ```\n2. **Dimension Creation**: Spawns an isolated CoW parallel workspace in 0.06 seconds:\n   ```bash\n   dft dimension create agent-coder/auth-feature\n   dft dimension enter agent-coder/auth-feature\n   ```\n3. **Radar Inspection**: Checks whether other dimensions or developers are modifying overlapping paths:\n   ```bash\n   dft radar --hot\n   ```\n4. **Territory Lease**: Acquires an advisory lock on target files to signal ownership:\n   ```bash\n   dft claim src/auth.rs\n   ```\n5. **Implement & Commit**: Makes changes and records isolated commits within its private dimension without affecting other workers:\n   ```bash\n   dft add src/auth.rs\n   dft commit -m \"feat(auth): add bearer token verification\"\n   ```\n6. **Predictive Merge Foresight**: Runs an in-memory 3-way simulation to verify conflict-free integration before convergence:\n   ```bash\n   dft foresee agent-coder/auth-feature mainline\n   ```\n7. **Convergence**: Reconciles the dimension back into `mainline`:\n   ```bash\n   dft dimension enter mainline\n   dft converge agent-coder/auth-feature mainline\n   ```\n8. **Yield & Cleanup**: Releases file claims and tears down the ephemeral dimension:\n   ```bash\n   dft yield src/auth.rs\n   dft dimension destroy agent-coder/auth-feature\n   ```\n\n---\n\n#### Peer-to-Peer Agent Mailbox Protocol\nAgents can coordinate directly without third-party message brokers using Draft's built-in file-backed mailboxes:\n```bash\n# Agent Alpha notifies Agent Beta about updated API types\ndft agent send agent-beta \"New user payload types committed to shared/types/user.rs\"\n\n# Agent Beta checks its incoming mailbox\ndft agent read agent-beta\n```\n\n#### Real-World Verification: AetherDB Swarm\nThis exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent_team_miniproject), where 3 autonomous AI agents concurrently built a persistent Key-Value database (WAL storage, API parser, and REPL CLI) in parallel dimensions and converged cleanly into mainline without merge conflicts.\n\n---\n\n### 6. Automated CI/CD & AI Agent Pipelines\n\nEvery Draft command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:\n\n```bash\n# Get machine-readable status\ndft status --json\n\n# Run conflict prediction in CI\ndft foresee dimension-a mainline --json\n\n# Query radar telemetry in scripts\ndft radar --json\n```\n\n#### Example GitHub Actions Workflow Step:\n```yaml\n- name: Verify Cross-Branch Convergence\n  run: |\n    dft dimension enter mainline\n    dft foresee pr-branch mainline --json > conflict_report.json\n    if grep -q '\"has_conflicts\": true' conflict_report.json; then\n      echo \"Convergence conflict detected before merge!\"\n      exit 1\n    fi\n```\n\n---\n\n### 7. Self-Hosting: DraftMultiverse Web & Remote Server\n\nDraft includes a complete, self-hosted web platform and headless remote server (**DraftMultiverse**):\n\n#### Launching the Web Platform\n```bash\n# Launch the DraftMultiverse Web GUI\ndft ui --port 3333\n```\nOpen **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:\n- **`<> Code`**: Interactive file tree, breadcrumbs, text blob inspector with line numbers, and markdown preview.\n- **`\u23f1\ufe0f Commits`**: Commit history log with integrated Myers diff viewer (additions `+` green, deletions `-` red).\n- **`\ud83c\udf0c Multiverse`**: Spacetime DAG canvas mapping concurrent parallel timelines.\n- **`\ud83d\udd00 Convergence`**: PR-style dashboard for dry-run conflict checks, multi-branch collapse, and dimension convergence.\n- **`\ud83d\udce1 Radar & Territory`**: Heatmap HUD for hot zones, timeline divergence score, and file claims.\n- **`\ud83e\udd16 Agent Fleet`**: AI and human agent roster with live heartbeats and direct mailboxes.\n- **`\u23f0 Cronos Daemon`**: Background sync controls and continuous event log streamer.\n- **`\u26a1 Terminal`**: In-browser command prompt supporting execution of any `dft` command.\n\n#### Setting up a Self-Hosted Remote Server (`DraftMultiverse`)\n```bash\n# 1. Initialize a bare server repository on your server or local disk\nmkdir -p /path/to/DraftMultiverse\ndft init --bare /path/to/DraftMultiverse\n\n# 2. Add as remote origin in your working project\ndft remote add origin /path/to/DraftMultiverse\n\n# 3. Deploy and synchronize all dimensions\ndft push origin mainline\ndft push origin agent-quantum\n```\n\n---\n\n## \ud83d\udccb Comprehensive Command Matrix\n\n### Layer 1: Core VCS Commands (Git Equivalent)\n| Command | Git Analog | Description |\n|:---|:---|:---|\n| `dft init` | `git init` | Initialize a new repository (`.dft/`) |\n| `dft clone` | `git clone` | Clone a repository into a new workspace |\n| `dft config` | `git config` | Query or modify configuration settings |\n| `dft add` | `git add` | Stage file content changes into binary index |\n| `dft status` | `git status` | Reconcile HEAD tree, Index, and Working Tree |\n| `dft commit` | `git commit` | Record staged changes as an immutable commit |\n| `dft reset` | `git reset` | Reset current HEAD pointer (soft, mixed, hard) |\n| `dft restore` | `git restore` | Restore working directory or staged index files |\n| `dft rm` / `dft mv` | `git rm` / `git mv` | Delete or move/rename tracked files |\n| `dft stash` | `git stash` | Safely shelve dirty uncommitted changes |\n| `dft branch` | `git branch` | Create, list, or delete branches |\n| `dft checkout` / `dft switch` | `git checkout` / `git switch` | Switch active branch or restore file revisions |\n| `dft merge` | `git merge` | Join development histories via 3-way tree merge |\n| `dft rebase` | `git rebase` | Replay commits onto a new base tip |\n| `dft cherry-pick` | `git cherry-pick` | Apply specific commit diffs to the current branch |\n| `dft tag` | `git tag` | Create or verify lightweight/annotated tags |\n| `dft log` | `git log` | Traverse and format commit DAG history |\n| `dft diff` | `git diff` | Myers differential analysis across trees/blobs |\n| `dft show` | `git show` | Pretty-print commits, trees, blobs, or tags |\n| `dft blame` | `git blame` | Line-by-line commit authorship provenance |\n| `dft grep` | `git grep` | Fast regex pattern matching across tracked files |\n| `dft bisect` | `git bisect` | Binary search regression finder |\n| `dft reflog` | `git reflog` | Audit append-only reference transaction history |\n| `dft gc` / `dft fsck` | `git gc` / `git fsck` | Object pruning, repacking, and integrity verification |\n\n### Layer 2: Draft Multiverse Commands (Exclusive Capabilities)\n| Command | Subsystem | Description |\n|:---|:---|:---|\n| `dft dimension create <name>` | Parallel Workspace | Instant CoW workspace creation (< 0.06s) |\n| `dft dimension list` | Parallel Workspace | List active parallel dimensions and sync state |\n| `dft dimension enter <name>` | Parallel Workspace | Shift active shell context to another dimension |\n| `dft dimension destroy <name>`| Parallel Workspace | Tear down dimension while preserving CAS objects |\n| `dft snapshot` | Workspace Snapshot | Capture immutable point-in-time state across dimensions |\n| `dft observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state without checking it out |\n| `dft radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |\n| `dft foresee <dim1> <dim2>` | Predictive Merge | Simulate 3-way tree reconciliation in memory before merging |\n| `dft entropy` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \\in [0.0, 1.0]$ |\n| `dft claim <path>` | Territory Protocol | Acquire advisory file lease with TTL |\n| `dft yield <path>` | Territory Protocol | Release an active territory claim |\n| `dft fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |\n| `dft collapse` | Convergence Engine | Reconcile all active parallel dimensions back into mainline |\n| `dft converge <d1> <d2>` | Convergence Engine | Multi-head 3-way reconciliation of specific dimensions |\n| `dft cascade <d1> --to <d2>`| Convergence Engine | Propagate updates down a chain of dependent dimensions |\n| `dft weave <d1> <d2>` | Convergence Engine | Interleave commits in causal-chronological vector order |\n| `dft splice <dim> <range>` | Convergence Engine | Transplant a commit slice between dimensions |\n| `dft entangle <d1> <d2>` | Entanglement Engine | Continuous bi-directional file auto-synchronization rule |\n| `dft cronos start/stop/log` | Background Sync | Autonomous background 3-way convergence daemon |\n| `dft agent register/list` | Multi-Agent Swarm | Register AI/human worker identities and roles |\n| `dft agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |\n| `dft heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |\n| `dft timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |\n| `dft ui [--port 3333]` | Web Platform | Launch the DraftMultiverse self-hosted web platform |\n| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftMultiverse remotes |\n\n---\n\n## \ud83e\udd1d Contributing & Community\n\nDraft is an open-source project welcoming developers, systems programmers, and AI researchers:\n\n### Development Workflow\n```bash\n# Run the complete test suite across all crates\ncargo test --workspace\n\n# Run targeted stress and adversarial tests\ncargo test -p daft-core\ncargo test -p daft-awareness\n\n# Code formatting & linting\ncargo fmt --all -- --check\ncargo clippy --workspace --all-targets -- -D warnings\n```\n\n---\n\n## \ud83d\udcdc License\n\nDraft is licensed under the **GNU General Public License v2.0 (GPL v2)** \u2014 the same license that has preserved the freedom of Git and the Linux kernel for decades. See [LICENSE](LICENSE) for details.\n";
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            const btn = document.getElementById(`tab-${tabId}`);
+            const view = document.getElementById(`view-${tabId}`);
+            if (btn) btn.classList.add('active');
+            if (view) view.classList.add('active');
+
+            if (tabId === 'multiverse') {
+                fetchState();
+                loadTimeline();
+            } else if (tabId === 'commits') {
+                loadCommits();
+            }
+        }
+
+        async function loadTree(path = "") {
+            currentPath = path;
+            renderBreadcrumbs(path);
+            try {
+                const res = await fetch(`/api/tree?path=${encodeURIComponent(path)}`);
+                const data = await res.json();
+                const tbody = document.querySelector('#fileTable tbody');
+                tbody.innerHTML = '';
+
+                if (path !== "") {
+                    const parentPath = path.includes('/') ? path.substring(0, path.lastIndexOf('/')) : '';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="file-icon">📁</td>
+                        <td class="file-name" onclick="loadTree('${parentPath}')">..</td>
+                        <td class="file-size"></td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+
+                data.entries.forEach(e => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="file-icon">${e.is_dir ? '📁' : '📄'}</td>
+                        <td class="file-name" onclick="${e.is_dir ? `loadTree('${e.path}')` : `loadBlob('${e.path}')`}">${e.name}</td>
+                        <td class="file-size">${e.is_dir ? '-' : formatBytes(e.size)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('fileCountBadge').textContent = `${data.entries.length} items`;
+            } catch (err) {
+                console.error("Failed to load tree:", err);
+            }
+        }
+
+        function renderBreadcrumbs(path) {
+            const bar = document.getElementById('breadcrumbsBar');
+            bar.innerHTML = `<span class="breadcrumb-link" onclick="loadTree('')">Draft</span>`;
+            if (!path) return;
+
+            const parts = path.split('/');
+            let accumulated = '';
+            parts.forEach((p, idx) => {
+                accumulated += (idx > 0 ? '/' : '') + p;
+                const pathCopy = accumulated;
+                bar.innerHTML += ` / <span class="breadcrumb-link" onclick="loadTree('${pathCopy}')">${p}</span>`;
+            });
+        }
+
+        let currentBlobData = null;
+        let currentBlobPath = null;
+        let currentMarkdownMode = 'preview';
+
+        async function loadBlob(filePath) {
+            try {
+                const res = await fetch(`/api/blob?path=${encodeURIComponent(filePath)}`);
+                const data = await res.json();
+                if (data.content !== undefined) {
+                    currentBlobData = data;
+                    currentBlobPath = filePath;
+                    document.getElementById('fileBrowserView').style.display = 'none';
+                    document.getElementById('readmeSection').style.display = 'none';
+                    document.getElementById('codeViewer').style.display = 'block';
+                    document.getElementById('codeFileName').textContent = filePath;
+                    document.getElementById('codeFileMeta').textContent = `${data.lines} lines | ${formatBytes(data.size)}`;
+                    document.getElementById('codeContent').textContent = data.content;
+
+                    const isMd = filePath.toLowerCase().endsWith('.md') || filePath.toLowerCase().endsWith('.markdown');
+                    const toggleBox = document.getElementById('mdViewToggle');
+                    const mdContainer = document.getElementById('markdownContent');
+                    const rawPre = document.getElementById('codeContent');
+
+                    if (isMd) {
+                        toggleBox.style.display = 'flex';
+                        setMarkdownMode(currentMarkdownMode);
+                    } else {
+                        toggleBox.style.display = 'none';
+                        mdContainer.style.display = 'none';
+                        rawPre.style.display = 'block';
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function setMarkdownMode(mode) {
+            currentMarkdownMode = mode;
+            const btnPrev = document.getElementById('btnPreview');
+            const btnRaw = document.getElementById('btnRaw');
+            const mdContainer = document.getElementById('markdownContent');
+            const rawPre = document.getElementById('codeContent');
+
+            if (!btnPrev || !btnRaw || !mdContainer || !rawPre) return;
+
+            if (mode === 'preview') {
+                btnPrev.classList.add('active');
+                btnRaw.classList.remove('active');
+                mdContainer.innerHTML = parseMarkdown(currentBlobData ? currentBlobData.content : '');
+                mdContainer.style.display = 'block';
+                rawPre.style.display = 'none';
+            } else {
+                btnRaw.classList.add('active');
+                btnPrev.classList.remove('active');
+                mdContainer.style.display = 'none';
+                rawPre.style.display = 'block';
+            }
+        }
+
+        function closeCodeViewer() {
+            document.getElementById('codeViewer').style.display = 'none';
+            document.getElementById('fileBrowserView').style.display = 'block';
+            document.getElementById('readmeSection').style.display = 'block';
+        }
+
+        function copyCodeContent() {
+            const text = document.getElementById('codeContent').textContent;
+            navigator.clipboard.writeText(text);
+            alert("Code copied to clipboard!");
+        }
+
+        async function loadCommits() {
+            try {
+                const res = await fetch('/api/commits');
+                const data = await res.json();
+                const list = document.getElementById('commitList');
+                list.innerHTML = '';
+                if (!data.commits || data.commits.length === 0) {
+                    list.innerHTML = '<div style="padding: 2rem; text-align: center;">No commits found</div>';
+                    return;
+                }
+                data.commits.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'commit-item';
+                    div.innerHTML = `
+                        <div>
+                            <div class="commit-title">${c.message || 'No commit message'}</div>
+                            <div class="commit-meta">${c.author || 'Author'} &bull; ${c.date || ''}</div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="commit-sha">${c.hash ? c.hash.substring(0, 10) : ''}</span>
+                            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="viewCommitDiff('${c.hash}')">Myers Diff</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                if (data.commits[0]) {
+                    document.getElementById('latestCommitHeader').innerHTML = `
+                        <strong>${data.commits[0].author || 'Author'}</strong>: ${data.commits[0].message || ''}
+                        <span class="commit-sha" style="margin-left: 0.5rem;">${data.commits[0].hash.substring(0, 7)}</span>
+                    `;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function viewCommitDiff(hash) {
+            try {
+                const res = await fetch(`/api/commit?hash=${hash}`);
+                const data = await res.json();
+                const box = document.getElementById('diffViewerBox');
+                const content = document.getElementById('diffViewerContent');
+                box.style.display = 'block';
+                document.getElementById('diffViewerTitle').textContent = `Commit Myers Diff: ${hash.substring(0, 10)}`;
+
+                let formatted = '';
+                const lines = (data.output || '').split('\n');
+                lines.forEach(l => {
+                    if (l.startsWith('+') && !l.startsWith('+++')) {
+                        formatted += `<span class="diff-add">${escapeHtml(l)}</span>\n`;
+                    } else if (l.startsWith('-') && !l.startsWith('---')) {
+                        formatted += `<span class="diff-del">${escapeHtml(l)}</span>\n`;
+                    } else if (l.startsWith('@@')) {
+                        formatted += `<span class="diff-hunk">${escapeHtml(l)}</span>\n`;
+                    } else {
+                        formatted += `${escapeHtml(l)}\n`;
+                    }
+                });
+                content.innerHTML = formatted || 'No diff output.';
+                box.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function closeDiffViewer() {
+            document.getElementById('diffViewerBox').style.display = 'none';
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function fetchState() {
+            try {
+                const res = await fetch('/api/state');
+                const state = await res.json();
+                currentDim = state.active_dimension;
+
+                // Populate Dim Select
+                const sel = document.getElementById('dimSelect');
+                sel.innerHTML = '';
+                state.dimensions.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.name;
+                    opt.textContent = `Dimension: ${d.name} ${d.is_active ? '★' : ''}`;
+                    if (d.is_active) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+
+                // Territory
+                const claims = Object.keys(state.territory.claims || {});
+                document.getElementById('territoryClaimsList').innerHTML = claims.length > 0
+                    ? claims.map(c => `<div>🔒 <code>${c}</code> (claimed) <button class="btn" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="runCmd('yield ${c}')">Yield</button></div>`).join('')
+                    : 'No active file claims.';
+                const fences = state.territory.fences || [];
+                document.getElementById('territoryFencesList').innerHTML = fences.length > 0
+                    ? fences.map(f => `<div>🚧 <code>${f}</code> (hard boundary fence)</div>`).join('')
+                    : 'No active boundary fences.';
+
+                // Agents
+                const fleetBox = document.getElementById('agentFleetBox');
+                if (state.agents && state.agents.length > 0) {
+                    fleetBox.innerHTML = state.agents.map(a => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border);">
+                            <div>
+                                <span>🤖 <strong>${a.name || a.agent_type || 'agent'}</strong> <span class="repo-badge">${a.agent_type || 'ai'}</span></span>
+                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Dimension: <code>${a.dimension || 'mainline'}</code></div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent read ${a.name || a.agent_type}')">Mailbox</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('heartbeat')">Heartbeat</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    fleetBox.innerHTML = '<div style="color: var(--text-muted); padding: 1rem 0;">No agents registered. Click "+ Register Agent" to recruit an AI agent.</div>';
+                }
+
+                // Cronos
+                document.getElementById('cronosStatusText').innerHTML = `Status: ${state.cronos.running ? '<span style="color: var(--success);"><span class="badge-live"></span>RUNNING (Autonomous 3-way sync active)</span>' : '<span style="color: var(--text-muted);">STANDBY (Stopped)</span>'}`;
+
+                if (state.dimensions && state.dimensions.length > 0) {
+                    const filterSelect = document.getElementById('timelineDimFilter');
+                    if (filterSelect && filterSelect.options.length <= 1) {
+                        state.dimensions.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.name;
+                            opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
+                            filterSelect.appendChild(opt);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // -------------------------------------------------------------
+        // Multiverse Spacetime Timeline DAG
+        // -------------------------------------------------------------
+        let currentTimelineMode = 'svg';
+        let timelineGraphData = null;
+
+        function setTimelineViewMode(mode) {
+            currentTimelineMode = mode;
+            ['btnTimelineSvg', 'btnTimelineAscii', 'btnTimelineAncestry', 'btnTimelineJson'].forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.classList.remove('active');
+            });
+            ['timelineSvgContainer', 'timelineAsciiContainer', 'timelineAncestryContainer', 'timelineJsonContainer'].forEach(id => {
+                const c = document.getElementById(id);
+                if (c) c.style.display = 'none';
+            });
+
+            if (mode === 'svg') {
+                document.getElementById('btnTimelineSvg').classList.add('active');
+                document.getElementById('timelineSvgContainer').style.display = 'block';
+            } else if (mode === 'ascii') {
+                document.getElementById('btnTimelineAscii').classList.add('active');
+                document.getElementById('timelineAsciiContainer').style.display = 'block';
+            } else if (mode === 'ancestry') {
+                document.getElementById('btnTimelineAncestry').classList.add('active');
+                document.getElementById('timelineAncestryContainer').style.display = 'block';
+            } else if (mode === 'json') {
+                document.getElementById('btnTimelineJson').classList.add('active');
+                document.getElementById('timelineJsonContainer').style.display = 'block';
+            }
+            loadTimeline();
+        }
+
+        async function loadTimeline() {
+            const filterSelect = document.getElementById('timelineDimFilter');
+            const dim = filterSelect ? filterSelect.value : '';
+            const dimQuery = dim ? `&dimension=${encodeURIComponent(dim)}` : '';
+
+            // 1. Fetch metadata JSON for stats
+            try {
+                const jsonRes = await fetch(`/api/timeline?format=json${dimQuery}`);
+                timelineGraphData = await jsonRes.json();
+
+                if (timelineGraphData && timelineGraphData.dimensions) {
+                    document.getElementById('tlStatDims').textContent = timelineGraphData.dimensions.length;
+                    const activeDim = timelineGraphData.dimensions.find(d => d.is_active);
+                    document.getElementById('tlStatActive').textContent = activeDim ? activeDim.name : (currentDim || 'mainline');
+                    document.getElementById('tlStatCommits').textContent = timelineGraphData.nodes ? timelineGraphData.nodes.length : 0;
+                    document.getElementById('tlStatEdges').textContent = timelineGraphData.edges ? timelineGraphData.edges.length : 0;
+
+                    // Populate filter dropdown if empty
+                    if (filterSelect && filterSelect.options.length <= 1) {
+                        timelineGraphData.dimensions.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.name;
+                            opt.textContent = `Dimension: ${d.name}${d.is_active ? ' (active)' : ''}`;
+                            filterSelect.appendChild(opt);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load timeline metadata:", err);
+            }
+
+            // 2. Fetch specific format according to currentTimelineMode
+            try {
+                if (currentTimelineMode === 'svg') {
+                    const svgRes = await fetch(`/api/timeline?format=svg${dimQuery}`);
+                    const svgText = await svgRes.text();
+                    const container = document.getElementById('timelineSvgContent');
+                    container.innerHTML = svgText;
+
+                    // Bind interactivity to commit nodes
+                    if (timelineGraphData && timelineGraphData.nodes) {
+                        timelineGraphData.nodes.forEach(node => {
+                            const el = document.getElementById(`node_${node.short_id}`);
+                            if (el) {
+                                el.style.cursor = 'pointer';
+                                el.addEventListener('mouseenter', () => {
+                                    el.style.opacity = '0.75';
+                                });
+                                el.addEventListener('mouseleave', () => {
+                                    el.style.opacity = '1.0';
+                                });
+                                el.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    inspectTimelineNode(node);
+                                });
+                            }
+                        });
+                    }
+                } else if (currentTimelineMode === 'ascii') {
+                    const asciiRes = await fetch(`/api/timeline?format=ascii${dimQuery}`);
+                    const text = await asciiRes.text();
+                    document.getElementById('timelineAsciiContent').textContent = text;
+                } else if (currentTimelineMode === 'ancestry') {
+                    const ancRes = await fetch(`/api/timeline?format=ancestry${dimQuery}`);
+                    const text = await ancRes.text();
+                    document.getElementById('timelineAncestryContent').textContent = text;
+                } else if (currentTimelineMode === 'json') {
+                    document.getElementById('timelineJsonContent').textContent = JSON.stringify(timelineGraphData, null, 2);
+                }
+            } catch (err) {
+                console.error(`Failed to load timeline in ${currentTimelineMode} mode:`, err);
+            }
+        }
+
+        function inspectTimelineNode(node) {
+            const inspector = document.getElementById('timelineNodeInspector');
+            if (!inspector) return;
+            inspector.style.display = 'block';
+
+            document.getElementById('tlInspectTitle').textContent = `Commit: ${node.summary || 'Commit Node'}`;
+            document.getElementById('tlInspectSha').textContent = node.short_id || node.id;
+            
+            let dimName = 'mainline';
+            if (timelineGraphData && timelineGraphData.dimensions && timelineGraphData.dimensions[node.lane]) {
+                dimName = timelineGraphData.dimensions[node.lane].name;
+            }
+            document.getElementById('tlInspectDimPill').textContent = `Dimension: ${dimName}`;
+            document.getElementById('tlInspectMsg').textContent = node.summary || '(no commit message)';
+            document.getElementById('tlInspectMeta').textContent = `Author: ${node.author || 'Unknown'} • Timestamp: ${node.timestamp || 'N/A'}`;
+
+            const diffBtn = document.getElementById('tlInspectDiffBtn');
+            diffBtn.onclick = () => {
+                viewDiff(node.id);
+            };
+            inspector.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function copyTimelineAscii() {
+            const text = document.getElementById('timelineAsciiContent').textContent;
+            navigator.clipboard.writeText(text);
+            alert("Copied terminal timeline graph to clipboard!");
+        }
+
+        function copyTimelineAncestry() {
+            const text = document.getElementById('timelineAncestryContent').textContent;
+            navigator.clipboard.writeText(text);
+            alert("Copied ancestry tree to clipboard!");
+        }
+
+        async function runCmd(cmd) {
+            switchTab('terminal');
+            const term = document.getElementById('termBody');
+            term.textContent += `\n$ dft ${cmd}\n`;
+            term.scrollTop = term.scrollHeight;
+            document.getElementById('termStatus').textContent = 'RUNNING...';
+
+            try {
+                const res = await fetch('/api/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
+                });
+                const data = await res.json();
+                if (data.stdout) term.textContent += data.stdout;
+                if (data.stderr) term.textContent += `[ERR] ${data.stderr}`;
+                term.scrollTop = term.scrollHeight;
+                fetchState();
+            } catch (e) {
+                term.textContent += `[ERROR] Failed: ${e}\n`;
+            } finally {
+                document.getElementById('termStatus').textContent = 'READY';
+            }
+        }
+
+        document.getElementById('termInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                if (val) {
+                    runCmd(val);
+                    e.target.value = '';
+                }
+            }
+        });
+
+        function changeDimension(name) {
+            runCmd(`dimension enter ${name}`);
+        }
+
+        function promptNewDim() {
+            const n = prompt("New Dimension Name:");
+            if (n) runCmd(`dimension create ${n}`);
+        }
+
+        function promptRegisterAgent() {
+            const a = prompt("Agent ID:");
+            if (a) runCmd(`agent register ${a} --type ai`);
+        }
+
+        function promptSendMessage() {
+            const to = prompt("Recipient Agent ID:");
+            const msg = prompt("Message content:");
+            if (to && msg) runCmd(`agent send ${to} "${msg}"`);
+        }
+
+        function promptClaim() {
+            const p = prompt("Path to claim exclusively:");
+            if (p) runCmd(`claim ${p}`);
+        }
+
+        function promptFence() {
+            const p = prompt("Path to erect hard boundary fence on:");
+            if (p) runCmd(`fence ${p}`);
+        }
+
+        function executeConverge() {
+            const src = document.getElementById('convergeSourceInput').value.trim();
+            const tgt = document.getElementById('convergeTargetInput').value.trim();
+            if (src && tgt) {
+                runCmd(`converge ${src} ${tgt}`);
+            } else {
+                alert("Please enter both source and target dimensions.");
+            }
+        }
+
+        function copyClone() {
+            const cloneStr = "git clone https://github.com/Pathomphong-i/draft.git";
+            navigator.clipboard.writeText(cloneStr);
+            alert("Copied: " + cloneStr);
+        }
+
+        function copyCloneCmd() {
+            copyClone();
+        }
+
+        function formatBytes(b) {
+            if (b < 1024) return b + ' B';
+            if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+            return (b / 1048576).toFixed(1) + ' MB';
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function copySnippet(btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            if (!wrapper) return;
+            const code = wrapper.querySelector('code').textContent;
+            navigator.clipboard.writeText(code);
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = orig; }, 1500);
+        }
+
+        function parseInline(str) {
+            if (!str) return '';
+
+            const placeholders = [];
+            function stash(html) {
+                const id = `@@INLINE_PH_${placeholders.length}@@`;
+                placeholders.push(html);
+                return id;
+            }
+
+            // 0. Preserve allowed HTML tags before escaping (p, div, img, a, span)
+            let s = str.replace(/<\/?(?:p|div|img|span|a|b|i|strong|em|br|hr)(?:\s+[^>]*?)?\/?>/gi, (match) => {
+                let fixed = match.replace(/src=["']([^"']+)["']/i, (m, srcVal) => {
+                    let c = srcVal.trim();
+                    if (!c.startsWith('http') && !c.startsWith('/') && !c.startsWith('data:')) {
+                        c = '/' + c;
+                    }
+                    return `src="${c}"`;
+                });
+                return stash(fixed);
+            });
+
+            s = escapeHtml(s);
+
+            // 1. Inline code: `code`
+            s = s.replace(/`([^`]+)`/g, (match, code) => stash(`<code>${code}</code>`));
+
+            // 2. Images inside links (Shields.io badges): [![alt](img)](url)
+            s = s.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl, linkUrl) => {
+                return stash(`<a href="${linkUrl}" target="_blank" rel="noopener noreferrer"><img alt="${alt}" src="${imgUrl}" /></a>`);
+            });
+
+            // 3. Images: ![alt](url)
+            s = s.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+                let cleanSrc = src.trim();
+                if (!cleanSrc.startsWith('http://') && !cleanSrc.startsWith('https://') && !cleanSrc.startsWith('data:') && !cleanSrc.startsWith('/')) {
+                    cleanSrc = '/' + cleanSrc;
+                }
+                const isLogo = alt.toLowerCase().includes('logo') || alt.toLowerCase().includes('icon');
+                const imgStyle = isLogo
+                    ? 'width: 160px; height: 160px; border-radius: 32px; box-shadow: 0 0 40px rgba(88,166,255,0.5), 0 10px 30px rgba(0,0,0,0.7); border: 2.5px solid rgba(88,166,255,0.45); display: block; margin: 2rem auto;'
+                    : 'max-width: 100%; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: 1px solid var(--border); display: block; margin: 1.5rem auto;';
+                return stash(`<img alt="${alt}" src="${cleanSrc}" style="${imgStyle}" loading="lazy" />`);
+            });
+
+            // 4. Standard links: [text](url)
+            s = s.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
+                return stash(`<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+            });
+
+            // 5. Bold + Italic: ***text***
+            s = s.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+
+            // 6. Bold: **text** or __text__
+            s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            s = s.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+            // 7. Italic: *text* or _text_
+            s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+            s = s.replace(/(?:^|\s)_(?!_)([^\s_][^_\n]*[^\s_]|[^_\s])_(?=\s|$|[.,;:!?])/g, ' <em>$1</em>');
+
+            // 8. Strikethrough: ~~text~~
+            s = s.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+            // 9. Inline math: $formula$
+            s = s.replace(/\$([^$\n]+)\$/g, '<code style="color: var(--quantum-violet); font-style: italic;">$$1$</code>');
+
+            // 10. Restore stashed elements
+            placeholders.forEach((html, idx) => {
+                s = s.replace(`@@INLINE_PH_${idx}@@`, html);
+            });
+
+            return s;
+        }
+
+        function parseMarkdown(md) {
+            if (!md) return '';
+
+            // 1. Extract and preserve fenced code blocks
+            const codeBlocks = [];
+            let text = md.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                const id = `__CODE_BLOCK_${codeBlocks.length}__`;
+                codeBlocks.push({ lang: lang ? lang.trim() : 'text', code: code.replace(/\n$/, '') });
+                return id;
+            });
+
+            // 2. Extract and preserve math blocks ($$ ... $$)
+            const mathBlocks = [];
+            text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+                const id = `__MATH_BLOCK_${mathBlocks.length}__`;
+                mathBlocks.push(math.trim());
+                return id;
+            });
+
+            // 3. Process line-by-line
+            const lines = text.split('\n');
+            const out = [];
+            let inTable = false;
+            let tableAligns = [];
+            let inList = false;
+            let listType = 'ul';
+            let inBlockquote = false;
+            let bqLines = [];
+
+            function flushBlockquote() {
+                if (bqLines.length === 0) return;
+                const bqRaw = bqLines.join(' ');
+                const alertMatch = bqRaw.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)$/i);
+                if (alertMatch) {
+                    const type = alertMatch[1].toUpperCase();
+                    const body = parseInline(alertMatch[2].trim());
+                    const titles = { NOTE: 'ℹ️ Note', TIP: '💡 Tip', IMPORTANT: '❗ Important', WARNING: '⚠️ Warning', CAUTION: '🛑 Caution' };
+                    out.push(`<div class="markdown-alert alert-${type.toLowerCase()}"><div class="alert-title">${titles[type] || type}</div><div>${body}</div></div>`);
+                } else {
+                    out.push(`<blockquote>${parseInline(bqRaw)}</blockquote>`);
+                }
+                bqLines = [];
+                inBlockquote = false;
+            }
+
+            function flushList() {
+                if (inList) {
+                    out.push(`</${listType}>`);
+                    inList = false;
+                }
+            }
+
+            function flushTable() {
+                if (inTable) {
+                    out.push('</tbody></table></div>');
+                    inTable = false;
+                    tableAligns = [];
+                }
+            }
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+
+                // Fenced code block or math block placeholder
+                if (line.trim().startsWith('__CODE_BLOCK_') || line.trim().startsWith('__MATH_BLOCK_')) {
+                    flushBlockquote();
+                    flushList();
+                    flushTable();
+                    out.push(line.trim());
+                    continue;
+                }
+
+                // Horizontal Rule
+                if (/^(?:---|\*\*\*|___)\s*$/.test(line)) {
+                    flushBlockquote();
+                    flushList();
+                    flushTable();
+                    out.push('<hr>');
+                    continue;
+                }
+
+                // Headings
+                const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+                if (headingMatch) {
+                    flushBlockquote();
+                    flushList();
+                    flushTable();
+                    const level = headingMatch[1].length;
+                    const headingText = parseInline(headingMatch[2].trim());
+                    out.push(`<h${level}>${headingText}</h${level}>`);
+                    continue;
+                }
+
+                // Blockquotes & Alerts
+                const bqMatch = line.match(/^>\s?(.*)$/);
+                if (bqMatch) {
+                    flushList();
+                    flushTable();
+                    inBlockquote = true;
+                    bqLines.push(bqMatch[1]);
+                    continue;
+                } else if (inBlockquote) {
+                    flushBlockquote();
+                }
+
+                // GFM Pipe Tables
+                const isTableLine = line.trim().startsWith('|') && line.trim().endsWith('|');
+                if (isTableLine) {
+                    flushBlockquote();
+                    flushList();
+                    const cells = line.trim().slice(1, -1).split('|').map(c => c.trim());
+
+                    // Check if delimiter row: | :--- | ---: | :---: |
+                    const isSepRow = cells.length > 0 && cells.every(c => /^:?-+:?$/.test(c));
+                    if (isSepRow) {
+                        tableAligns = cells.map(c => {
+                            if (c.startsWith(':') && c.endsWith(':')) return 'center';
+                            if (c.endsWith(':')) return 'right';
+                            return 'left';
+                        });
+                        continue;
+                    }
+
+                    if (!inTable) {
+                        inTable = true;
+                        out.push('<div class="table-container"><table><thead><tr>');
+                        cells.forEach((c, idx) => {
+                            const align = tableAligns[idx] || 'left';
+                            out.push(`<th style="text-align: ${align}">${parseInline(c)}</th>`);
+                        });
+                        out.push('</tr></thead><tbody>');
+                    } else {
+                        out.push('<tr>');
+                        cells.forEach((c, idx) => {
+                            const align = tableAligns[idx] || 'left';
+                            out.push(`<td style="text-align: ${align}">${parseInline(c)}</td>`);
+                        });
+                        out.push('</tr>');
+                    }
+                    continue;
+                } else if (inTable) {
+                    flushTable();
+                }
+
+                // Task list items
+                const taskMatch = line.match(/^[-*]\s+\[([ xX])\]\s+(.*)$/);
+                if (taskMatch) {
+                    flushBlockquote();
+                    flushTable();
+                    if (!inList || listType !== 'ul') {
+                        flushList();
+                        inList = true;
+                        listType = 'ul';
+                        out.push('<ul>');
+                    }
+                    const checked = taskMatch[1].toLowerCase() === 'x' ? 'checked' : '';
+                    out.push(`<li class="task-list-item"><input type="checkbox" ${checked} disabled style="margin: 0; vertical-align: middle;"> <span>${parseInline(taskMatch[2])}</span></li>`);
+                    continue;
+                }
+
+                // Unordered lists
+                const ulMatch = line.match(/^[-*]\s+(.*)$/);
+                if (ulMatch) {
+                    flushBlockquote();
+                    flushTable();
+                    if (!inList || listType !== 'ul') {
+                        flushList();
+                        inList = true;
+                        listType = 'ul';
+                        out.push('<ul>');
+                    }
+                    out.push(`<li>${parseInline(ulMatch[1])}</li>`);
+                    continue;
+                }
+
+                // Ordered lists
+                const olMatch = line.match(/^(\d+)\.\s+(.*)$/);
+                if (olMatch) {
+                    flushBlockquote();
+                    flushTable();
+                    if (!inList || listType !== 'ol') {
+                        flushList();
+                        inList = true;
+                        listType = 'ol';
+                        out.push('<ol>');
+                    }
+                    out.push(`<li>${parseInline(olMatch[2])}</li>`);
+                    continue;
+                }
+
+                if (inList) {
+                    flushList();
+                }
+
+                // Blank line
+                if (!line.trim()) {
+                    continue;
+                }
+
+                // Standard paragraph
+                out.push(`<p>${parseInline(line)}</p>`);
+            }
+
+            flushBlockquote();
+            flushList();
+            flushTable();
+
+            let html = out.join('\n');
+
+            // 4. Restore Fenced Code Blocks
+            codeBlocks.forEach((item, idx) => {
+                const id = `__CODE_BLOCK_${idx}__`;
+                const escaped = escapeHtml(item.code);
+                const replacement = `
+                    <div class="code-block-wrapper">
+                        <div class="code-block-header">
+                            <span>${item.lang}</span>
+                            <button class="code-copy-btn" onclick="copySnippet(this)">Copy</button>
+                        </div>
+                        <pre><code>${escaped}</code></pre>
+                    </div>
+                `;
+                html = html.replace(id, replacement);
+            });
+
+            // 5. Restore Math Blocks
+            mathBlocks.forEach((math, idx) => {
+                const id = `__MATH_BLOCK_${idx}__`;
+                const replacement = `<div style="text-align: center; margin: 1.5rem 0; padding: 1rem; background: rgba(110, 118, 129, 0.1); border: 1px solid var(--border); border-radius: 6px; font-family: monospace; color: var(--quantum-violet);">$$ ${escapeHtml(math)} $$</div>`;
+                html = html.replace(id, replacement);
+            });
+
+            return html;
+        }
+
+        function renderReadme() {
+            const container = document.getElementById('readmeBody');
+            if (!container) return;
+            if (!rawReadme || rawReadme.trim() === '') {
+                const section = document.getElementById('readmeSection');
+                if (section) section.style.display = 'none';
+                return;
+            }
+            container.innerHTML = parseMarkdown(rawReadme);
+        }
+
+        // Init
+        loadTree("");
+        loadCommits();
+        fetchState();
+        loadTimeline();
+        renderReadme();
+        setInterval(fetchState, 3000);
+    </script>
+</body>
+</html>

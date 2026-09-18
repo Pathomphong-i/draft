@@ -4,19 +4,44 @@
 
 # Draft (`dft`) — The Multiverse Version Control System
 
-[![Canonical Home: DraftMultiverse](https://img.shields.io/badge/Hosted_on-DraftMultiverse.org-violet.svg)](https://draftmultiverse.org)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
+[![Live Web Demo](https://img.shields.io/badge/Live_Demo-GitHub%20Pages-22c55e.svg)](https://pathomphong-i.github.io/draft/)
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_Us-GitHub%20Sponsors-ff69b4.svg)](https://github.com/open-source/sponsors)
+[![GitHub Stars](https://img.shields.io/github/stars/Pathomphong-i/draft?style=social)](https://github.com/Pathomphong-i/draft)
 [![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)
 [![Performance: CoW Reflink](https://img.shields.io/badge/Cloning-0.06s%20%2F%2010%2C000%20files-cyan.svg)](#)
 [![Architecture: Lock-Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
-[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](http://127.0.0.1:3333)
+[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](https://pathomphong-i.github.io/draft/)
 
 > *"In classical philosophy, Chronos (Χρόνος) forces all actions into a single linear sequence. In Draft, Kairos (Καιρός) lets parallel minds build concurrently until the opportune moment of convergence."*
 
 ---
 
 ![DraftMultiverse 3D Architecture](docs/assets/draft_multiverse_3d.jpg)
+
+---
+
+## 🎭 The "Multiverse on GitHub" Paradox
+
+![Built a Multiverse Engine for Parallel AI Swarms... But We Still Need the GitHub Community!](docs/assets/draft_github_meme.jpg)
+
+> *"We built Draft (`dft`) for concurrent AI swarms... but we still can't live without the GitHub community!"* 🐙💖
+
+When Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel mail servers. But in 2026, **the developer world, open-source contributors, and AI swarms live in GitHub's gravity well**.
+
+- 🌌 **We develop Draft using Draft**: Internally, our parallel dimensions, lock-free content-addressable storage (CAS), and predictive 3-way merges are 100% dogfooded with `dft`.
+- 🐙 **We ❤️ the GitHub Community**: We host our open-source project and interactive demo on GitHub because this is where developers star repositories, report issues, submit PRs, and collaborate. We are proud to build together with the open-source community!
+
+### 💖 Community Goal: Funding Sovereign `draftmultiverse.org`
+
+> [!TIP]
+> ### 🪐 Sovereign Multiverse Infrastructure Goal
+> Today, Draft's code, releases, and interactive web playground are powered directly by **GitHub** and **GitHub Pages**.
+>
+> If the community finds Draft valuable and we receive enough community support through donations and sponsorships, **we will fund, build, and deploy a dedicated, 24/7 sovereign server cluster on `draftmultiverse.org`** — featuring decentralized remote repo synchronization, headless multiverse servers, and distributed AI agent fleet coordinators!
+>
+> 👉 **[Support the Project on GitHub Sponsors](https://github.com/open-source/sponsors)** | [Sponsor @Pathomphong-i](https://github.com/sponsors/Pathomphong-i)
 
 ---
 
