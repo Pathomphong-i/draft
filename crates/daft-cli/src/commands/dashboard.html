@@ -1158,7 +1158,13 @@
             s = s.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, '<a href="$3" target="_blank" rel="noopener noreferrer"><img alt="$1" src="$2" /></a>');
 
             // Images: ![alt](url)
-            s = s.replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" />');
+            s = s.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+                let cleanSrc = src.trim();
+                if (!cleanSrc.startsWith('http://') && !cleanSrc.startsWith('https://') && !cleanSrc.startsWith('data:') && !cleanSrc.startsWith('/')) {
+                    cleanSrc = '/' + cleanSrc;
+                }
+                return `<img alt="${alt}" src="${cleanSrc}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: 1px solid var(--border); display: block; margin: 1.5rem auto;" loading="lazy" />`;
+            });
 
             // Standard links: [text](url)
             s = s.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');

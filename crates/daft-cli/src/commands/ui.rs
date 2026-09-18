@@ -42,10 +42,10 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
     };
 
     println!("============================================================");
-    println!("🌌 DARFTMULTIVERSE WEB PLATFORM OPERATIONAL");
+    println!("🌌 DAFTMULTIVERSE WEB PLATFORM OPERATIONAL");
     println!("============================================================");
     println!("Dashboard:        {}", server_url);
-    println!("Core Product:     Darf (command: 'drf' / 'dft')");
+    println!("Core Product:     Daft (command: 'dft')");
     println!("Repository:       {}", repo_root.display());
     println!("Active Dimension: {}", get_active_dimension(&repo_root));
     println!("Press Ctrl+C to terminate GUI server.");
@@ -140,11 +140,38 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
     } else if method == "GET" && path_part == "/api/radar" {
         let radar_json = get_radar_json(exe_path, repo_root);
         send_response(&mut stream, 200, "application/json", radar_json.as_bytes());
-    } else if method == "GET" && (path_part == "/assets/daft_multiverse_3d.jpg" || path_part == "/docs/assets/daft_multiverse_3d.jpg") {
-        let img_path = repo_root.join("docs").join("assets").join("daft_multiverse_3d.jpg");
-        if img_path.exists() {
-            if let Ok(bytes) = fs::read(&img_path) {
-                send_response(&mut stream, 200, "image/jpeg", &bytes);
+    } else if (method == "GET" || method == "HEAD") && (
+        path_part.ends_with(".jpg") ||
+        path_part.ends_with(".jpeg") ||
+        path_part.ends_with(".png") ||
+        path_part.ends_with(".svg") ||
+        path_part.ends_with(".webp") ||
+        path_part.ends_with(".gif") ||
+        path_part.starts_with("/docs/assets/") ||
+        path_part.starts_with("/assets/")
+    ) {
+        let clean_path = path_part.trim_start_matches('/');
+        let mut candidate = repo_root.join(clean_path);
+        if !candidate.exists() && clean_path.starts_with("assets/") {
+            candidate = repo_root.join("docs").join(clean_path);
+        }
+        if !candidate.exists() && clean_path.contains("daft_multiverse_3d") {
+            candidate = repo_root.join("docs").join("assets").join("daft_multiverse_3d.jpg");
+        }
+        if candidate.exists() && candidate.is_file() {
+            if let Ok(bytes) = fs::read(&candidate) {
+                let mime = if candidate.extension().map_or(false, |e| e == "svg") {
+                    "image/svg+xml"
+                } else if candidate.extension().map_or(false, |e| e == "png") {
+                    "image/png"
+                } else if candidate.extension().map_or(false, |e| e == "webp") {
+                    "image/webp"
+                } else if candidate.extension().map_or(false, |e| e == "gif") {
+                    "image/gif"
+                } else {
+                    "image/jpeg"
+                };
+                send_response(&mut stream, 200, mime, if method == "HEAD" { &[] } else { &bytes });
                 return;
             }
         }
