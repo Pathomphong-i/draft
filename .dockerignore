@@ -1,0 +1,7 @@
+target/
+.agents/
+.DS_Store
+*.log
+demos/
+.git/
+.dft/

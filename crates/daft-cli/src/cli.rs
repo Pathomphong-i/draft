@@ -1258,8 +1258,11 @@ pub struct CompatArgs {
 
 #[derive(Args, Debug)]
 pub struct UiArgs {
-    #[arg(short = 'p', long = "port", default_value = "3333", help = "Port to listen on")]
+    #[arg(short = 'p', long = "port", default_value = "3333", env = "DFT_PORT", help = "Port to listen on")]
     pub port: u16,
+
+    #[arg(long = "host", default_value = "127.0.0.1", env = "DFT_HOST", help = "Host/IP address to bind to")]
+    pub host: String,
 
     #[arg(long = "no-browser", help = "Do not automatically open the browser")]
     pub no_browser: bool,

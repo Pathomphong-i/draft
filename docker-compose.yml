@@ -1,0 +1,15 @@
+services:
+  darftmultiverse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: darftmultiverse:latest
+    container_name: darftmultiverse
+    restart: unless-stopped
+    ports:
+      - "3333:3333"
+    volumes:
+      - ./:/repo
+    environment:
+      - DFT_HOST=0.0.0.0
+      - DFT_PORT=3333

@@ -27,14 +27,19 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| repo.dft_dir().to_path_buf());
 
+    let host = if args.host.is_empty() { "127.0.0.1" } else { &args.host };
     let port = args.port;
-    let listener = match TcpListener::bind(format!("127.0.0.1:{}", port)) {
+    let listener = match TcpListener::bind(format!("{}:{}", host, port)) {
         Ok(l) => l,
-        Err(_) => TcpListener::bind("127.0.0.1:0")?,
+        Err(_) => TcpListener::bind(format!("{}:0", host))?,
     };
 
     let local_addr = listener.local_addr()?;
-    let server_url = format!("http://{}", local_addr);
+    let server_url = if host == "0.0.0.0" {
+        format!("http://127.0.0.1:{}", local_addr.port())
+    } else {
+        format!("http://{}", local_addr)
+    };
 
     println!("============================================================");
     println!("🌌 DARFTMULTIVERSE WEB PLATFORM OPERATIONAL");
@@ -106,9 +111,9 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
     let path_part = uri_parts.first().copied().unwrap_or("/");
     let query_part = uri_parts.get(1).copied().unwrap_or("");
 
-    if method == "GET" && (path_part == "/" || path_part == "/index.html") {
+    if (method == "GET" || method == "HEAD") && (path_part == "/" || path_part == "/index.html") {
         let html = render_dashboard_html(repo_root);
-        send_response(&mut stream, 200, "text/html; charset=utf-8", html.as_bytes());
+        send_response(&mut stream, 200, "text/html; charset=utf-8", if method == "HEAD" { &[] } else { html.as_bytes() });
     } else if method == "GET" && path_part == "/api/state" {
         let state_json = get_repository_state_json(repo_root);
         send_response(&mut stream, 200, "application/json", state_json.as_bytes());
