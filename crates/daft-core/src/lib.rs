@@ -29,3 +29,4 @@ pub use object::{Blob, Commit, FileMode, Object, Signature, Tag, Tree, TreeEntry
 pub use reflog::{ReflogEntry, ReflogManager};
 pub use refs::{RefManager, Reference, ReferenceTarget, ReferenceType};
 pub use repo::Repository;
+pub use worktree::DaftIgnore;

@@ -2,6 +2,7 @@
 
 pub mod add;
 pub mod clean;
+pub mod ignore;
 pub mod mv;
 pub mod reset;
 pub mod restore;
@@ -11,6 +12,7 @@ pub mod status;
 
 pub use add::add_paths;
 pub use clean::{clean_untracked, CleanOptions};
+pub use ignore::DaftIgnore;
 pub use mv::move_path;
 pub use reset::{reset, resolve_commit, ResetMode};
 pub use restore::restore;

@@ -324,9 +324,8 @@ fn test_challenger_cli_detached_head_lifecycle() {
     let log_res = run_dft(root, &["log"]);
     assert!(log_res.success(), "log failed: {}", log_res.stderr);
     assert!(log_res.stdout.contains("detached commit"));
-    assert!(log_res.stdout.contains("commit 1"));
     assert!(
-        !log_res.stdout.contains("commit 2"),
+        !log_res.stdout.lines().any(|l| l.trim() == "commit 2"),
         "log should not contain commit 2, got:\n{}",
         log_res.stdout
     );

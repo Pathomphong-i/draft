@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarftMultiverse</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --header-bg: #161b22;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.25);
+            --quantum-violet: #bc8cff;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --text-muted: #8b949e;
+            --btn-bg: #21262d;
+            --btn-hover: #30363d;
+            --btn-primary: #238636;
+            --btn-primary-hover: #2ea043;
+            --card-bg: #161b22;
+            --danger: #f85149;
+            --danger-bg: rgba(248, 81, 73, 0.15);
+            --success: #3fb950;
+            --success-bg: rgba(63, 185, 80, 0.15);
+            --code-bg: #0d1117;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+        .gitea-navbar {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-heading); }
+        .brand-logo {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--quantum-violet));
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.95rem; color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .repo-title { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+        .repo-badge { font-size: 0.75rem; border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 12px; color: var(--text-muted); }
+
+        .repo-header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem 0 2rem;
+        }
+        .repo-meta-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .repo-path { font-size: 1.25rem; font-weight: 700; color: var(--text-heading); }
+        .repo-path span { color: var(--text-muted); font-weight: 400; }
+
+        .gitea-tabs {
+            display: flex;
+            gap: 1.5rem;
+            border-bottom: 1px solid transparent;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.65rem 0.25rem;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-heading); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .main-container {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap; gap: 0.75rem;
+        }
+        .btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--border);
+            color: var(--text-heading);
+            padding: 0.45rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            transition: background 0.15s;
+        }
+        .btn:hover { background: var(--btn-hover); }
+        .btn-primary { background: var(--btn-primary); border-color: rgba(240, 246, 252, 0.1); color: #fff; }
+        .btn-primary:hover { background: var(--btn-primary-hover); }
+        .btn-danger { background: #b62324; border-color: transparent; color: #fff; }
+
+        select.btn { outline: none; }
+
+        .file-box {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .file-box-header {
+            background: #1c2128;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem;
+        }
+        .file-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .file-table tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.1s;
+        }
+        .file-table tr:last-child { border-bottom: none; }
+        .file-table tr:hover { background: #1f242c; }
+        .file-table td { padding: 0.6rem 1rem; vertical-align: middle; }
+        .file-icon { width: 20px; text-align: center; color: var(--text-muted); font-size: 1.05rem; }
+        .file-name { font-weight: 500; cursor: pointer; color: var(--accent); }
+        .file-name:hover { text-decoration: underline; }
+        .file-size { color: var(--text-muted); font-size: 0.8rem; text-align: right; }
+
+        .breadcrumbs {
+            display: flex; align-items: center; gap: 0.35rem;
+            font-size: 0.95rem; font-weight: 600; color: var(--text-heading);
+        }
+        .breadcrumb-link { color: var(--accent); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+
+        .code-viewer {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .code-header {
+            background: #161b22;
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem;
+        }
+        pre.code-content {
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #f0f6fc;
+        }
+
+        .commit-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .commit-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.85rem 1.25rem;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: border-color 0.15s;
+        }
+        .commit-item:hover { border-color: var(--accent); }
+        .commit-title { font-weight: 600; color: var(--text-heading); font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .commit-meta { font-size: 0.8rem; color: var(--text-muted); }
+        .commit-sha {
+            font-family: monospace;
+            background: rgba(110, 118, 129, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
+        .diff-container {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .diff-header {
+            background: #161b22;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .diff-content {
+            padding: 1rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            line-height: 1.45;
+        }
+        .diff-add { background: var(--success-bg); color: #7ee787; display: block; }
+        .diff-del { background: var(--danger-bg); color: #ffa198; display: block; }
+        .diff-hunk { color: var(--quantum-violet); font-weight: bold; display: block; }
+
+        .terminal-box {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            height: 520px;
+        }
+        .terminal-header {
+            background: #161b22;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .terminal-body {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #58a6ff;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        .terminal-input-row {
+            display: flex;
+            background: #0d1117;
+            border-top: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+        }
+        .term-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .readme-box {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            padding: 2rem;
+            margin-top: 2rem;
+            line-height: 1.6;
+        }
+        .readme-box h1, .readme-box h2, .readme-box h3 { color: var(--text-heading); margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .readme-box h1 { border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .readme-box img { max-width: 100%; border-radius: 6px; border: 1px solid var(--border); margin: 1rem 0; }
+        .readme-box code { background: rgba(110, 118, 129, 0.2); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+
+        .badge-live {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success); margin-right: 6px;
+            box-shadow: 0 0 8px var(--success);
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar (Gitea-style) -->
+    <nav class="gitea-navbar">
+        <a href="/" class="brand">
+            <div class="brand-logo">drf</div>
+            <div class="repo-title">DarftMultiverse</div>
+            <span class="repo-badge">v0.1.0 Darf Multiverse</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <button class="btn" onclick="switchTab('terminal')">⚡ Terminal</button>
+            <button class="btn btn-primary" onclick="copyClone()">📋 Clone</button>
+        </div>
+    </nav>
+
+    <!-- Repo Subheader -->
+    <header class="repo-header">
+        <div class="repo-meta-bar">
+            <div class="repo-path">
+                DarftMultiverse / <strong>Darf</strong>
+            </div>
+            <div>
+                <span class="btn" style="cursor: default;"><span class="badge-live"></span>🪐 DarfUniverse Origin: Active</span>
+            </div>
+        </div>
+
+        <!-- Gitea Tabs -->
+        <div class="gitea-tabs">
+            <button class="tab-btn active" id="tab-code" onclick="switchTab('code')">&lt;&gt; Code</button>
+            <button class="tab-btn" id="tab-commits" onclick="switchTab('commits')">⏱️ Commits</button>
+            <button class="tab-btn" id="tab-multiverse" onclick="switchTab('multiverse')">🌌 Multiverse</button>
+            <button class="tab-btn" id="tab-convergence" onclick="switchTab('convergence')">🔀 Convergence &amp; Collapse</button>
+            <button class="tab-btn" id="tab-radar" onclick="switchTab('radar')">📡 Radar &amp; Territory</button>
+            <button class="tab-btn" id="tab-agents" onclick="switchTab('agents')">🤖 Agent Fleet</button>
+            <button class="tab-btn" id="tab-cronos" onclick="switchTab('cronos')">⏰ Cronos Daemon</button>
+            <button class="tab-btn" id="tab-terminal" onclick="switchTab('terminal')">⚡ Terminal</button>
+        </div>
+    </header>
+
+    <!-- Main Tab Viewers -->
+    <main class="main-container">
+        <!-- TAB 1: CODE BROWSER (Gitea-style) -->
+        <section id="view-code" class="tab-content active">
+            <div class="toolbar">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <!-- Dimension Switcher Dropdown -->
+                    <select class="btn" id="dimSelect" onchange="changeDimension(this.value)">
+                        <option value="mainline">Dimension: mainline</option>
+                    </select>
+                    <!-- Breadcrumbs -->
+                    <div class="breadcrumbs" id="breadcrumbsBar">
+                        <span>Darf</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="promptNewDim()">+ New Dimension</button>
+                    <button class="btn" onclick="copyCloneCmd()">Clone URL</button>
+                </div>
+            </div>
+
+            <!-- File Table / Code View -->
+            <div id="fileBrowserView" class="file-box">
+                <div class="file-box-header">
+                    <span id="latestCommitHeader">Loading latest commit...</span>
+                    <span id="fileCountBadge" style="color: var(--text-muted);">...</span>
+                </div>
+                <table class="file-table" id="fileTable">
+                    <tbody>
+                        <tr><td colspan="3" style="text-align: center; padding: 2rem;">Loading files...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Single File Blob Viewer (Hidden by default) -->
+            <div id="codeViewer" class="code-viewer" style="display: none;">
+                <div class="code-header">
+                    <span id="codeFileName" style="font-weight: 600;">file</span>
+                    <div>
+                        <span id="codeFileMeta" style="color: var(--text-muted); margin-right: 1rem;"></span>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="copyCodeContent()">Copy</button>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="closeCodeViewer()">Close</button>
+                    </div>
+                </div>
+                <pre class="code-content" id="codeContent"></pre>
+            </div>
+
+            <!-- Rendered Readme -->
+            <div class="readme-box" id="readmeSection">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                    📖 README.md
+                </div>
+                <div id="readmeBody">Loading README...</div>
+            </div>
+        </section>
+
+        <!-- TAB 2: COMMITS (Gitea-style) -->
+        <section id="view-commits" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Commit History</div>
+                <button class="btn" onclick="loadCommits()">Refresh</button>
+            </div>
+            <div class="commit-list" id="commitList">
+                <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading commits...</div>
+            </div>
+            <div id="diffViewerBox" class="diff-container" style="display: none;">
+                <div class="diff-header">
+                    <span id="diffViewerTitle">Commit Myers Diff</span>
+                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="closeDiffViewer()">Close</button>
+                </div>
+                <div class="diff-content" id="diffViewerContent"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: MULTIVERSE GRAPH -->
+        <section id="view-multiverse" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Multiverse Spacetime DAG</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="runCmd('timeline')">drf timeline</button>
+                    <button class="btn" onclick="promptNewDim()">+ New Dimension</button>
+                    <button class="btn" onclick="runCmd('collapse')">Collapse Wavefunction</button>
+                </div>
+            </div>
+            <div style="height: 440px; background: #050811; border: 1px solid var(--border); border-radius: 6px; position: relative;">
+                <canvas id="multiverseCanvas" style="width: 100%; height: 100%;"></canvas>
+            </div>
+        </section>
+
+        <!-- TAB 4: CONVERGENCE & COLLAPSE (PR EQUIVALENT) -->
+        <section id="view-convergence" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Parallel Convergence &amp; Wavefunction Collapse</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="runCmd('foresee')">🔮 Dry-Run Conflict Check</button>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="file-box" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🌌 Wavefunction Collapse</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Collapse all concurrent active dimensions down into mainline, applying 3-way reconciliation across spacetime.
+                    </p>
+                    <button class="btn btn-primary" onclick="runCmd('collapse')">Execute drf collapse</button>
+                </div>
+                <div class="file-box" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🔀 Multi-Dimension Convergence</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Converge specific parallel dimensions into a unified target branch.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <input type="text" id="convergeSourceInput" class="btn" style="flex: 1; text-align: left;" placeholder="Source dimension (e.g. agent-quantum)">
+                        <input type="text" id="convergeTargetInput" class="btn" style="flex: 1; text-align: left;" placeholder="Target (e.g. mainline)">
+                    </div>
+                    <button class="btn" onclick="executeConverge()">Execute drf converge</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: RADAR & TERRITORY -->
+        <section id="view-radar" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Cross-Dimensional Radar &amp; Territory Claims</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="runCmd('radar --hot')">📡 Radar --hot</button>
+                    <button class="btn" onclick="runCmd('foresee')">🔮 Foresee</button>
+                    <button class="btn" onclick="runCmd('entropy')">⚡ Entropy</button>
+                    <button class="btn" onclick="promptClaim()">🔒 Claim Path</button>
+                    <button class="btn" onclick="promptFence()">🚧 Fence Path</button>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="file-box" style="padding: 1.25rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🔒 Claimed Territories</h3>
+                    <div id="territoryClaimsList" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">None</div>
+                </div>
+                <div class="file-box" style="padding: 1.25rem;">
+                    <h3 style="margin-bottom: 0.75rem;">🚧 Boundary Fences</h3>
+                    <div id="territoryFencesList" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">None</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: AGENT FLEET -->
+        <section id="view-agents" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">AI &amp; Human Agent Fleet</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" onclick="promptRegisterAgent()">+ Register Agent</button>
+                    <button class="btn" onclick="promptSendMessage()">✉️ Dispatch Message</button>
+                </div>
+            </div>
+            <div class="file-box" id="agentFleetBox" style="padding: 1rem;">
+                Loading fleet...
+            </div>
+        </section>
+
+        <!-- TAB 7: CRONOS DAEMON -->
+        <section id="view-cronos" class="tab-content">
+            <div class="toolbar">
+                <div style="font-size: 1.1rem; font-weight: 600;">Cronos Autonomous 3-Way Sync Daemon</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="runCmd('cronos start')">Start Daemon</button>
+                    <button class="btn btn-danger" onclick="runCmd('cronos stop')">Stop Daemon</button>
+                    <button class="btn" onclick="runCmd('cronos log')">View Event Log</button>
+                </div>
+            </div>
+            <div class="file-box" style="padding: 1.5rem;">
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Continuous 3-way tree convergence engine operating across parallel dimensions.</p>
+                <div id="cronosStatusText" style="font-size: 0.95rem; margin-bottom: 1rem; font-weight: 600;">Daemon status: Checking...</div>
+                <div style="background: #0d1117; padding: 1rem; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem;">
+                    Strategy: 3-way recursive continuous convergence<br>
+                    State: Autonomous background observer
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 8: TERMINAL -->
+        <section id="view-terminal" class="tab-content">
+            <div class="terminal-box">
+                <div class="terminal-header">
+                    <span>⚡ DarftMultiverse Interactive Console</span>
+                    <span id="termStatus" style="color: var(--success); font-weight: bold;">READY</span>
+                </div>
+                <div class="terminal-body" id="termBody">DarftMultiverse v0.1.0 Ready. Type any Darf command (e.g. status, radar, foresee, timeline, dimension)</div>
+                <div class="terminal-input-row">
+                    <span style="color: var(--quantum-violet); font-weight: 700; margin-right: 0.5rem;">drf$</span>
+                    <input type="text" class="term-input" id="termInput" placeholder="Enter command..." autofocus>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let currentPath = "";
+        let currentDim = "__ACTIVE_DIM__";
+        const rawReadme = __README_JSON__;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            const btn = document.getElementById(`tab-${tabId}`);
+            const view = document.getElementById(`view-${tabId}`);
+            if (btn) btn.classList.add('active');
+            if (view) view.classList.add('active');
+
+            if (tabId === 'multiverse') {
+                fetchState();
+            } else if (tabId === 'commits') {
+                loadCommits();
+            }
+        }
+
+        async function loadTree(path = "") {
+            currentPath = path;
+            renderBreadcrumbs(path);
+            try {
+                const res = await fetch(`/api/tree?path=${encodeURIComponent(path)}`);
+                const data = await res.json();
+                const tbody = document.querySelector('#fileTable tbody');
+                tbody.innerHTML = '';
+
+                if (path !== "") {
+                    const parentPath = path.includes('/') ? path.substring(0, path.lastIndexOf('/')) : '';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="file-icon">📁</td>
+                        <td class="file-name" onclick="loadTree('${parentPath}')">..</td>
+                        <td class="file-size"></td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+
+                data.entries.forEach(e => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="file-icon">${e.is_dir ? '📁' : '📄'}</td>
+                        <td class="file-name" onclick="${e.is_dir ? `loadTree('${e.path}')` : `loadBlob('${e.path}')`}">${e.name}</td>
+                        <td class="file-size">${e.is_dir ? '-' : formatBytes(e.size)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.getElementById('fileCountBadge').textContent = `${data.entries.length} items`;
+            } catch (err) {
+                console.error("Failed to load tree:", err);
+            }
+        }
+
+        function renderBreadcrumbs(path) {
+            const bar = document.getElementById('breadcrumbsBar');
+            bar.innerHTML = '<span class="breadcrumb-link" onclick="loadTree('')">Darf</span>';
+            if (!path) return;
+
+            const parts = path.split('/');
+            let accumulated = '';
+            parts.forEach((p, idx) => {
+                accumulated += (idx > 0 ? '/' : '') + p;
+                const pathCopy = accumulated;
+                bar.innerHTML += ` / <span class="breadcrumb-link" onclick="loadTree('${pathCopy}')">${p}</span>`;
+            });
+        }
+
+        async function loadBlob(filePath) {
+            try {
+                const res = await fetch(`/api/blob?path=${encodeURIComponent(filePath)}`);
+                const data = await res.json();
+                if (data.content !== undefined) {
+                    document.getElementById('fileBrowserView').style.display = 'none';
+                    document.getElementById('codeViewer').style.display = 'block';
+                    document.getElementById('codeFileName').textContent = filePath;
+                    document.getElementById('codeFileMeta').textContent = `${data.lines} lines | ${formatBytes(data.size)}`;
+                    document.getElementById('codeContent').textContent = data.content;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function closeCodeViewer() {
+            document.getElementById('codeViewer').style.display = 'none';
+            document.getElementById('fileBrowserView').style.display = 'block';
+        }
+
+        function copyCodeContent() {
+            const text = document.getElementById('codeContent').textContent;
+            navigator.clipboard.writeText(text);
+            alert("Code copied to clipboard!");
+        }
+
+        async function loadCommits() {
+            try {
+                const res = await fetch('/api/commits');
+                const data = await res.json();
+                const list = document.getElementById('commitList');
+                list.innerHTML = '';
+                if (!data.commits || data.commits.length === 0) {
+                    list.innerHTML = '<div style="padding: 2rem; text-align: center;">No commits found</div>';
+                    return;
+                }
+                data.commits.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'commit-item';
+                    div.innerHTML = `
+                        <div>
+                            <div class="commit-title">${c.message || 'No commit message'}</div>
+                            <div class="commit-meta">${c.author || 'Author'} &bull; ${c.date || ''}</div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="commit-sha">${c.hash ? c.hash.substring(0, 10) : ''}</span>
+                            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="viewCommitDiff('${c.hash}')">Myers Diff</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                if (data.commits[0]) {
+                    document.getElementById('latestCommitHeader').innerHTML = `
+                        <strong>${data.commits[0].author || 'Author'}</strong>: ${data.commits[0].message || ''}
+                        <span class="commit-sha" style="margin-left: 0.5rem;">${data.commits[0].hash.substring(0, 7)}</span>
+                    `;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function viewCommitDiff(hash) {
+            try {
+                const res = await fetch(`/api/commit?hash=${hash}`);
+                const data = await res.json();
+                const box = document.getElementById('diffViewerBox');
+                const content = document.getElementById('diffViewerContent');
+                box.style.display = 'block';
+                document.getElementById('diffViewerTitle').textContent = `Commit Myers Diff: ${hash.substring(0, 10)}`;
+
+                let formatted = '';
+                const lines = (data.output || '').split('\n');
+                lines.forEach(l => {
+                    if (l.startsWith('+') && !l.startsWith('+++')) {
+                        formatted += `<span class="diff-add">${escapeHtml(l)}</span>\n`;
+                    } else if (l.startsWith('-') && !l.startsWith('---')) {
+                        formatted += `<span class="diff-del">${escapeHtml(l)}</span>\n`;
+                    } else if (l.startsWith('@@')) {
+                        formatted += `<span class="diff-hunk">${escapeHtml(l)}</span>\n`;
+                    } else {
+                        formatted += `${escapeHtml(l)}\n`;
+                    }
+                });
+                content.innerHTML = formatted || 'No diff output.';
+                box.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function closeDiffViewer() {
+            document.getElementById('diffViewerBox').style.display = 'none';
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function fetchState() {
+            try {
+                const res = await fetch('/api/state');
+                const state = await res.json();
+                currentDim = state.active_dimension;
+
+                // Populate Dim Select
+                const sel = document.getElementById('dimSelect');
+                sel.innerHTML = '';
+                state.dimensions.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.name;
+                    opt.textContent = `Dimension: ${d.name} ${d.is_active ? '★' : ''}`;
+                    if (d.is_active) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+
+                // Territory
+                const claims = Object.keys(state.territory.claims || {});
+                document.getElementById('territoryClaimsList').innerHTML = claims.length > 0
+                    ? claims.map(c => `<div>🔒 <code>${c}</code> (claimed) <button class="btn" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="runCmd('yield ${c}')">Yield</button></div>`).join('')
+                    : 'No active file claims.';
+                const fences = state.territory.fences || [];
+                document.getElementById('territoryFencesList').innerHTML = fences.length > 0
+                    ? fences.map(f => `<div>🚧 <code>${f}</code> (hard boundary fence)</div>`).join('')
+                    : 'No active boundary fences.';
+
+                // Agents
+                const fleetBox = document.getElementById('agentFleetBox');
+                if (state.agents && state.agents.length > 0) {
+                    fleetBox.innerHTML = state.agents.map(a => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border);">
+                            <div>
+                                <span>🤖 <strong>${a.name || a.agent_type || 'agent'}</strong> <span class="repo-badge">${a.agent_type || 'ai'}</span></span>
+                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Dimension: <code>${a.dimension || 'mainline'}</code></div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent read ${a.name || a.agent_type}')">Mailbox</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('heartbeat')">Heartbeat</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    fleetBox.innerHTML = '<div style="color: var(--text-muted); padding: 1rem 0;">No agents registered. Click "+ Register Agent" to recruit an AI agent.</div>';
+                }
+
+                // Cronos
+                document.getElementById('cronosStatusText').innerHTML = `Status: ${state.cronos.running ? '<span style="color: var(--success);"><span class="badge-live"></span>RUNNING (Autonomous 3-way sync active)</span>' : '<span style="color: var(--text-muted);">STANDBY (Stopped)</span>'}`;
+
+                drawMultiverseGraph(state.dimensions);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function drawMultiverseGraph(dimensions) {
+            const canvas = document.getElementById('multiverseCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const startX = 60;
+            const endX = canvas.width - 60;
+            const count = Math.max(dimensions.length, 2);
+            const gapY = (canvas.height - 70) / count;
+
+            dimensions.forEach((d, idx) => {
+                const y = 60 + idx * gapY;
+                ctx.strokeStyle = d.is_active ? '#58a6ff' : '#30363d';
+                ctx.lineWidth = d.is_active ? 4 : 2;
+                ctx.beginPath();
+                ctx.moveTo(startX, y);
+                ctx.lineTo(endX, y);
+                ctx.stroke();
+
+                if (idx > 0) {
+                    ctx.strokeStyle = 'rgba(188, 140, 255, 0.4)';
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(startX + 40, 60);
+                    ctx.bezierCurveTo(startX + 80, 60, startX + 60, y, startX + 120, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                [startX + 40, startX + 180, startX + 340, endX - 60].forEach((nx) => {
+                    ctx.fillStyle = d.is_active ? '#58a6ff' : '#6e7681';
+                    ctx.beginPath();
+                    ctx.arc(nx, y, d.is_active ? 6 : 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                ctx.fillStyle = d.is_active ? '#58a6ff' : '#8b949e';
+                ctx.font = 'bold 12px monospace';
+                ctx.fillText(`${d.name} ${d.is_active ? '★ ACTIVE' : ''}`, startX, y - 10);
+            });
+        }
+
+        async function runCmd(cmd) {
+            switchTab('terminal');
+            const term = document.getElementById('termBody');
+            term.textContent += `\n$ drf ${cmd}\n`;
+            term.scrollTop = term.scrollHeight;
+            document.getElementById('termStatus').textContent = 'RUNNING...';
+
+            try {
+                const res = await fetch('/api/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
+                });
+                const data = await res.json();
+                if (data.stdout) term.textContent += data.stdout;
+                if (data.stderr) term.textContent += `[ERR] ${data.stderr}`;
+                term.scrollTop = term.scrollHeight;
+                fetchState();
+            } catch (e) {
+                term.textContent += `[ERROR] Failed: ${e}\n`;
+            } finally {
+                document.getElementById('termStatus').textContent = 'READY';
+            }
+        }
+
+        document.getElementById('termInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                if (val) {
+                    runCmd(val);
+                    e.target.value = '';
+                }
+            }
+        });
+
+        function changeDimension(name) {
+            runCmd(`dimension enter ${name}`);
+        }
+
+        function promptNewDim() {
+            const n = prompt("New Dimension Name:");
+            if (n) runCmd(`dimension create ${n}`);
+        }
+
+        function promptRegisterAgent() {
+            const a = prompt("Agent ID:");
+            if (a) runCmd(`agent register ${a} --type ai`);
+        }
+
+        function promptSendMessage() {
+            const to = prompt("Recipient Agent ID:");
+            const msg = prompt("Message content:");
+            if (to && msg) runCmd(`agent send ${to} "${msg}"`);
+        }
+
+        function promptClaim() {
+            const p = prompt("Path to claim exclusively:");
+            if (p) runCmd(`claim ${p}`);
+        }
+
+        function promptFence() {
+            const p = prompt("Path to erect hard boundary fence on:");
+            if (p) runCmd(`fence ${p}`);
+        }
+
+        function executeConverge() {
+            const src = document.getElementById('convergeSourceInput').value.trim();
+            const tgt = document.getElementById('convergeTargetInput').value.trim();
+            if (src && tgt) {
+                runCmd(`converge ${src} ${tgt}`);
+            } else {
+                alert("Please enter both source and target dimensions.");
+            }
+        }
+
+        function copyClone() {
+            navigator.clipboard.writeText("drf clone /Users/pathomphongphiphatsuriyawong/Workspace/DaftUniverse");
+            alert("Copied: drf clone /Users/pathomphongphiphatsuriyawong/Workspace/DaftUniverse");
+        }
+
+        function copyCloneCmd() {
+            copyClone();
+        }
+
+        function formatBytes(b) {
+            if (b < 1024) return b + ' B';
+            if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+            return (b / 1048576).toFixed(1) + ' MB';
+        }
+
+        function renderReadme() {
+            const container = document.getElementById('readmeBody');
+            let content = rawReadme;
+            content = content
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+                .replace(/\*(.*)\*/gim, '<em>$1</em>')
+                .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2" />')
+                .replace(/`([^`]+)`/gim, '<code>$1</code>')
+                .replace(/\n\n/gim, '<br><br>');
+            container.innerHTML = content;
+        }
+
+        // Init
+        loadTree("");
+        loadCommits();
+        fetchState();
+        renderReadme();
+        setInterval(fetchState, 3000);
+    </script>
+</body>
+</html>
