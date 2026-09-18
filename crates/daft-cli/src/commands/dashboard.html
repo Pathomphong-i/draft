@@ -1293,8 +1293,6 @@
         function copyCloneCmd() {
             copyClone();
         }
-            copyClone();
-        }
 
         function formatBytes(b) {
             if (b < 1024) return b + ' B';
@@ -1326,40 +1324,56 @@
             if (!str) return '';
             let s = escapeHtml(str);
 
-            // Images inside links (Shields.io badges): [![alt](img)](url)
-            s = s.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, '<a href="$3" target="_blank" rel="noopener noreferrer"><img alt="$1" src="$2" /></a>');
+            const placeholders = [];
+            function stash(html) {
+                const id = `@@INLINE_PH_${placeholders.length}@@`;
+                placeholders.push(html);
+                return id;
+            }
 
-            // Images: ![alt](url)
+            // 1. Inline code: `code`
+            s = s.replace(/`([^`]+)`/g, (match, code) => stash(`<code>${code}</code>`));
+
+            // 2. Images inside links (Shields.io badges): [![alt](img)](url)
+            s = s.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl, linkUrl) => {
+                return stash(`<a href="${linkUrl}" target="_blank" rel="noopener noreferrer"><img alt="${alt}" src="${imgUrl}" /></a>`);
+            });
+
+            // 3. Images: ![alt](url)
             s = s.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
                 let cleanSrc = src.trim();
                 if (!cleanSrc.startsWith('http://') && !cleanSrc.startsWith('https://') && !cleanSrc.startsWith('data:') && !cleanSrc.startsWith('/')) {
                     cleanSrc = '/' + cleanSrc;
                 }
-                return `<img alt="${alt}" src="${cleanSrc}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: 1px solid var(--border); display: block; margin: 1.5rem auto;" loading="lazy" />`;
+                return stash(`<img alt="${alt}" src="${cleanSrc}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: 1px solid var(--border); display: block; margin: 1.5rem auto;" loading="lazy" />`);
             });
 
-            // Standard links: [text](url)
-            s = s.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            // 4. Standard links: [text](url)
+            s = s.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
+                return stash(`<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+            });
 
-            // Inline code: `code`
-            s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-            // Bold + Italic: ***text***
+            // 5. Bold + Italic: ***text***
             s = s.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
 
-            // Bold: **text** or __text__
+            // 6. Bold: **text** or __text__
             s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             s = s.replace(/__(.*?)__/g, '<strong>$1</strong>');
 
-            // Italic: *text* or _text_
+            // 7. Italic: *text* or _text_
             s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
-            s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+            s = s.replace(/(?:^|\s)_(?!_)([^\s_][^_\n]*[^\s_]|[^_\s])_(?=\s|$|[.,;:!?])/g, ' <em>$1</em>');
 
-            // Strikethrough: ~~text~~
+            // 8. Strikethrough: ~~text~~
             s = s.replace(/~~(.*?)~~/g, '<del>$1</del>');
 
-            // Inline math: $formula$
+            // 9. Inline math: $formula$
             s = s.replace(/\$([^$\n]+)\$/g, '<code style="color: var(--quantum-violet); font-style: italic;">$$1$</code>');
+
+            // 10. Restore stashed elements
+            placeholders.forEach((html, idx) => {
+                s = s.replace(`@@INLINE_PH_${idx}@@`, html);
+            });
 
             return s;
         }

@@ -2,9 +2,9 @@
 
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
-[![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-emerald.svg)](#)
-[![Performance: CoW Instant](https://img.shields.io/badge/Cloning-0.06s%20%2F%201000%20files-cyan.svg)](#)
-[![Architecture: Lock--Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
+[![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)
+[![Performance: CoW Reflink](https://img.shields.io/badge/Cloning-0.06s%20%2F%2010%2C000%20files-cyan.svg)](#)
+[![Architecture: Lock-Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
 [![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](#)
 
 > *"In classical philosophy, Chronos (Χρόνος) forces all actions into a single linear sequence. In Draft, Kairos (Καιρός) lets parallel minds build concurrently until the opportune moment of convergence."*
@@ -17,7 +17,7 @@
 
 ## ⚡ The Architectural Shift: Why Draft?
 
-**Git was engineered in 2005 for sequential, single-threaded development workflows.**  
+**Git was engineered in 2005 around a single checked-out working tree and linear branch switching.**  
 **Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**
 
 Modern software engineering faces concurrency bottlenecks at the version control layer:
@@ -29,11 +29,11 @@ Modern software engineering faces concurrency bottlenecks at the version control
 - 🌌 **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.
 - 📡 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.
 - 🔮 **Predictive Merge Foresight (`dft foresee`)**: In-memory simulation of 3-way merges *before* branch integration occurs.
-- 🔒 **Territory Leasing & Boundary Fences**: Advisory path leases (`dft claim`) and hard exclusionary barriers (`dft fence`) to eliminate agent collisions.
+- 🔒 **Territory Leasing & Boundary Fences**: Advisory path leases (`dft claim`) and hard exclusionary barriers (`dft fence`) to prevent accidental agent collisions.
 - 🔗 **Continuous Entanglement (`dft entangle`)**: Bi-directional live auto-synchronization of specific files across parallel dimensions.
-- ⏰ **Cronos Autonomous Daemon**: Background continuous 3-way tree convergence engine.
+- ⏰ **Autonomous Sync Daemon (`dft cronos`)**: Background continuous 3-way tree convergence engine.
 - 🌊 **Multi-Branch Collapse (`dft collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.
-- 🖥️ **DraftMultiverse Self-Hosted Web Platform**: Gitea-grade web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
+- 🖥️ **Self-Hosted Developer Web Platform**: Web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
 - 🪐 **Decentralized Remote Sync (`DraftUniverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
 
 ---
@@ -58,7 +58,7 @@ In ancient thought, the Greeks distinguished two forms of time: **Chronos (Χρ�
 ### Sincere Tribute to Linus Torvalds
 Draft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights—content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots—remain foundational.
 
-We named this system **Draft (`draft` / `dft`)** because every parallel dimension is an agile, living *draft* of reality. Where Git forces developers to treat every experiment as a committed linear branch, Draft allows agents and humans to explore multiple drafts simultaneously until the opportune moment of convergence. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.
+We named this system **Draft (`draft` / `dft`)** because every parallel dimension represents an agile, working *draft* of your project. Where Git forces developers to commit every experiment to a single rigid working-tree sequence, Draft allows agents and developers to iterate on preliminary versions concurrently before bringing them together. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.
 
 ---
 
@@ -138,10 +138,10 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 
 #### Divergence Risk Tiers:
 - $H = 0.0$: Identical state (clean fast-forward possible).
-- $0.0 < H \le 0.15$: Negligible divergence (clean auto-merge guaranteed).
+- $0.0 < H \le 0.15$: Negligible divergence (clean auto-merge expected; minimal file overlap).
 - $0.15 < H \le 0.35$: Low divergence (auto-merge expected).
 - $0.35 < H \le 0.65$: Moderate divergence (cross-file edits require awareness).
-- $H > 0.65$: High divergence (conflicting hunks detected, pre-conflict warnings triggered).
+- $H > 0.65$: High divergence (elevated collision risk; pre-conflict warnings triggered).
 
 ---
 
@@ -173,7 +173,7 @@ dft --version
 
 ### 2. Quickstart: Standard Version Control
 
-Draft offers a 100% familiar interface for standard version control commands:
+Draft offers a familiar interface for standard version control commands:
 
 ```bash
 # Initialize a new Draft repository
@@ -216,13 +216,13 @@ dft dimension list
 # 3. Enter a dimension and work in isolation
 dft dimension enter feature-auth
 
-# 4. Claim exclusive advisory ownership over files
+# 4. Acquire an advisory lease on files
 dft claim src/auth.rs
 
 # 5. Check real-time radar for concurrent hot zones
 dft radar --hot
 
-# 6. Predict merge conflicts before merging!
+# 6. Check for potential merge conflicts in memory before merging
 dft foresee feature-auth mainline
 
 # 7. Converge feature branch back into mainline
@@ -273,12 +273,12 @@ You do not need to replace your organization's Git infrastructure, GitHub Pull R
 
 | Concurrency Dimension | Traditional Git / Worktrees | Draft Multiverse Swarm |
 |:---|:---|:---|
-| **Branch Creation Speed** | 2.5s – 5.0s (full directory copy) | **0.06s** (instant APFS/Btrfs CoW reflink) |
-| **Disk Footprint** | Multiplies linearly per branch (GBs) | **0 KB** additional blocks until modified |
+| **Workspace Creation Speed** | 2.5s – 5.0s (full directory clone / worktree setup) | **0.06s** (instant APFS/Btrfs CoW reflink) |
+| **Disk Footprint** | Multiplies linearly per full clone or separate working tree (GBs) | **0 KB** additional blocks until modified (CoW) |
 | **Branch Switching Overhead** | Must stash, commit, or clean working tree | Zero overhead: each dimension is an isolated workspace |
 | **Multi-Agent Awareness** | Blind: agents overwrite shared files | **Real-Time Radar (`dft radar`)** & Territory Claims |
 | **Merge Conflict Triage** | Reactive: conflicts discovered after work | **Predictive: `dft foresee`** flags collisions in advance |
-| **Upstream Compatibility** | Native | **100% Seamless**: push pristine Git commits to GitHub/GitLab |
+| **Upstream Compatibility** | Native | **Fully Compatible**: push standard Git commits to GitHub/GitLab |
 
 ---
 
@@ -339,7 +339,7 @@ Before bringing changes together, verify that no conflicting hunks exist:
 dft foresee feat-auth mainline
 # Output:
 #   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'
-#   [FORESEE] Clean auto-merge guaranteed: 0 conflicts detected.
+#   [FORESEE] Clean auto-merge predicted: 0 conflicts detected.
 #   [FORESEE] Divergence Metric: H = 0.04 (minimal divergence)
 ```
 
@@ -354,7 +354,7 @@ dft converge feat-auth mainline
 dft converge feat-billing mainline
 dft converge feat-docs mainline
 
-# Or collapse all active dimensions in one atomic operation:
+# Or collapse all active dimensions into mainline in a single command:
 dft collapse
 ```
 
@@ -387,7 +387,7 @@ dft export git --dimension mainline
 dft compat git-bridge
 ```
 
-> **Pro-Tip**: Your teammates and CI runners on GitHub will never need to know you used a multiverse swarm—they will just wonder how you built, tested, and delivered 5 features simultaneously with zero merge conflicts!
+> **Tip**: Because Draft converges changes directly into standard working tree files on mainline, you can push integrated commits upstream to GitHub or GitLab without altering your team's existing review processes or CI/CD pipelines.
 
 ---
 
@@ -485,7 +485,7 @@ Every agent interacting with Draft follows a structured lifecycle:
    dft add src/auth.rs
    dft commit -m "feat(auth): add bearer token verification"
    ```
-6. **Predictive Merge Foresight**: Runs an in-memory 3-way simulation to guarantee zero merge conflicts:
+6. **Predictive Merge Foresight**: Runs an in-memory 3-way simulation to verify conflict-free integration before convergence:
    ```bash
    dft foresee agent-coder/auth-feature mainline
    ```
@@ -513,7 +513,7 @@ dft agent read agent-beta
 ```
 
 #### Real-World Verification: AetherDB Swarm
-This exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent_team_miniproject), where 3 autonomous AI agents concurrently built a persistent Key-Value database (WAL storage, API parser, and REPL CLI) in parallel dimensions and converged into mainline with **zero merge conflicts**.
+This exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent_team_miniproject), where 3 autonomous AI agents concurrently built a persistent Key-Value database (WAL storage, API parser, and REPL CLI) in parallel dimensions and converged cleanly into mainline without merge conflicts.
 
 ---
 
@@ -575,7 +575,7 @@ dft init --bare /path/to/DraftUniverse
 dft remote add origin /path/to/DraftUniverse
 
 # 3. Deploy and synchronize all dimensions
-dft push origin main
+dft push origin mainline
 dft push origin agent-quantum
 ```
 
@@ -597,7 +597,7 @@ dft push origin agent-quantum
 | `dft rm` / `dft mv` | `git rm` / `git mv` | Delete or move/rename tracked files |
 | `dft stash` | `git stash` | Safely shelve dirty uncommitted changes |
 | `dft branch` | `git branch` | Create, list, or delete branches |
-| `dft checkout` / `switch` | `git checkout` | Switch active branch or restore file revisions |
+| `dft checkout` / `dft switch` | `git checkout` / `git switch` | Switch active branch or restore file revisions |
 | `dft merge` | `git merge` | Join development histories via 3-way tree merge |
 | `dft rebase` | `git rebase` | Replay commits onto a new base tip |
 | `dft cherry-pick` | `git cherry-pick` | Apply specific commit diffs to the current branch |
@@ -623,7 +623,7 @@ dft push origin agent-quantum
 | `dft radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |
 | `dft foresee <dim1> <dim2>` | Predictive Merge | Simulate 3-way tree reconciliation in memory before merging |
 | `dft entropy` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \in [0.0, 1.0]$ |
-| `dft claim <path>` | Territory Protocol | Acquire advisory exclusive file claim with TTL |
+| `dft claim <path>` | Territory Protocol | Acquire advisory file lease with TTL |
 | `dft yield <path>` | Territory Protocol | Release an active territory claim |
 | `dft fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |
 | `dft collapse` | Convergence Engine | Reconcile all active parallel dimensions back into mainline |
