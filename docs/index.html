@@ -820,7 +820,11 @@
         // ==========================================
         // GITHUB PAGES / OFFLINE STATIC DEMO ENGINE
         // ==========================================
-        let isStaticMode = false;
+        const isStaticHost = window.location.protocol === 'file:' ||
+                             window.location.hostname.endsWith('github.io') ||
+                             window.location.hostname.endsWith('pages.dev') ||
+                             window.location.search.includes('static=true');
+        let isStaticMode = isStaticHost;
 
         const DEMO_TREE = {
             "": [
@@ -845,9 +849,18 @@
             ],
             "docs": [
                 { name: "assets", is_dir: true, size: 0 },
-                { name: "index.html", is_dir: false, size: 125000 }
+                { name: "docs", is_dir: true, size: 0 },
+                { name: "index.html", is_dir: false, size: 142000 }
             ],
             "docs/assets": [
+                { name: "draft_icon.svg", is_dir: false, size: 5934 },
+                { name: "draft_github_meme.jpg", is_dir: false, size: 1056649 },
+                { name: "draft_multiverse_3d.jpg", is_dir: false, size: 734624 }
+            ],
+            "docs/docs": [
+                { name: "assets", is_dir: true, size: 0 }
+            ],
+            "docs/docs/assets": [
                 { name: "draft_icon.svg", is_dir: false, size: 5934 },
                 { name: "draft_github_meme.jpg", is_dir: false, size: 1056649 },
                 { name: "draft_multiverse_3d.jpg", is_dir: false, size: 734624 }
@@ -1555,7 +1568,9 @@ diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.
         async function runCmd(cmd) {
             switchTab('terminal');
             const term = document.getElementById('termBody');
-            term.textContent += `\n$ dft ${cmd}\n`;
+            const trimmed = cmd.trim();
+            const displayCmd = trimmed.startsWith('dft ') ? trimmed : `dft ${trimmed}`;
+            term.textContent += `\n$ ${displayCmd}\n`;
             term.scrollTop = term.scrollHeight;
             document.getElementById('termStatus').textContent = 'RUNNING...';
 
@@ -1582,40 +1597,53 @@ diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.
             }
 
             if (!executed) {
-                const trimmed = cmd.trim();
-                const lower = trimmed.toLowerCase();
+                const normalized = trimmed.replace(/^(dft|\.\/dft)\s+/, '').trim().toLowerCase();
                 let output = '';
 
-                if (lower.startsWith('dft status') || lower === 'status') {
+                if (normalized === 'status' || normalized.startsWith('status')) {
                     output = `On dimension: mainline\nYour dimension is up to date with 'origin/mainline'.\n\nChanges to be committed:\n  (use "dft restore --staged <file>..." to unstage)\n\tmodified:   README.md\n\tmodified:   docs/index.html\n\nUntracked files:\n  (working tree clean)\n`;
-                } else if (lower.startsWith('dft dimension list') || lower === 'dimension list') {
+                } else if (normalized === 'dimension' || normalized === 'dimension list' || normalized.startsWith('dimension list')) {
                     output = `  agent-quantum          [clean, divergence H=0.08]\n  feature-memory-engine  [clean, divergence H=0.04]\n* mainline               [clean, active]\n`;
-                } else if (lower.startsWith('dft dimension enter') || lower.startsWith('dimension enter')) {
-                    const dim = trimmed.split(' ').pop();
+                } else if (normalized.startsWith('dimension enter')) {
+                    const dim = trimmed.split(/\s+/).pop();
                     output = `Switched to dimension '${dim}'\nWorkspace reflink updated in 0.04s (0 KB copied).\n`;
-                } else if (lower.startsWith('dft dimension create') || lower.startsWith('dimension create')) {
-                    const dim = trimmed.split(' ').pop();
+                } else if (normalized.startsWith('dimension create')) {
+                    const dim = trimmed.split(/\s+/).pop();
                     output = `Created dimension '${dim}' from mainline.\nCoW snapshot ready in 0.05s.\n`;
-                } else if (lower.startsWith('dft radar') || lower === 'radar') {
+                } else if (normalized.startsWith('dimension destroy')) {
+                    const dim = trimmed.split(/\s+/).pop();
+                    output = `Destroyed dimension '${dim}'. Underlying CAS objects preserved.\n`;
+                } else if (normalized === 'radar' || normalized.startsWith('radar')) {
                     output = `[RADAR] Active Dimensions: 3 | Claims: 1 | Fences: 1\n  Hot Zone: crates/daft-core/src/cas.rs (Collision Risk: 12% - Low)\n  Claimed by: agent-quantum (TTL: 14m remaining)\n`;
-                } else if (lower.startsWith('dft foresee') || lower === 'foresee') {
-                    output = `[FORESEE] In-memory 3-way reconciliation simulation:\n  Source: agent-quantum | Target: mainline\n  Result: Clean auto-merge predicted (0 conflicts detected).\n  Divergence Metric: H = 0.08 (negligible divergence)\n`;
-                } else if (lower.startsWith('dft claim') || lower.startsWith('claim')) {
-                    const path = trimmed.split(' ').pop();
+                } else if (normalized === 'foresee' || normalized.startsWith('foresee')) {
+                    const parts = trimmed.split(/\s+/);
+                    const src = parts[1] || 'agent-quantum';
+                    const tgt = parts[2] || 'mainline';
+                    output = `[FORESEE] In-memory 3-way reconciliation simulation:\n  Source: ${src} | Target: ${tgt}\n  Result: Clean auto-merge predicted (0 conflicts detected).\n  Divergence Metric: H = 0.08 (negligible divergence)\n`;
+                } else if (normalized.startsWith('claim')) {
+                    const path = trimmed.split(/\s+/).pop();
                     output = `[CLAIM] Acquired advisory territory lease on '${path}' (TTL: 15m).\n`;
-                } else if (lower.startsWith('dft yield') || lower.startsWith('yield')) {
-                    const path = trimmed.split(' ').pop();
+                } else if (normalized.startsWith('yield')) {
+                    const path = trimmed.split(/\s+/).pop();
                     output = `[YIELD] Released advisory territory lease on '${path}'.\n`;
-                } else if (lower.startsWith('dft fence') || lower.startsWith('fence')) {
-                    const path = trimmed.split(' ').pop();
-                    output = `[FENCE] Erected hard boundary fence on '${path}'. All writes blocked.\n`;
-                } else if (lower.startsWith('dft converge') || lower.startsWith('converge')) {
+                } else if (normalized.startsWith('fence')) {
+                    const path = trimmed.split(/\s+/).pop();
+                    output = `[FENCE] Erected hard boundary fence on '${path}'. All writes blocked across all dimensions.\n`;
+                } else if (normalized === 'converge' || normalized.startsWith('converge')) {
                     output = `[CONVERGE] Reconciled parallel dimensions.\n3-way merge completed cleanly with 0 conflicts.\n`;
-                } else if (lower.startsWith('dft agent') || lower.startsWith('agent')) {
+                } else if (normalized === 'collapse' || normalized.startsWith('collapse')) {
+                    output = `[COLLAPSE] Wavefunction collapsed: all parallel dimensions safely reconciled into mainline.\n`;
+                } else if (normalized.startsWith('agent')) {
                     output = `[AGENT] Swarm coordinator processed agent request.\nMailbox updated.\n`;
-                } else if (lower.startsWith('dft heartbeat') || lower === 'heartbeat') {
+                } else if (normalized.startsWith('heartbeat')) {
                     output = `[HEARTBEAT] Ping sent. Active agent locks renewed.\n`;
-                } else if (lower.startsWith('dft help') || lower === 'help' || lower === '--help') {
+                } else if (normalized === 'timeline' || normalized.startsWith('timeline')) {
+                    output = `Multiverse Spacetime DAG:\n* mainline (HEAD -> mainline)\n|\\ \n| * agent-quantum (feat: quantum sync)\n|/  \n* d888d36 initial commit\n`;
+                } else if (normalized === 'log' || normalized.startsWith('log')) {
+                    output = `commit d888d36a3f12bc89... (HEAD -> mainline)\nAuthor: Draft User <user@draft-vcs.org>\nDate:   Today\n\n    feat(multiverse): APFS/Btrfs CoW parallel dimensions and predictive 3-way merge\n`;
+                } else if (normalized === 'diff' || normalized.startsWith('diff')) {
+                    output = `diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.rs\n--- a/crates/daft-core/src/dimension.rs\n+++ b/crates/daft-core/src/dimension.rs\n@@ -42,6 +42,12 @@\n+    pub fn spawn_cow_workspace(&self, name: &str) -> Result<PathBuf>\n`;
+                } else if (normalized === 'help' || normalized === '--help' || normalized === '-h' || normalized.startsWith('help')) {
                     output = `Draft (dft) - The Multiverse Version Control System\n\nUsage: dft <COMMAND> [OPTIONS]\n\nCommands:\n  init         Initialize a new repository\n  status       Show working tree and dimension status\n  dimension    Manage parallel development dimensions\n  radar        Scan for concurrent hot-zones and edit collisions\n  foresee      Predictive 3-way merge conflict detection\n  claim/yield  Acquire or release advisory file leases\n  converge     Reconcile parallel dimensions into mainline\n  collapse     Atomic reconciliation of all parallel dimensions\n`;
                 } else {
                     output = `[DFT] Executed '${trimmed}' successfully.\n`;
