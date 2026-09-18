@@ -87,7 +87,7 @@ pub fn execute(args: CommitArgs, quiet: bool) -> Result<(), CliError> {
         if let Some((name, email)) = parse_author_str(author_str) {
             Signature::now(name, email)
         } else {
-            Signature::now(author_str.clone(), "unknown@daft-vcs.org".to_string())
+            Signature::now(author_str.clone(), "unknown@draft-vcs.org".to_string())
         }
     } else {
         get_signature()

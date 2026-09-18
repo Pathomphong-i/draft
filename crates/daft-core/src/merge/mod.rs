@@ -28,11 +28,13 @@ pub enum MergeOutcome {
 /// Resolves user signature from environment variables or sensible defaults.
 pub fn get_signature() -> Signature {
     let name = std::env::var("DFT_AUTHOR_NAME")
+        .or_else(|_| std::env::var("DRAFT_AUTHOR_NAME"))
         .or_else(|_| std::env::var("GIT_AUTHOR_NAME"))
-        .unwrap_or_else(|_| "Daft User".to_string());
+        .unwrap_or_else(|_| "Draft User".to_string());
     let email = std::env::var("DFT_AUTHOR_EMAIL")
+        .or_else(|_| std::env::var("DRAFT_AUTHOR_EMAIL"))
         .or_else(|_| std::env::var("GIT_AUTHOR_EMAIL"))
-        .unwrap_or_else(|_| "user@daft-vcs.org".to_string());
+        .unwrap_or_else(|_| "user@draft-vcs.org".to_string());
     Signature::now(name, email)
 }
 

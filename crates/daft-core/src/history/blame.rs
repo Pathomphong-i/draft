@@ -135,7 +135,7 @@ pub fn blame_file(
         line_map = next_line_map;
     }
 
-    let default_sig = Signature::now("Unknown", "unknown@daft-vcs.org");
+    let default_sig = Signature::now("Unknown", "unknown@draft-vcs.org");
     let mut result = Vec::new();
     for (i, content) in lines.into_iter().enumerate() {
         let (cid, author) = line_commits[i]

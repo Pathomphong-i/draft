@@ -77,7 +77,7 @@ pub fn stash_push(repo: &Repository, message: Option<&str>) -> Result<Option<Obj
         fs::create_dir_all(parent)?;
     }
     let log_line = format!(
-        "0000000000000000000000000000000000000000000000000000000000000000 {} Daft User <user@daft-vcs.org> 0 +0000\t{}\n",
+        "0000000000000000000000000000000000000000000000000000000000000000 {} Draft User <user@draft-vcs.org> 0 +0000\t{}\n",
         stash_oid, commit_msg
     );
     let mut existing_log = if log_path.exists() {
