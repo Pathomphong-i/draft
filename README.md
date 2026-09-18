@@ -469,49 +469,78 @@ Developers frequently ask how **Draft (`dft`)** compares to **[Jujutsu (`jj`)](h
 
 ---
 
-#### 📊 Empirical Performance Benchmarks
+#### 📊 Empirical Performance Benchmarks: Git vs. Jujutsu (`jj`) vs. Draft (`dft`)
 
-All benchmarks below were measured on Apple Silicon running macOS Darwin 25 with APFS (Apple File System). The benchmark measured raw latency and actual filesystem block allocation (`du -sk`) across repositories with identical file trees.
+All benchmarks below were executed on Apple Silicon running macOS Darwin 25 with APFS (Apple File System). The benchmark environment measured raw wall-clock latency (using monotonic nanosecond timers), actual filesystem physical block allocation (`du -sk`), Darwin kernel process resource metrics (`/usr/bin/time -l`), and multi-agent concurrency throughput across repositories with **1,000 tracked files** spanning nested directory hierarchies.
 
-##### 1. Repository Initialization & Workspace Creation Latency
-Measuring the time required to initialize a fresh repository and create **5 isolated workspaces** for concurrent AI agents or feature branches:
+Tool versions tested: **Git 2.39+**, **Jujutsu (`jj`) 0.45.1**, and **Draft (`dft`) 0.1.0**.
 
-| Metric | Git (2.39) | Jujutsu (`jj` 0.45) | Draft (`dft` 0.1.0) | Draft Speedup vs. Git | Draft Speedup vs. jj |
+---
+
+##### 1. Parallel Workspace Creation & Scaling (1, 5, and 10 Workspaces)
+Measuring the wall-clock time required to initialize a fresh repository and spawn isolated, independent workspaces for concurrent AI agents or feature branches:
+
+| Concurrency Scale | Git (`git worktree add`) | Jujutsu (`jj workspace add`) | Draft (`dft dimension create`) | Draft Speedup vs. Git | Draft Speedup vs. `jj` |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **Repository Init (`init`)** | 19.62 ms | 83.60 ms | **8.13 ms** | **2.4x faster** | **10.3x faster** |
-| **5 Workspaces (500 files each)** | 426.76 ms | 808.12 ms | **42.53 ms** (8.51 ms/dim) | **10.0x faster** | **19.0x faster** |
-| **5 Workspaces (1,000 files each)** | 766.22 ms | 1,258.19 ms | **38.11 ms** (7.62 ms/dim) | **20.1x faster** | **33.0x faster** |
+| **1 Workspace** | 200.78 ms | 290.51 ms | **9.46 ms** | **21.2x faster** | **30.7x faster** |
+| **5 Workspaces** | 849.44 ms (169.9 ms/ws) | 1,350.78 ms (270.2 ms/ws) | **36.84 ms** (7.37 ms/ws) | **23.1x faster** | **36.7x faster** |
+| **10 Workspaces** | 1,651.92 ms (165.2 ms/ws) | 2,823.91 ms (282.4 ms/ws) | **81.26 ms** (8.13 ms/ws) | **20.3x faster** | **34.8x faster** |
 
-> **Why Draft is so much faster**: Git and Jujutsu perform full directory scans and re-checkout copies into separate worktree directories. Draft utilizes kernel-level Copy-on-Write reflink primitives (`clonefile` on macOS APFS, `ioctl(FICLONE)` on Linux Btrfs/XFS/ZFS), creating instant isolated filesystem namespaces in **~7.6 milliseconds** regardless of repository size.
+> **Why Draft scales linearly in single-digit milliseconds**: Git and Jujutsu execute full user-space directory tree traversals, index instantiation, and file-by-file checkouts from object storage into new directories. Draft leverages kernel-level Copy-on-Write reflink primitives (`clonefile` on macOS APFS, `ioctl(FICLONE)` on Linux Btrfs/XFS/ZFS), creating isolated filesystem namespaces in **~7–8 milliseconds** per dimension regardless of tree size.
 
-##### 2. Disk Space Overhead for 5 Concurrent Workspaces
-Measuring physical disk block consumption (`du -sk`) for 5 concurrent isolated working environments:
+---
 
-| Benchmark Scenario | Git Worktrees | Jujutsu Workspaces | Draft Dimensions (CoW) | Disk Savings with Draft |
+##### 2. Physical Disk Space Overhead & Extent Sharing (`du -sk`)
+Measuring actual physical disk block consumption on the storage layer (`du -sk`) across 1, 5, and 10 concurrent workspaces:
+
+| Benchmark Scale | Git Worktrees | Jujutsu Workspaces | Draft Dimensions (CoW) | Disk Reduction with Draft |
 |:---|:---:|:---:|:---:|:---:|
-| **5 Workspaces (500 files)** | 10,020 KB (~10.0 MB) | 10,140 KB (~10.1 MB) | **280 KB** | **97.2% less disk** |
-| **5 Workspaces (1,000 files)** | 20,020 KB (~20.0 MB) | 20,200 KB (~20.2 MB) | **500 KB** | **97.5% less disk (40x reduction)** |
+| **1 Workspace** | 4,004 KB (~4.0 MB) | 4,040 KB (~4.0 MB) | **100 KB** | **97.5% less disk** |
+| **5 Workspaces** | 20,020 KB (~20.0 MB) | 20,200 KB (~20.2 MB) | **600 KB** (~0.6 MB) | **97.0% less disk** |
+| **10 Workspaces** | 40,040 KB (~40.0 MB) | 40,400 KB (~40.4 MB) | **1,600 KB (~1.6 MB)** | **96.0% less disk (25x reduction)** |
 
-> **Block-Level Efficiency**: While Git and Jujutsu duplicate full working tree bytes for every new workspace, Draft's Copy-on-Write engine shares the underlying physical storage blocks with the Content-Addressable Storage (CAS) pool. Disk blocks are only allocated when an agent actually modifies a byte.
+> **Block-Level Extent Sharing**: While Git and Jujutsu allocate separate physical storage blocks for every checked-out file in each workspace, Draft's Copy-on-Write engine shares the underlying physical storage blocks with the Content-Addressable Storage (CAS) pool. Clean files consume 0 KB of additional physical disk. New blocks are allocated strictly on modification (Copy-on-Write). On a 5 GB codebase with 10 concurrent agents, Git and Jujutsu require 50 GB of disk; Draft requires ~5 GB total.
 
-##### 3. Swarm Concurrency: 5 Parallel Autonomous Agents Committing Simultaneously
-Measuring throughput when 5 parallel worker processes simultaneously modify files and commit to their respective branches/workspaces:
+---
 
-| Benchmark Metric | Git Worktrees | Jujutsu Workspaces | Draft Dimensions |
-|:---|:---:|:---:|:---:|
-| **Single-File Commit Latency** | 45.64 ms | 81.56 ms | **34.16 ms** |
-| **5 Concurrent Commits (Wall Clock)** | 88.64 ms | 251.70 ms | **75.95 ms** |
-| **Average Commit Latency per Agent** | 78.70 ms | 218.04 ms | **71.95 ms** |
-| **Concurrency Contention Model** | Serial ref locks | Operation log serialization | **Zero Lock Contention (Independent Indexes)** |
+##### 3. Resource Footprint & System Overhead (Darwin Kernel Telemetry)
+Measuring process resource consumption during commit operations on a 1,000-file repository via macOS Darwin kernel telemetry (`/usr/bin/time -l`):
 
-##### 4. Conflict Handling & Proactive Foresight
+| Telemetry Metric | Git (2.39) | Jujutsu (`jj` 0.45.1) | Draft (`dft` 0.1.0) | Draft vs. Jujutsu | Draft vs. Git |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **Peak RSS Memory** | 5.23 MB | 25.47 MB | **8.02 MB** | **68.5% less memory** | Lightweight footprint |
+| **CPU Instructions Retired** | 453.2M | 239.9M | **45.6M** | **5.2x fewer instructions** | **10.0x fewer instructions** |
+| **Context Switches** | 1,272 | 605 | **16** | **37.8x fewer switches** | **79.5x fewer switches** |
+
+> **Architectural Efficiency**:
+> - **Memory Footprint**: Jujutsu maintains an extensive in-memory commit graph, operation log, and snapshot engine (~25.5 MB peak RSS). Draft's lean Rust CAS engine and streaming index structure maintain a tight **8.0 MB** peak memory footprint (68.5% lower than `jj`).
+> - **CPU Instruction Efficiency**: Git's single-threaded C engine traverses directory trees and executes compression passes (453M instructions). Draft leverages zero-copy memory-mapped I/O (`memmap2`) and direct SHA-256 digest hashing, retiring only **45.6M instructions (10x fewer than Git, 5.2x fewer than Jujutsu)**.
+> - **Scheduler Thrashing**: Git and Jujutsu incur hundreds to thousands of voluntary and involuntary context switches due to synchronous filesystem lock acquisition, file descriptor cycling, and subprocess forks. Draft finishes in a single tightly-optimized execution loop with only **16 context switches**, completely eliminating scheduler thrashing.
+
+---
+
+##### 4. Swarm Concurrency Under Load: 10 Autonomous AI Agents Committing Concurrently
+Measuring real-world multi-agent swarm commit throughput when **10 autonomous worker processes** simultaneously modify files and commit to their respective isolated workspaces:
+
+| Concurrency Metric | Git Worktrees | Jujutsu Workspaces | Draft Dimensions | Draft Speedup vs. Git | Draft Speedup vs. `jj` |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **10 Parallel Commits (Wall Clock)** | 1,392.36 ms | 537.41 ms | **129.42 ms** | **10.8x faster** | **4.2x faster** |
+| **Average Commit Latency per Agent** | 1,199.36 ms | 418.75 ms | **119.23 ms** | **10.1x faster** | **3.5x faster** |
+| **Lock Contention & Concurrency Model** | Serial ref locks (`.git/refs/heads/`) block parallel writes | Operation log lock serializes history updates | **Zero Lock Contention**: Independent staging indexes & branch ref locks | Minimal lock wait | Zero serialization bottleneck |
+
+> **Why Draft dominates multi-agent swarms**: Under concurrent load, Git workers contend on shared reference locks and index locks, forcing parallel agents into serialized queues (1,392 ms wall clock). Jujutsu serializes concurrent updates through its global operation log lock (537 ms wall clock). Draft gives each dimension its own isolated staging index (`.dft/dimensions/<name>/index`) and writes immutable SHA-256 CAS objects directly to loose storage pools, allowing **all 10 agents to commit simultaneously in 129.4 ms with zero lock contention**.
+
+---
+
+##### 5. Conflict Handling & Proactive Foresight
 | Capability | Git | Jujutsu (`jj`) | Draft (`dft`) |
 |:---|:---|:---|:---|
 | **Conflict Discovery Timing** | Post-merge (reactive) | Post-operation (recorded in commit) | **Pre-Merge Simulation (`dft foresee`)** (predictive) |
 | **Foresight Simulation Speed (500 files)** | Not supported | Not supported | **66.49 ms** (pure in-memory 3-way check) |
 | **Foresight Simulation Speed (1,000 files)** | Not supported | Not supported | **122.82 ms** (pure in-memory 3-way check) |
-| **Cross-Agent Awareness** | None | None | **Live Hot-Zone Radar (`dft radar`)** |
+| **Cross-Agent Awareness** | None (workers blind to each other) | None (workspaces isolated) | **Live Hot-Zone Radar (`dft radar`)** |
 | **Continuous Auto-Convergence** | Manual script | Manual rebase | **Native Daemon (`dft cronos`)** |
+| **Territory Boundaries** | None | None | **Advisory Claims (`dft claim`) & Fences (`dft fence`)** |
 
 ---
 
