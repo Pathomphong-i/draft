@@ -1781,12 +1781,17 @@ diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.
             // 1. Inline code: `code`
             s = s.replace(/`([^`]+)`/g, (match, code) => stash(`<code>${code}</code>`));
 
-            // 2. Images inside links (Shields.io badges): [![alt](img)](url)
+            // 2. Inline math: $formula$ (stashed before formatting so underscores/angles are preserved)
+            s = s.replace(/\$([^$\n]+)\$/g, (match, math) => {
+                return stash(`<code style="color: var(--quantum-violet); font-style: italic; font-family: monospace;">$${math}$</code>`);
+            });
+
+            // 3. Images inside links (Shields.io badges): [![alt](img)](url)
             s = s.replace(/\[!\[(.*?)\]\((.*?)\)\]\((.*?)\)/g, (match, alt, imgUrl, linkUrl) => {
                 return stash(`<a href="${linkUrl}" target="_blank" rel="noopener noreferrer"><img alt="${alt}" src="${imgUrl}" /></a>`);
             });
 
-            // 3. Images: ![alt](url)
+            // 4. Images: ![alt](url)
             s = s.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
                 let cleanSrc = src.trim();
                 if (cleanSrc.startsWith('/docs/assets/')) {
@@ -1813,7 +1818,7 @@ diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.
                     .replace(/~~(.*?)~~/g, '<del>$1</del>');
             }
 
-            // 4. Standard links: [text](url)
+            // 5. Standard links: [text](url)
             s = s.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
                 let cleanUrl = url.trim();
                 // Resolve relative documentation and file links to GitHub repository so they never 404 on GitHub Pages
@@ -1825,14 +1830,12 @@ diff --git a/crates/daft-core/src/dimension.rs b/crates/daft-core/src/dimension.
                 return stash(`<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${formattedText}</a>`);
             });
 
-            // 5. Bold, Italic, Strikethrough for text outside links
+            // 6. Bold, Italic, Strikethrough for text outside links
             s = formatText(s);
 
-            // 6. Italic with single underscore
+            // 7. Italic with single underscore
             s = s.replace(/(?:^|\s)_(?!_)([^\s_][^_\n]*[^\s_]|[^_\s])_(?=\s|$|[.,;:!?])/g, ' <em>$1</em>');
 
-            // 7. Inline math: $formula$
-            s = s.replace(/\$([^$\n]+)\$/g, '<code style="color: var(--quantum-violet); font-style: italic;">$$1$</code>');
 
             // 8. Restore stashed elements recursively until all placeholders are fully resolved
             let maxPasses = 10;
