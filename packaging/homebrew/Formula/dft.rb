@@ -6,20 +6,20 @@ class Dft < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/Pathomphong-i/draft/releases/download/v0.1.0/dft-aarch64-apple-darwin.tar.gz"
-      # sha256 "CHECKSUM_APPLE_SILICON_TAR_GZ"
+      sha256 "f72e9a7b2fee4dd251d176feee93ef98981fe72b954a50a3e7f053b4b29365df"
     else
       url "https://github.com/Pathomphong-i/draft/releases/download/v0.1.0/dft-x86_64-apple-darwin.tar.gz"
-      # sha256 "CHECKSUM_INTEL_MAC_TAR_GZ"
+      sha256 "c1713c95e94afd463dac4d098db8d7fcb39d4356d152f95766009682a977b769"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
       url "https://github.com/Pathomphong-i/draft/releases/download/v0.1.0/dft-aarch64-unknown-linux-gnu.tar.gz"
-      # sha256 "CHECKSUM_LINUX_ARM64_TAR_GZ"
+      sha256 "efddbfad669b27adc954190802063568109133adac04581673c91fa74df60ddc"
     else
       url "https://github.com/Pathomphong-i/draft/releases/download/v0.1.0/dft-x86_64-unknown-linux-gnu.tar.gz"
-      # sha256 "CHECKSUM_LINUX_X86_64_TAR_GZ"
+      sha256 "608dc8f764cdb184810740eb0980025ffca5b9e0d1dda2b5db346a5cdd6cca4e"
     end
   end
 
