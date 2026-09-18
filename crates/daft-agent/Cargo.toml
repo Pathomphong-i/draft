@@ -1,0 +1,24 @@
+[package]
+name = "daft-agent"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Multi-agent identity registry, real-time activity status, heartbeats, and Maildir messaging for Daft VCS"
+
+[dependencies]
+daft-core = { workspace = true }
+daft-dimension = { workspace = true }
+daft-awareness = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+walkdir = { workspace = true }
+tempfile = { workspace = true }
+libc = { workspace = true }
+hex = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

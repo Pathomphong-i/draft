@@ -1,0 +1,23 @@
+[package]
+name = "daft-awareness"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Cross-dimension radar, non-destructive observation, predictive conflict detection, divergence entropy, and territory governance for Daft VCS"
+
+[dependencies]
+daft-core = { workspace = true }
+daft-dimension = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+rayon = { workspace = true }
+chrono = { workspace = true }
+walkdir = { workspace = true }
+libc = { workspace = true }
+tempfile = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

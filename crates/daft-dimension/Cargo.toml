@@ -1,0 +1,22 @@
+[package]
+name = "daft-dimension"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Parallel dimension engine and CoW workspace management for Daft"
+
+[dependencies]
+daft-core = { workspace = true }
+libc = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+rayon = { workspace = true }
+walkdir = { workspace = true }
+tempfile = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

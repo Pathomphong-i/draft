@@ -1,0 +1,60 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/daft-core",
+    "crates/daft-dimension",
+    "crates/daft-awareness",
+    "crates/daft-convergence",
+    "crates/daft-sync",
+    "crates/daft-agent",
+    "crates/daft-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Daft Contributors"]
+license = "GPL-2.0-only"
+repository = "https://github.com/daft-vcs/daft"
+homepage = "https://github.com/daft-vcs/daft"
+keywords = ["vcs", "version-control", "git", "parallel-dimensions", "ai-agents"]
+categories = ["development-tools", "command-line-utilities"]
+
+[workspace.dependencies]
+# Cryptography & Hashing
+sha2 = "0.10.8"
+hex = "0.4.3"
+
+# Compression
+flate2 = "1.0.30"
+
+# Error Handling
+thiserror = "1.0.61"
+anyhow = "1.0.86"
+
+# Serialization
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.117"
+toml = "0.8.14"
+
+# Filesystem & Low-Level I/O
+tempfile = "3.10.1"
+libc = "0.2.155"
+memmap2 = "0.9.4"
+walkdir = "2.5.0"
+
+# Concurrency & Multithreading
+rayon = "1.10.0"
+chrono = { version = "0.4.38", features = ["serde", "clock"] }
+
+# CLI
+clap = { version = "4.5.7", features = ["derive", "cargo", "env"] }
+
+# Internal Crate Linkage
+daft-core = { path = "crates/daft-core" }
+daft-dimension = { path = "crates/daft-dimension" }
+daft-awareness = { path = "crates/daft-awareness" }
+daft-convergence = { path = "crates/daft-convergence" }
+daft-sync = { path = "crates/daft-sync" }
+daft-agent = { path = "crates/daft-agent" }
