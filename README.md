@@ -392,7 +392,133 @@ drf compat git-bridge
 
 ---
 
-### 5. Automated CI/CD & AI Agent Pipelines
+### 5. Orchestrating AI Agents with `SKILL.md`
+
+Darf ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Darf repository.
+
+#### Why AI Agents Need `SKILL.md`
+Standard coding agents assume Git's single-working-tree model: when multiple agents run concurrently, they switch branches under each other, overwrite uncommitted files, and trigger race conditions. 
+
+By reading [`SKILL.md`](SKILL.md), agents understand how to:
+1. **Never work directly in `mainline`** during active feature development.
+2. **Spawn instant isolated CoW dimensions** (`drf dimension create`) with zero disk bloat.
+3. **Lease file paths** using advisory claims (`drf claim`) and respect boundary fences (`drf fence`).
+4. **Sense concurrent edits** across the agent fleet using real-time radar (`drf radar --hot`).
+5. **Communicate peer-to-peer** with other agents via asynchronous mailboxes (`drf agent send` / `drf agent read`).
+6. **Pre-test 3-way merge viability** (`drf foresee`) before converging into mainline.
+
+---
+
+#### How to Equip Your AI Agents with `SKILL.md`
+
+##### A. In Antigravity / Agentic IDEs
+Darf's `SKILL.md` adheres to the open-standard agent skill manifest format with YAML frontmatter:
+```markdown
+---
+name: darf-vcs
+description: Operational guide and multi-agent protocol for Darf ('drf' / 'dft')...
+---
+```
+- The IDE automatically discovers [`SKILL.md`](SKILL.md) in the workspace root.
+- Agents automatically adopt the Darf multi-agent lifecycle when assigned coding tasks.
+
+##### B. In Claude Code, Cursor, or Terminal Agent Prompts
+Feed [`SKILL.md`](SKILL.md) directly into your agent's context or system prompt:
+```bash
+# Example invocation with Claude Code or terminal LLMs:
+claude "Read SKILL.md and implement the JWT authentication module following the 8-step Darf agent protocol."
+```
+Or in Cursor / Copilot Chat:
+> *"@SKILL.md Follow the Darf agent protocol: spawn an isolated dimension, claim `src/auth.rs`, implement the feature, run `drf foresee`, and converge back to mainline."*
+
+##### C. Programmatic Multi-Agent Swarms (Python / TypeScript / Rust)
+When orchestrating swarms with frameworks like CrewAI, LangGraph, or AutoGen, provide `SKILL.md` as the system instruction or tool reference:
+```python
+# Pass SKILL.md contents into the agent system prompt
+with open("SKILL.md") as f:
+    darf_skill_prompt = f.read()
+
+agent_worker = Agent(
+    role="Backend Engine Developer",
+    system_prompt=f"You operate in a Darf VCS repository. Follow this protocol:\n{darf_skill_prompt}"
+)
+```
+
+---
+
+#### The 8-Step Autonomous Agent Lifecycle
+
+Every agent interacting with Darf follows a structured lifecycle:
+
+```
+┌────────────────────────────────────────────────────────┐
+│ 1. Register:   drf agent register <id> --type ai       │
+│ 2. Dimension:  drf dimension create <id>/<task_name>   │
+│ 3. Radar:      drf radar --hot                         │
+│ 4. Claim:      drf claim <file_path>                   │
+│ 5. Code & Save:drf add . && drf commit -m "feat: ..."  │
+│ 6. Foresee:    drf foresee <dimension> mainline        │
+│ 7. Converge:   drf converge <dimension> mainline       │
+│ 8. Yield:      drf yield <file_path>                   │
+└────────────────────────────────────────────────────────┘
+```
+
+1. **Register**: The agent registers its worker identity and sends heartbeat pings:
+   ```bash
+   drf agent register agent-coder --type ai
+   drf heartbeat agent-coder
+   ```
+2. **Dimension Creation**: Spawns an isolated CoW parallel workspace in 0.06 seconds:
+   ```bash
+   drf dimension create agent-coder/auth-feature
+   drf dimension enter agent-coder/auth-feature
+   ```
+3. **Radar Inspection**: Checks whether other dimensions or developers are modifying overlapping paths:
+   ```bash
+   drf radar --hot
+   ```
+4. **Territory Lease**: Acquires an advisory lock on target files to signal ownership:
+   ```bash
+   drf claim src/auth.rs
+   ```
+5. **Implement & Commit**: Makes changes and records isolated commits within its private dimension without affecting other workers:
+   ```bash
+   drf add src/auth.rs
+   drf commit -m "feat(auth): add bearer token verification"
+   ```
+6. **Predictive Merge Foresight**: Runs an in-memory 3-way simulation to guarantee zero merge conflicts:
+   ```bash
+   drf foresee agent-coder/auth-feature mainline
+   ```
+7. **Convergence**: Reconciles the dimension back into `mainline`:
+   ```bash
+   drf dimension enter mainline
+   drf converge agent-coder/auth-feature mainline
+   ```
+8. **Yield & Cleanup**: Releases file claims and tears down the ephemeral dimension:
+   ```bash
+   drf yield src/auth.rs
+   drf dimension destroy agent-coder/auth-feature
+   ```
+
+---
+
+#### Peer-to-Peer Agent Mailbox Protocol
+Agents can coordinate directly without third-party message brokers using Darf's built-in file-backed mailboxes:
+```bash
+# Agent Alpha notifies Agent Beta about updated API types
+drf agent send agent-beta "New user payload types committed to shared/types/user.rs"
+
+# Agent Beta checks its incoming mailbox
+drf agent read agent-beta
+```
+
+#### Real-World Verification: AetherDB Swarm
+This exact protocol was verified in [`demos/agent_team_miniproject`](demos/agent_team_miniproject), where 3 autonomous AI agents concurrently built a persistent Key-Value database (WAL storage, API parser, and REPL CLI) in parallel dimensions and converged into mainline with **zero merge conflicts**.
+
+---
+
+### 6. Automated CI/CD & AI Agent Pipelines
 
 Every Darf command supports structured `--json` output for automated tooling, CI runners (GitHub Actions, GitLab CI), and AI coding assistants:
 
@@ -421,7 +547,7 @@ drf radar --json
 
 ---
 
-### 6. Self-Hosting: DarftMultiverse & DaftUniverse
+### 7. Self-Hosting: DarftMultiverse & DaftUniverse
 
 Darf includes a complete, self-hosted web platform (**DarftMultiverse**) and headless remote server (**DaftUniverse**):
 
