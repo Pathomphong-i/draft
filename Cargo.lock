@@ -237,7 +237,7 @@ dependencies = [
 
 [[package]]
 name = "daft-agent"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "daft-awareness",
@@ -254,7 +254,7 @@ dependencies = [
 
 [[package]]
 name = "daft-awareness"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "daft-core",
@@ -270,7 +270,7 @@ dependencies = [
 
 [[package]]
 name = "daft-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -291,7 +291,7 @@ dependencies = [
 
 [[package]]
 name = "daft-convergence"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "daft-awareness",
@@ -308,7 +308,7 @@ dependencies = [
 
 [[package]]
 name = "daft-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "flate2",
@@ -327,7 +327,7 @@ dependencies = [
 
 [[package]]
 name = "daft-dimension"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "daft-core",
@@ -342,7 +342,7 @@ dependencies = [
 
 [[package]]
 name = "daft-sync"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "daft-awareness",

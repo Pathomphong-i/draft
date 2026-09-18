@@ -491,7 +491,7 @@
         <a href="/" class="brand">
             <img src="assets/draft_icon.jpg" style="width: 36px; height: 36px; border-radius: 8px; margin-right: 10px; vertical-align: middle; box-shadow: 0 0 14px rgba(88,166,255,0.4); border: 1px solid rgba(88,166,255,0.3);" alt="Draft Logo" />
             <div class="repo-title">DraftMultiverse</div>
-            <span class="repo-badge">v0.1.0 Draft Multiverse</span>
+            <span class="repo-badge">v0.2.0 Draft Multiverse</span>
         </a>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
             <button class="btn" onclick="switchTab('terminal')">⚡ Terminal</button>
@@ -521,7 +521,7 @@
                     <h1 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: -0.5px;">Draft <span style="color: var(--cyan); font-weight: 600; font-size: 1.2rem;">(`dft`)</span></h1>
                     <span style="font-size: 0.75rem; background: rgba(88, 166, 255, 0.15); color: var(--cyan); border: 1px solid rgba(88, 166, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🌌 Multiverse VCS</span>
                     <span style="font-size: 0.75rem; background: rgba(188, 140, 255, 0.15); color: var(--quantum-violet); border: 1px solid rgba(188, 140, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🤖 AI Swarm Native</span>
-                    <span style="font-size: 0.75rem; background: rgba(63, 185, 80, 0.15); color: var(--emerald); border: 1px solid rgba(63, 185, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">v0.1.0</span>
+                    <span style="font-size: 0.75rem; background: rgba(63, 185, 80, 0.15); color: var(--emerald); border: 1px solid rgba(63, 185, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">v0.2.0</span>
                 </div>
                 <p style="margin: 0 0 0.6rem 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.45;">
                     The Multiverse Version Control System engineered for concurrent AI agent swarms and parallel dimensions.
@@ -806,7 +806,7 @@
                     <span>⚡ DraftMultiverse Interactive Console</span>
                     <span id="termStatus" style="color: var(--success); font-weight: bold;">READY</span>
                 </div>
-                <div class="terminal-body" id="termBody">DraftMultiverse v0.1.0 Ready. Type any dft command (e.g. status, radar, foresee, timeline, dimension)</div>
+                <div class="terminal-body" id="termBody">DraftMultiverse v0.2.0 Ready. Type any dft command (e.g. status, radar, foresee, timeline, dimension)</div>
                 <div class="terminal-input-row">
                     <span style="color: var(--quantum-violet); font-weight: 700; margin-right: 0.5rem;">dft$</span>
                     <input type="text" class="term-input" id="termInput" placeholder="Enter command..." autofocus>
@@ -920,7 +920,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Mos <mos@codedai.co>"]
 license = "GPL-2.0"`,
@@ -935,7 +935,7 @@ license = "GPL-2.0"`,
 set -e
 echo "Installing Draft VCS (dft)..."
 REPO="Pathomphong-i/draft"
-VERSION="0.1.0"
+VERSION="0.2.0"
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 ARCH="$(uname -m)"
 echo "Target: \${OS}-\${ARCH}"
@@ -943,12 +943,12 @@ echo "Draft VCS installed successfully! Run 'dft --help' to get started."`,
             "packaging/homebrew/Formula/dft.rb": `class Dft < Formula
   desc "The Multiverse Version Control System for Parallel AI and Human Swarms"
   homepage "https://draftmultiverse.org"
-  version "0.1.0"
+  version "0.2.0"
   license "GPL-2.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/Pathomphong-i/draft/releases/download/v0.1.0/dft-v0.1.0-aarch64-apple-darwin.tar.gz"
+      url "https://github.com/Pathomphong-i/draft/releases/download/v0.2.0/dft-v0.2.0-aarch64-apple-darwin.tar.gz"
       sha256 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     end
   end

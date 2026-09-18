@@ -421,6 +421,15 @@ impl ConvergeEngine {
                         &mut dummy_idx,
                     );
                 }
+                if let Some(wd) = self.repo.workdir() {
+                    let mut dummy_idx = daft_core::Index::new();
+                    let _ = checkout_tree(
+                        self.repo.cas().as_ref(),
+                        &merged_tree_oid,
+                        wd,
+                        &mut dummy_idx,
+                    );
+                }
             } else {
                 target_repo.set_head(&c_oid.to_hex())?;
             }

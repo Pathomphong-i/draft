@@ -74,7 +74,7 @@ echo "Platform detected: ${BOLD}${TARGET}${NC}"
 if [ "$VERSION" = "latest" ]; then
     RELEASE_TAG="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' || echo "")"
     if [ -z "$RELEASE_TAG" ]; then
-        RELEASE_TAG="v0.1.0"
+        RELEASE_TAG="v0.2.0"
     fi
 else
     RELEASE_TAG="$VERSION"

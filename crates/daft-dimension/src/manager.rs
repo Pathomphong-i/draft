@@ -132,6 +132,23 @@ impl DimensionManager {
         }
 
         let cow_strategy = detect_best_strategy(dft_dir);
+        if let Some(wd) = self.repo.workdir() {
+            for entry in WalkDir::new(wd).into_iter().filter_map(|e| e.ok()) {
+                let path = entry.path();
+                if path.starts_with(dft_dir) {
+                    continue;
+                }
+                if entry.file_type().is_file() {
+                    if let Ok(rel) = path.strip_prefix(wd) {
+                        let dest = ws_dir.join(rel);
+                        if let Some(parent) = dest.parent() {
+                            let _ = fs::create_dir_all(parent);
+                        }
+                        let _ = crate::cow::CowEngine::clone_file(path, &dest, cow_strategy);
+                    }
+                }
+            }
+        }
         let now = chrono::Utc::now().to_rfc3339();
         let meta = DimensionMetadata {
             name: name.to_string(),
