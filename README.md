@@ -4,7 +4,7 @@
 
 # Draft (`dft`) — The Multiverse Version Control System
 
-[![Canonical Home: DraftUniverse](https://img.shields.io/badge/Hosted_on-DraftUniverse.org-violet.svg)](https://draftuniverse.org)
+[![Canonical Home: DraftMultiverse](https://img.shields.io/badge/Hosted_on-DraftMultiverse.org-violet.svg)](https://draftmultiverse.org)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
 [![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)
@@ -39,7 +39,7 @@ Modern software engineering faces concurrency bottlenecks at the version control
 - ⏰ **Autonomous Sync Daemon (`dft cronos`)**: Background continuous 3-way tree convergence engine.
 - 🌊 **Multi-Branch Collapse (`dft collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.
 - 🖥️ **Self-Hosted Developer Web Platform**: Web interface (`dft ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
-- 🪐 **Decentralized Remote Sync (`DraftUniverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
+- 🪐 **Decentralized Remote Sync (`DraftMultiverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
 
 ---
 
@@ -163,7 +163,7 @@ brew install draft-vcs/draft/dft
 #### B. Standalone Shell Script (macOS & Linux)
 Zero-dependency instant installer for workstations and CI/CD runners:
 ```bash
-curl -fsSL https://draftuniverse.org/install.sh | sh
+curl -fsSL https://draftmultiverse.org/install.sh | sh
 ```
 
 #### C. Cargo (Rust Crates.io)
@@ -174,7 +174,7 @@ cargo install draft-vcs
 #### D. Building from Source
 ```bash
 # Clone the repository
-dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftUniverse
+dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse
 # or: git clone https://github.com/draft-vcs/draft.git
 cd draft
 
@@ -565,9 +565,9 @@ dft radar --json
 
 ---
 
-### 7. Self-Hosting: DraftMultiverse & DraftUniverse
+### 7. Self-Hosting: DraftMultiverse Web & Remote Server
 
-Draft includes a complete, self-hosted web platform (**DraftMultiverse**) and headless remote server (**DraftUniverse**):
+Draft includes a complete, self-hosted web platform and headless remote server (**DraftMultiverse**):
 
 #### Launching the Web Platform
 ```bash
@@ -584,14 +584,14 @@ Open **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:
 - **`⏰ Cronos Daemon`**: Background sync controls and continuous event log streamer.
 - **`⚡ Terminal`**: In-browser command prompt supporting execution of any `dft` command.
 
-#### Setting up a Self-Hosted Remote Server (`DraftUniverse`)
+#### Setting up a Self-Hosted Remote Server (`DraftMultiverse`)
 ```bash
 # 1. Initialize a bare server repository on your server or local disk
-mkdir -p /path/to/DraftUniverse
-dft init --bare /path/to/DraftUniverse
+mkdir -p /path/to/DraftMultiverse
+dft init --bare /path/to/DraftMultiverse
 
 # 2. Add as remote origin in your working project
-dft remote add origin /path/to/DraftUniverse
+dft remote add origin /path/to/DraftMultiverse
 
 # 3. Deploy and synchronize all dimensions
 dft push origin mainline
@@ -657,7 +657,7 @@ dft push origin agent-quantum
 | `dft heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |
 | `dft timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |
 | `dft ui [--port 3333]` | Web Platform | Launch the DraftMultiverse self-hosted web platform |
-| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftUniverse remotes |
+| `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftMultiverse remotes |
 
 ---
 

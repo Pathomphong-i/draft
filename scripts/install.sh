@@ -1,7 +1,7 @@
 #!/bin/sh
 # ==============================================================================
 # Draft VCS Universal Installer
-# Usage: curl -fsSL https://draftuniverse.org/install.sh | sh
+# Usage: curl -fsSL https://draftmultiverse.org/install.sh | sh
 # ==============================================================================
 set -e
 
@@ -82,7 +82,7 @@ fi
 
 TARBALL="dft-${TARGET}.tar.gz"
 DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${RELEASE_TAG}/${TARBALL}"
-FALLBACK_URL="https://draftuniverse.org/releases/${RELEASE_TAG}/${TARBALL}"
+FALLBACK_URL="https://draftmultiverse.org/releases/${RELEASE_TAG}/${TARBALL}"
 
 echo "Target release:    ${BOLD}${RELEASE_TAG}${NC}"
 echo "Install path:      ${BOLD}${INSTALL_DIR}/dft${NC}"

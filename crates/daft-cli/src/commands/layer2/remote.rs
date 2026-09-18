@@ -248,14 +248,14 @@ pub fn execute_push(args: PushArgs) -> Result<(), CliError> {
     } else if remote_path.join("objects").is_dir() {
         remote_path.clone()
     } else {
-        // Initialize remote as bare Daft repository (DaftUniverse)
+        // Initialize remote as bare Draft repository (DraftMultiverse)
         fs::create_dir_all(remote_path.join("objects").join("tmp"))?;
         fs::create_dir_all(remote_path.join("refs").join("heads"))?;
         fs::write(remote_path.join("HEAD"), "ref: refs/heads/main\n")?;
         remote_path.clone()
     };
 
-    println!("Deploying to DaftUniverse at '{}'...", remote_url);
+    println!("Deploying to DraftMultiverse at '{}'...", remote_url);
 
     // Sync all objects from local to remote
     let local_obj_dir = dft_dir.join("objects");

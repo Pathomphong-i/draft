@@ -1,6 +1,6 @@
 class Dft < Formula
   desc "Draft — The Multiverse Version Control System for AI Agent Swarms"
-  homepage "https://draftuniverse.org"
+  homepage "https://draftmultiverse.org"
   version "0.1.0"
   license "GPL-2.0-only"
 

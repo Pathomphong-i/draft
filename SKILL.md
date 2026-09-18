@@ -157,11 +157,11 @@ dft observe dimension-beta src/engine.rs
 dft diff dimension-alpha..dimension-beta
 ```
 
-### Recipe E: Deploying to DraftUniverse Remote
-Push your commits and dimensions to the shared DraftUniverse origin:
+### Recipe E: Deploying to DraftMultiverse Remote
+Push your commits and dimensions to the shared DraftMultiverse origin:
 ```bash
 # Add origin remote
-dft remote add origin /path/to/DraftUniverse
+dft remote add origin /path/to/DraftMultiverse
 
 # Push dimension or branch
 dft push origin main
