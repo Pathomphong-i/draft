@@ -7,7 +7,7 @@
 [![Architecture: Lock--Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
 [![Web Platform: DarftMultiverse](https://img.shields.io/badge/GUI-DarftMultiverse-violet.svg)](#)
 
-> *"In classical physics, you can only observe one timeline at a time. In Darf, you live in all of them at once."*
+> *"In classical philosophy, Chronos (Χρόνος) forces all actions into a single linear sequence. In Darf, Kairos (Καιρός) lets parallel minds build concurrently until the opportune moment of convergence."*
 
 ---
 
@@ -17,30 +17,30 @@
 
 ## ⚡ The Architectural Shift: Why Darf?
 
-**Git was engineered in 2005 for single-threaded human developers.**  
-**Darf (`drf`) was architected in 2026 for parallel, multi-agent AI and human swarms.**
+**Git was engineered in 2005 for sequential, single-threaded development workflows.**  
+**Darf (`drf`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**
 
-Modern software engineering faces a concurrency crisis at the version control layer:
-1. **The Single-Universe Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that exhaust disk and memory.
-2. **Blind Collision**: Agents editing files concurrently have zero awareness of each other until a final `git merge` or rebase triggers catastrophic conflict resolution.
-3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are detected *after* code changes are completed, requiring manual 3-way triage.
+Modern software engineering faces concurrency bottlenecks at the version control layer:
+1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.
+2. **Blind Collision**: Agents editing files concurrently have zero cross-branch awareness of each other until a final merge or rebase triggers complex conflict triage.
+3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are discovered *after* code changes are completed, requiring manual 3-way triage.
 
 ### What Darf (`drf`) Delivers:
-- 🌌 **Parallel Dimensions**: Spawn 10, 20, or 100 isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero extra disk footprint.
+- 🌌 **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.
 - 📡 **Cross-Dimensional Radar**: Real-time sensing of file access and write operations across all concurrent dimensions.
-- 🔮 **Predictive Quantum Foresight (`drf foresee`)**: Line-level simulation of 3-way merges in memory *before* branch integration occurs.
-- 🔒 **Territory Leasing & Boundary Fences**: Advisory path leases (`drf claim`) and hard exclusionary barriers (`drf fence`) to eliminate agent collision.
-- 🔗 **Quantum Entanglement (`drf entangle`)**: Bi-directional live auto-propagation of file updates between selected dimensions.
+- 🔮 **Predictive Merge Foresight (`drf foresee`)**: In-memory simulation of 3-way merges *before* branch integration occurs.
+- 🔒 **Territory Leasing & Boundary Fences**: Advisory path leases (`drf claim`) and hard exclusionary barriers (`drf fence`) to eliminate agent collisions.
+- 🔗 **Continuous Entanglement (`drf entangle`)**: Bi-directional live auto-synchronization of specific files across parallel dimensions.
 - ⏰ **Cronos Autonomous Daemon**: Background continuous 3-way tree convergence engine.
-- 🌊 **Wavefunction Collapse (`drf collapse`)**: Synthesize dozens of parallel branches into a single unified mainline reality in one command.
+- 🌊 **Multi-Branch Collapse (`drf collapse`)**: Reconcile and merge all active parallel dimensions back into mainline in one atomic command.
 - 🖥️ **DarftMultiverse Self-Hosted Web Platform**: Gitea-grade web interface (`drf ui`) featuring live file tree browsing, syntax-highlighted blob viewing, Myers diff inspections, interactive Spacetime DAG visualization, and an embedded terminal console.
 - 🪐 **Decentralized Remote Sync (`DaftUniverse`)**: Native remote push/pull protocol without dependence on third-party git hosts.
 
 ---
 
-## 📖 Backstory & Philosophy
+## 📖 Backstory & Philosophy: From Chronos to Kairos
 
-### The Swarm Concurrency Breakdown
+### The Swarm Concurrency Bottleneck
 In 2026, autonomous AI engineering agents transitioned from novelty to necessity. Engineering teams attempted to orchestrate teams of specialized AI agents working concurrently on single repositories:
 - **Agent Alpha**: Database engine & migration rewrite.
 - **Agent Beta**: HTTP REST & WebSocket API layer.
@@ -48,17 +48,17 @@ In 2026, autonomous AI engineering agents transitioned from novelty to necessity
 - **Agent Delta**: Comprehensive integration test suites.
 - **Agent Epsilon**: Memory profiling and algorithmic optimizations.
 
-The moment multiple agents executed in parallel, **Git collapsed**:
+The moment multiple agents executed in parallel, **traditional single-worktree Git workflows hit severe friction**:
 - Agents switching branches trampled each other's unstaged files.
-- Multiple local clones duplicated tens of thousands of build artifacts, causing severe disk thrashing and kernel memory exhaustion.
-- At the end of every sprint, merging branches caused days of human triage.
+- Multiple local clones duplicated tens of thousands of build artifacts, causing disk thrashing and operating system resource exhaustion.
+- At the end of every sprint, merging diverged branches created painful manual triage.
 
-Software synthesis had accelerated to light speed, but version control was trapped on a single thread. **Darf was built to give software development infinite concurrent bandwidth.**
+In ancient thought, the Greeks distinguished two forms of time: **Chronos (Χρόνος)**, the quantitative, sequential progression of linear events, and **Kairos (Καιρός)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*—a single linear arrow where only one branch could be active at a time. **Darf was built to bring Kairos (Καιρός) and Metis (Μῆτις, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (Ἁρμονία)** without collision.
 
 ### Sincere Tribute to Linus Torvalds
 Darf stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights—content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots—remain foundational.
 
-We named this system **Darf (`drf`)** in Linus's proud tradition of self-deprecating names. "Darf" reflects our irreverence toward the sacred dogma of single-branch version control. Darf retains Linus's CAS principles while unlocking the **Multiverse Dimension**.
+We named this system **Darf (`drf`)** in Linus's proud tradition of self-deprecating names. "Darf" reflects our irreverence toward the rigid dogma of single-branch version control. Darf retains Linus's CAS principles while unlocking **parallel dimension branching**.
 
 ---
 
@@ -127,12 +127,21 @@ We named this system **Darf (`drf`)** in Linus's proud tradition of self-depreca
     >>>>>>> theirs (dimension-b)
     ```
 
-### 4. Mathematical Divergence Entropy ($H$)
-Darf measures timeline divergence between two dimensions $D_A$ and $D_B$ through normalized Shannon Information Entropy combined with Jaccard tree distance:
-$$H(D_A, D_B) = 1 - \frac{|T_A \cap T_B|}{|T_A \cup T_B|} + \sum_{f \in M} \frac{\text{Levenshtein}(f_A, f_B)}{\max(|f_A|, |f_B|)}$$
+### 4. Timeline Divergence Metric ($H$)
+Darf computes a quantitative divergence score $H(D_A, D_B) \in [0.0, 1.0]$ between any two dimensions across four weighted components:
+$$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.15 \cdot T_{\text{trees}} + 0.10 \cdot L_{\text{lines}}$$
+
+- **$C_{\text{commits}}$**: Distance in the commit DAG from their Lowest Common Ancestor (LCA).
+- **$F_{\text{files}}$**: Ratio of concurrently modified files over total tracked files.
+- **$T_{\text{trees}}$**: Jaccard distance between the dimension tree snapshots: $1 - \frac{|T_A \cap T_B|}{|T_A \cup T_B|}$.
+- **$L_{\text{lines}}$**: Overlapping hunk modifications in shared files.
+
+#### Divergence Risk Tiers:
 - $H = 0.0$: Identical state (clean fast-forward possible).
-- $0.0 < H < 0.3$: Minor divergence (clean auto-merge guaranteed).
-- $H \ge 0.7$: Severe divergence (pre-conflict warnings triggered).
+- $0.0 < H \le 0.15$: Negligible divergence (clean auto-merge guaranteed).
+- $0.15 < H \le 0.35$: Low divergence (auto-merge expected).
+- $0.35 < H \le 0.65$: Moderate divergence (cross-file edits require awareness).
+- $H > 0.65$: High divergence (conflicting hunks detected, pre-conflict warnings triggered).
 
 ---
 
@@ -324,15 +333,15 @@ Each dimension operates in complete filesystem isolation under `.dft/dimensions/
   drf commit -m "feat(billing): add Stripe webhook handler"
   ```
 
-##### Step 4: Proactive Collision Check with Quantum Foresight
+##### Step 4: Proactive Collision Check with Predictive Merge Foresight
 Before bringing changes together, verify that no conflicting hunks exist:
 ```bash
-# Mathematically simulate 3-way reconciliation without touching code
+# In-memory simulation of 3-way reconciliation without touching working code
 drf foresee feat-auth mainline
 # Output:
 #   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'
 #   [FORESEE] Clean auto-merge guaranteed: 0 conflicts detected.
-#   [FORESEE] Entropy: H = 0.04 (minimal divergence)
+#   [FORESEE] Divergence Metric: H = 0.04 (minimal divergence)
 ```
 
 ##### Step 5: Converge & Collapse into Mainline
@@ -425,8 +434,8 @@ Open **[http://127.0.0.1:3333](http://127.0.0.1:3333)** to access:
 - **`<> Code`**: Interactive file tree, breadcrumbs, text blob inspector with line numbers, and markdown preview.
 - **`⏱️ Commits`**: Commit history log with integrated Myers diff viewer (additions `+` green, deletions `-` red).
 - **`🌌 Multiverse`**: Spacetime DAG canvas mapping concurrent parallel timelines.
-- **`🔀 Convergence`**: PR-style dashboard for dry-run conflict checks, wavefunction collapse, and dimension convergence.
-- **`📡 Radar & Territory`**: Heatmap HUD for hot zones, entropy score, and file claims.
+- **`🔀 Convergence`**: PR-style dashboard for dry-run conflict checks, multi-branch collapse, and dimension convergence.
+- **`📡 Radar & Territory`**: Heatmap HUD for hot zones, timeline divergence score, and file claims.
 - **`🤖 Agent Fleet`**: AI and human agent roster with live heartbeats and direct mailboxes.
 - **`⏰ Cronos Daemon`**: Background sync controls and continuous event log streamer.
 - **`⚡ Terminal`**: In-browser command prompt supporting execution of any `drf` command.
@@ -484,20 +493,20 @@ drf push origin agent-quantum
 | `drf dimension list` | Parallel Workspace | List active parallel dimensions and sync state |
 | `drf dimension enter <name>` | Parallel Workspace | Shift active shell context to another dimension |
 | `drf dimension destroy <name>`| Parallel Workspace | Tear down dimension while preserving CAS objects |
-| `drf snapshot` | Spacetime Capture | Capture immutable point-in-time state across dimensions |
+| `drf snapshot` | Workspace Snapshot | Capture immutable point-in-time state across dimensions |
 | `drf observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state without checking it out |
 | `drf radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |
-| `drf foresee <dim1> <dim2>` | Predictive Convergence | Mathematically simulate 3-way merge before committing |
-| `drf entropy` | Divergence Metric | Compute Shannon timeline divergence score $H(D_1, D_2)$ |
+| `drf foresee <dim1> <dim2>` | Predictive Merge | Simulate 3-way tree reconciliation in memory before merging |
+| `drf entropy` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \in [0.0, 1.0]$ |
 | `drf claim <path>` | Territory Protocol | Acquire advisory exclusive file claim with TTL |
 | `drf yield <path>` | Territory Protocol | Release an active territory claim |
 | `drf fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |
-| `drf collapse` | Convergence Engine | Collapse all parallel dimensions back into mainline |
+| `drf collapse` | Convergence Engine | Reconcile all active parallel dimensions back into mainline |
 | `drf converge <d1> <d2>` | Convergence Engine | Multi-head 3-way reconciliation of specific dimensions |
 | `drf cascade <d1> --to <d2>`| Convergence Engine | Propagate updates down a chain of dependent dimensions |
 | `drf weave <d1> <d2>` | Convergence Engine | Interleave commits in causal-chronological vector order |
 | `drf splice <dim> <range>` | Convergence Engine | Transplant a commit slice between dimensions |
-| `drf entangle <d1> <d2>` | Entanglement Engine | Bi-directional live auto-synchronization rule |
+| `drf entangle <d1> <d2>` | Entanglement Engine | Continuous bi-directional file auto-synchronization rule |
 | `drf cronos start/stop/log` | Background Sync | Autonomous background 3-way convergence daemon |
 | `drf agent register/list` | Multi-Agent Swarm | Register AI/human worker identities and roles |
 | `drf agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |
