@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Multi-agent identity registry, real-time activity status, heartbeats, and Maildir messaging for Daft VCS"
+description = "Multi-agent identity registry, real-time activity status, heartbeats, and Maildir messaging for Draft VCS"
 
 [dependencies]
 daft-core = { workspace = true }

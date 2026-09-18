@@ -1,4 +1,4 @@
-# Daft (`dft`) E2E Test Infrastructure Specification
+# Draft (`dft`) E2E Test Infrastructure Specification
 
 **Document Version:** 1.0.0  
 **Status:** Approved & Active  
@@ -9,17 +9,17 @@
 
 ## 1. Executive Summary & Testing Philosophy
 
-Daft (`dft`) is an open-source, Rust-based version control system built for parallel AI agent workflows. Its hallmark innovations—parallel dimensions, copy-on-write workspaces, real-time cross-dimension radar, predictive conflict detection (`foresee`), ownership boundaries (`territory`), autonomous background synchronization (`cronos`, `entangle`), multi-agent coordination, and multiverse visualization (`timeline`)—require an uncompromising testing strategy.
+Draft (`dft`) is an open-source, Rust-based version control system built for parallel AI agent workflows. Its hallmark innovations—parallel dimensions, copy-on-write workspaces, real-time cross-dimension radar, predictive conflict detection (`foresee`), ownership boundaries (`territory`), autonomous background synchronization (`cronos`, `entangle`), multi-agent coordination, and multiverse visualization (`timeline`)—require an uncompromising testing strategy.
 
-The Daft project enforces a **Dual-Track Engineering Model**:
+The Draft project enforces a **Dual-Track Engineering Model**:
 - **Track 1 (Implementation Track):** Iterative milestone development (M1 through M6) delivering core engines, CLI layers, and subsystem crates.
 - **Track 2 (E2E Testing Track):** An independent, requirement-driven, opaque-box test harness that establishes rigorous acceptance gates in parallel with development.
 
 ### The Opaque-Box Principle
-All end-to-end tests interact with Daft **strictly from the outside**:
+All end-to-end tests interact with Draft **strictly from the outside**:
 1. **Zero Struct Coupling:** Tests execute the external CLI executable (`dft`) via subprocess invocations. Tests do not link against internal crate structs or assume private in-memory layouts.
 2. **Observable Invariants:** Tests verify behaviors solely through CLI exit codes, standard streams (`stdout`, `stderr`), and verifiable on-disk filesystem artifacts (e.g., `.dft/` repository metadata, staging index, content-addressable storage, dimension workspaces, and worktree files).
-3. **Black-Box Determinism:** Given a well-defined initial repository state and a sequence of CLI commands, tests assert that Daft produces the exact filesystem mutations and outputs dictated by `ORIGINAL_REQUEST.md`.
+3. **Black-Box Determinism:** Given a well-defined initial repository state and a sequence of CLI commands, tests assert that Draft produces the exact filesystem mutations and outputs dictated by `ORIGINAL_REQUEST.md`.
 
 ### Progressive Testability & Isolation
 1. **Hermetic Sandboxing:** Each test allocates a temporary, cryptographically isolated sandbox directory (under `std::env::temp_dir()` or `/tmp/dft_test_<uuid>`).

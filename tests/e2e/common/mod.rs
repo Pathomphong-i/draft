@@ -113,7 +113,7 @@ impl TestEnv {
         // Configure standard isolated env
         env.set_env("HOME", &root_str);
         env.set_env("DFT_CONFIG_DIR", &config_str);
-        env.set_env("DFT_AUTHOR_NAME", "Daft Test Agent");
+        env.set_env("DFT_AUTHOR_NAME", "Draft Test Agent");
         env.set_env("DFT_AUTHOR_EMAIL", "agent@daft-vcs.org");
 
         env

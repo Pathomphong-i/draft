@@ -16,7 +16,7 @@ pub fn execute(args: InitArgs, quiet: bool) -> Result<(), CliError> {
 
     if !quiet {
         let dft_dir = repo.dft_dir();
-        println!("Initialized empty Daft repository in {}", dft_dir.display());
+        println!("Initialized empty Draft repository in {}", dft_dir.display());
     }
 
     Ok(())

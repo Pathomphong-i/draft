@@ -2,9 +2,9 @@
 
 ## 2026-09-17T19:11:16Z
 
-Build **Daft** (`dft`) — a production-quality, open-source, Rust-based version control system designed for parallel AI agent workflows. Unlike Git, which restricts a working directory to one branch at a time, Daft's core innovation is **parallel dimensions**: multiple branches can be checked out and worked on simultaneously in isolated workspaces, enabling AI agents to develop features concurrently without blocking each other. The system must be disk I/O aware for parallel operations (lock-free where possible, copy-on-write for storage efficiency).
+Build **Draft** (`dft`) — a production-quality, open-source, Rust-based version control system designed for parallel AI agent workflows. Unlike Git, which restricts a working directory to one branch at a time, Draft's core innovation is **parallel dimensions**: multiple branches can be checked out and worked on simultaneously in isolated workspaces, enabling AI agents to develop features concurrently without blocking each other. The system must be disk I/O aware for parallel operations (lock-free where possible, copy-on-write for storage efficiency).
 
-The name "Daft" channels the self-deprecating Linus Torvalds energy — "daft timelines where experiments go wild." The CLI command is `dft` (three-letter, pronounceable, not taken by any standard UNIX command). Licensed under **GPL v2** (like Git).
+The name "Draft" channels the self-deprecating Linus Torvalds energy — "daft timelines where experiments go wild." The CLI command is `dft` (three-letter, pronounceable, not taken by any standard UNIX command). Licensed under **GPL v2** (like Git).
 
 Inspired by the Many-Worlds Interpretation: parallel universes, quantum branching, alternate timelines. The command vocabulary leans into quantum mechanics metaphors where they add clarity.
 
@@ -13,9 +13,9 @@ Integrity mode: development
 
 ---
 
-## Daft Command System
+## Draft Command System
 
-Daft has two layers: (1) **Git-equivalent commands** that handle familiar VCS operations, and (2) **Daft-native commands** that have no Git equivalent — designed from scratch for parallel, multi-agent workflows.
+Draft has two layers: (1) **Git-equivalent commands** that handle familiar VCS operations, and (2) **Draft-native commands** that have no Git equivalent — designed from scratch for parallel, multi-agent workflows.
 
 ### Layer 1: Git-Equivalent Commands
 
@@ -24,7 +24,7 @@ Standard VCS primitives, behaving analogously to their Git counterparts.
 #### Core / Setup
 | Dft Command | Description |
 |---|---|
-| `dft init` | Initialize a new Daft repository (`.dft/` directory) |
+| `dft init` | Initialize a new Draft repository (`.dft/` directory) |
 | `dft clone` | Clone a repository |
 | `dft config` | Get/set configuration values |
 | `dft help` | Display help |
@@ -122,17 +122,17 @@ Standard VCS primitives, behaving analogously to their Git counterparts.
 | `dft upload-pack` | Send objects to fetch-pack |
 | `dft fetch-pack` | Receive missing objects |
 | `dft ls-remote` | List references in a remote repository |
-| `dft daemon` | A simple server for Daft repositories |
+| `dft daemon` | A simple server for Draft repositories |
 
 ---
 
-### Layer 2: Daft-Native Commands (No Git Equivalent)
+### Layer 2: Draft-Native Commands (No Git Equivalent)
 
-These commands are **unique to Daft** — they solve problems Git was never designed to address. Organized by the problem they solve.
+These commands are **unique to Draft** — they solve problems Git was never designed to address. Organized by the problem they solve.
 
 #### 🌌 Dimension Management — Parallel Workspace Lifecycle
 
-Git only has one working tree per repo (worktree is a bolt-on). Daft makes parallel workspaces a first-class primitive.
+Git only has one working tree per repo (worktree is a bolt-on). Draft makes parallel workspaces a first-class primitive.
 
 | Dft Command | Description |
 |---|---|
@@ -147,7 +147,7 @@ Git only has one working tree per repo (worktree is a bolt-on). Daft makes paral
 
 #### 👁️ Observe — Look Without Disturbing
 
-In quantum mechanics, observation affects the system. In Daft, you can observe other dimensions without entering them — no checkout, no context switch, no disruption.
+In quantum mechanics, observation affects the system. In Draft, you can observe other dimensions without entering them — no checkout, no context switch, no disruption.
 
 | Dft Command | Description |
 |---|---|
@@ -169,7 +169,7 @@ Git has zero awareness of what's happening in other branches. When multiple agen
 
 #### 🔮 Foresee — Predict Conflicts Before They Happen
 
-Git only tells you about conflicts **after** you try to merge. Daft can predict them proactively.
+Git only tells you about conflicts **after** you try to merge. Draft can predict them proactively.
 
 | Dft Command | Description |
 |---|---|
@@ -180,7 +180,7 @@ Git only tells you about conflicts **after** you try to merge. Daft can predict 
 
 #### 🔒 Territory — Ownership & Boundaries
 
-Git has no concept of "this file belongs to this agent." Daft introduces claim-based coordination.
+Git has no concept of "this file belongs to this agent." Draft introduces claim-based coordination.
 
 | Dft Command | Description |
 |---|---|
@@ -192,7 +192,7 @@ Git has no concept of "this file belongs to this agent." Daft introduces claim-b
 
 #### 🌊 Converge & Collapse — Bringing Timelines Together
 
-Git merge is branch-to-branch. Daft needs to handle **many-to-one** and **cascading** merges across dimensions.
+Git merge is branch-to-branch. Draft needs to handle **many-to-one** and **cascading** merges across dimensions.
 
 | Dft Command | Description |
 |---|---|
@@ -229,7 +229,7 @@ Named for the titan of time. A background process that keeps dimensions in sync 
 
 #### 🤖 Agent — Multi-Agent Identity & Coordination
 
-Git knows about "users" (name + email). Daft knows about **agents** — autonomous entities working in dimensions.
+Git knows about "users" (name + email). Draft knows about **agents** — autonomous entities working in dimensions.
 
 | Dft Command | Description |
 |---|---|
@@ -243,7 +243,7 @@ Git knows about "users" (name + email). Daft knows about **agents** — autonomo
 
 #### 📊 Timeline — Visualization & History Across Dimensions
 
-Git log is linear or branched. Daft needs to show the **multiverse** — all dimensions, their relationships, and how they diverge/converge over time.
+Git log is linear or branched. Draft needs to show the **multiverse** — all dimensions, their relationships, and how they diverge/converge over time.
 
 | Dft Command | Description |
 |---|---|
@@ -255,16 +255,16 @@ Git log is linear or branched. Daft needs to show the **multiverse** — all dim
 #### 🔄 Import / Compatibility
 | Dft Command | Description |
 |---|---|
-| `dft import git <path-or-url>` | Import an existing Git repository into Daft format, preserving full history |
+| `dft import git <path-or-url>` | Import an existing Git repository into Draft format, preserving full history |
 | `dft export git [--dimension <name>]` | Export a dimension/branch back to Git format |
-| `dft compat git-bridge` | Run a bridge daemon that keeps a Daft repo and Git repo in sync (for gradual migration) |
+| `dft compat git-bridge` | Run a bridge daemon that keeps a Draft repo and Git repo in sync (for gradual migration) |
 
 ---
 
 ## Requirements
 
 ### R1. Core VCS Engine
-Implement a content-addressable object store (blobs, trees, commits, tags) with SHA-256 hashing. Must support the full lifecycle: init, add, commit, branch, checkout, switch, merge, rebase, cherry-pick, reset, restore, stash, tag, log, diff, status, blame, bisect, grep, reflog. The object store format must be custom to Daft (stored in `.dft/`), not a wrapper around Git. All data structures must be safe for concurrent read access from multiple dimensions.
+Implement a content-addressable object store (blobs, trees, commits, tags) with SHA-256 hashing. Must support the full lifecycle: init, add, commit, branch, checkout, switch, merge, rebase, cherry-pick, reset, restore, stash, tag, log, diff, status, blame, bisect, grep, reflog. The object store format must be custom to Draft (stored in `.dft/`), not a wrapper around Git. All data structures must be safe for concurrent read access from multiple dimensions.
 
 ### R2. Parallel Dimension System
 Implement the `dft dimension` command family for creating, managing, and synchronizing isolated parallel workspaces. Dimensions share the object store but have independent working trees and indexes. Must be disk-efficient (copy-on-write or similar). Concurrent operations must not corrupt data — use lock-free algorithms or fine-grained locking. Include `dft dimension fork` for forking from another dimension's live state (including uncommitted work) and `dft dimension snapshot` for point-in-time captures.
@@ -279,7 +279,7 @@ Implement the novel merge operations: `dft collapse` (all dimensions → one), `
 Implement `dft entangle` for linked dimensions (auto-propagating changes between paired dimensions on specified paths) and `dft cronos` for autonomous background synchronization with configurable intervals, strategies, per-dimension rules, and crash resilience.
 
 ### R6. Agent System
-Implement `dft agent` for multi-agent identity, assignment, status tracking, and inter-agent messaging. Agents can register (human or AI type), be assigned to dimensions, broadcast messages, and report heartbeats. This enables coordination tooling to be built on top of Daft.
+Implement `dft agent` for multi-agent identity, assignment, status tracking, and inter-agent messaging. Agents can register (human or AI type), be assigned to dimensions, broadcast messages, and report heartbeats. This enables coordination tooling to be built on top of Draft.
 
 ### R7. Observe & Timeline
 Implement `dft observe` for non-destructive cross-dimension inspection and `dft timeline` for multiverse visualization (showing all dimensions, their divergence points, merges, and ancestry as a graph).
@@ -288,7 +288,7 @@ Implement `dft observe` for non-destructive cross-dimension inspection and `dft 
 All parallel operations must be I/O-aware: async I/O where beneficial, copy-on-write for dimension workspace files, memory-mapped I/O for the object store, and lock-free concurrent access patterns. Must not degrade significantly with 5+ dimensions active. Disk usage must scale sub-linearly with dimension count thanks to object deduplication and CoW.
 
 ### R9. Remote Operations
-Implement clone, fetch, pull, push with a Daft-native protocol. Include `dft import git` to import existing Git repositories and `dft export git` to export back.
+Implement clone, fetch, pull, push with a Draft-native protocol. Include `dft import git` to import existing Git repositories and `dft export git` to export back.
 
 ### R10. Open-Source Project Setup
 - GPL v2 license (full LICENSE file)
@@ -365,7 +365,7 @@ Implement clone, fetch, pull, push with a Daft-native protocol. Include `dft imp
 
 ## 2026-09-17T19:24:40Z
 
-Continue building Daft. The project was interrupted during Milestone 1 implementation. Current state:
+Continue building Draft. The project was interrupted during Milestone 1 implementation. Current state:
 
 - PROJECT.md blueprint is complete (8-crate architecture, 64-item feature inventory, 6-milestone DAG)
 - TEST_INFRA.md is complete

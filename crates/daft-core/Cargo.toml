@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Core VCS engine for Daft: SHA-256 CAS, binary index, refs, and objects"
+description = "Core VCS engine for Draft: SHA-256 CAS, binary index, refs, and objects"
 
 [dependencies]
 sha2 = { workspace = true }

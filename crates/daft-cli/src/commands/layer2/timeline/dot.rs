@@ -2,7 +2,7 @@ use super::graph::{MultiverseTimelineGraph, TimelineNodeType};
 
 pub fn render_dot(graph: &MultiverseTimelineGraph) -> String {
     let mut out = String::new();
-    out.push_str("digraph DaftMultiverse {\n");
+    out.push_str("digraph DraftMultiverse {\n");
     out.push_str("  rankdir=BT;\n");
     out.push_str("  compound=true;\n");
     out.push_str("  fontname=\"Helvetica,Arial,sans-serif\";\n");

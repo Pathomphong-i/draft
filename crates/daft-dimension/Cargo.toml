@@ -5,7 +5,7 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
-description = "Parallel dimension engine and CoW workspace management for Daft"
+description = "Parallel dimension engine and CoW workspace management for Draft"
 
 [dependencies]
 daft-core = { workspace = true }

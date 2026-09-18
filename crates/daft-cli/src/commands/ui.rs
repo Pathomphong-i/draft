@@ -461,7 +461,7 @@ fn get_repository_state_json(repo_root: &Path) -> String {
         "name": "mainline",
         "branch": "main",
         "is_active": cur_dim == "mainline",
-        "type": "root_universe"
+        "type": "root_multiverse"
     }));
 
     if dim_dir.is_dir() {

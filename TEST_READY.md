@@ -1,4 +1,4 @@
-# Daft (`dft`) E2E Test Suite Readiness Report
+# Draft (`dft`) E2E Test Suite Readiness Report
 
 **Document Version:** 1.0.0  
 **Status:** READY & ACTIVE  
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-The independent, opaque-box End-to-End (E2E) test suite for Daft (`dft`) is fully implemented, verified, and ready. It serves as the primary acceptance gate for the Daft implementation milestones (M1 through M6) and the final release audit.
+The independent, opaque-box End-to-End (E2E) test suite for Draft (`dft`) is fully implemented, verified, and ready. It serves as the primary acceptance gate for the Draft implementation milestones (M1 through M6) and the final release audit.
 
 All tests strictly follow the **Opaque-Box Principle**:
 - Subprocess execution of the `dft` CLI executable with isolated environment variables (`HOME`, `DFT_CONFIG_DIR`, `DFT_AUTHOR_NAME`, `DFT_AUTHOR_EMAIL`).

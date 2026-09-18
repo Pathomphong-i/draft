@@ -117,7 +117,7 @@ impl DimensionManager {
         let now = chrono::Utc::now().to_rfc3339();
         let meta = DimensionMetadata {
             name: new_name.to_string(),
-            creator: "Daft Agent".to_string(),
+            creator: "Draft Agent".to_string(),
             branch: new_name.to_string(),
             cow_mode: cow_strategy.to_string(),
             status: "clean".to_string(),

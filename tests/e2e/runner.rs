@@ -89,7 +89,7 @@ fn parse_args() -> RunnerConfig {
 }
 
 fn print_help() {
-    println!("Daft E2E Test Runner Harness");
+    println!("Draft E2E Test Runner Harness");
     println!("Usage: runner [OPTIONS]");
     println!();
     println!("Options:");

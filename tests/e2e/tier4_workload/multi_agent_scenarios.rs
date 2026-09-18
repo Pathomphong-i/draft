@@ -241,7 +241,7 @@ pub fn test_scenario_3_autonomous_cronos_synchronization() {
 pub fn test_scenario_4_multi_universe_convergence_and_collapse() {
     let env = TestEnv::new("scenario_multiverse_collapse");
     env.dft(&["init"]).assert_success();
-    env.write_file("README.md", "# Daft Multiverse App\n");
+    env.write_file("README.md", "# Draft Multiverse App\n");
     env.dft(&["add", "README.md"]).assert_success();
     env.dft(&["commit", "-m", "Initial commit"])
         .assert_success();

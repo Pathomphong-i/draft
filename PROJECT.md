@@ -1,7 +1,7 @@
-# Project: Daft (`dft`) Version Control System
+# Project: Draft (`dft`) Version Control System
 
 ## Architecture
-Daft is a production-quality, open-source, Rust-based version control system designed for parallel AI agent workflows. It combines a full suite of Git-equivalent Layer 1 commands with an advanced Layer 2 multi-agent multiverse engine (parallel dimensions, copy-on-write workspaces, predictive conflict prevention, real-time radar, convergence operations, autonomous sync daemons, agent identities/mailboxes, and multiverse graph visualization).
+Draft is a production-quality, open-source, Rust-based version control system designed for parallel AI agent workflows. It combines a full suite of Git-equivalent Layer 1 commands with an advanced Layer 2 multi-agent multiverse engine (parallel dimensions, copy-on-write workspaces, predictive conflict prevention, real-time radar, convergence operations, autonomous sync daemons, agent identities/mailboxes, and multiverse graph visualization).
 
 ### Crate Topology (Acyclic Dependency DAG)
 ```
@@ -77,7 +77,7 @@ Daft is a production-quality, open-source, Rust-based version control system des
 │   └── <agent_id>/
 │       ├── new/
 │       └── cur/
-└── git_map                  # Git OID <-> Daft OID bidirectional mapping
+└── git_map                  # Git OID <-> Draft OID bidirectional mapping
 ```
 
 ---
@@ -87,7 +87,7 @@ Every feature from the Survey phase is mapped to an assigned milestone.
 
 | # | Feature | Description | Milestone | Source |
 |---|---------|-------------|-----------|--------|
-| 1 | `dft init` | Initialize new Daft repository with `.dft/` structure | M1 | Survey 1 (Core) |
+| 1 | `dft init` | Initialize new Draft repository with `.dft/` structure | M1 | Survey 1 (Core) |
 | 2 | CAS Object Store | SHA-256 CAS store for blobs, trees, commits, tags with zlib | M1 | Survey 1 (Core) |
 | 3 | Loose & Pack Format | Loose object format and packfile compression / indexing | M1 | Survey 1 (Core) |
 | 4 | Binary Index | Staging index (`.dft/index`) with DIRC header & multi-stage entries | M1 | Survey 1 (Core) |
@@ -145,9 +145,9 @@ Every feature from the Survey phase is mapped to an assigned milestone.
 | 56 | Agent Subsystem | Agent identity register, assign, status, broadcast, Maildir inbox | M5 | Survey 2 (Agent) |
 | 57 | Agent Heartbeat | Liveness tracking and agent status monitoring | M5 | Survey 2 (Agent) |
 | 58 | `timeline` Multiverse | Visual branch/dimension graph (ASCII/Unicode, JSON, DOT, SVG) | M5 | Survey 2 (Timeline) |
-| 59 | Git Import Bridge | Fast import of Git repositories into Daft format | M6 | Survey 3 (Git Bridge) |
-| 60 | Git Export Bridge | Export Daft repository/dimension to standard Git repository | M6 | Survey 3 (Git Bridge) |
-| 61 | `git_map` CAS Table | Append-only bidirectional Git OID <-> Daft OID translation table | M6 | Survey 3 (Git Bridge) |
+| 59 | Git Import Bridge | Fast import of Git repositories into Draft format | M6 | Survey 3 (Git Bridge) |
+| 60 | Git Export Bridge | Export Draft repository/dimension to standard Git repository | M6 | Survey 3 (Git Bridge) |
+| 61 | `git_map` CAS Table | Append-only bidirectional Git OID <-> Draft OID translation table | M6 | Survey 3 (Git Bridge) |
 | 62 | Remote Wire Protocol | Remote fetch/push/pull, want/have negotiation, `.dpack` streaming | M6 | Survey 1 & 3 (Remote) |
 | 63 | Performance Validation | Sub-5s dimension creation for 1,000 files, sub-linear disk usage | M6 | Survey 3 (Performance) |
 | 64 | Open Source Packaging | GPL v2 LICENSE, README.md, CONTRIBUTING.md, CI workflow | M6 | Survey 3 (Packaging) |
