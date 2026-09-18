@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy workspace manifest and source trees
 COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
+COPY scripts ./scripts
 
 # Build release binaries
 RUN cargo build --release -p daft-cli

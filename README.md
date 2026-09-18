@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/draft_icon.svg" width="128" height="128" alt="Draft VCS Logo" />
+</p>
+
 # Draft (`dft`) — The Multiverse Version Control System
 
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
@@ -149,14 +153,28 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 
 ### 1. Installation
 
-#### Pre-requisites
-- Rust toolchain (1.75 or newer)
-- GCC / Clang (for native platform bindings)
+#### A. Homebrew (macOS & Linux)
+Install directly from our official tap:
+```bash
+brew install draft-vcs/draft/dft
+```
 
-#### Building from Source
+#### B. Standalone Shell Script (macOS & Linux)
+Zero-dependency instant installer for workstations and CI/CD runners:
+```bash
+curl -fsSL https://draftuniverse.org/install.sh | sh
+```
+
+#### C. Cargo (Rust Crates.io)
+```bash
+cargo install draft-vcs
+```
+
+#### D. Building from Source
 ```bash
 # Clone the repository
-git clone https://github.com/draft-vcs/draft.git
+dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftUniverse
+# or: git clone https://github.com/draft-vcs/draft.git
 cd draft
 
 # Build optimized release binaries

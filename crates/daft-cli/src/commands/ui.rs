@@ -152,6 +152,9 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
             "application/json"
         };
         send_response(&mut stream, 200, mime, timeline_res.as_bytes());
+    } else if (method == "GET" || method == "HEAD") && (path_part == "/install.sh" || path_part == "/install") {
+        let install_script = include_str!("../../../../scripts/install.sh");
+        send_response(&mut stream, 200, "text/plain; charset=utf-8", if method == "HEAD" { &[] } else { install_script.as_bytes() });
     } else if (method == "GET" || method == "HEAD") && (
         path_part.ends_with(".jpg") ||
         path_part.ends_with(".jpeg") ||
