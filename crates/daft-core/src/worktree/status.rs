@@ -161,7 +161,18 @@ pub fn find_untracked_files(
 ) -> Result<Vec<String>, DaftError> {
     let mut untracked = Vec::new();
 
-    for entry in WalkDir::new(workdir).into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new(workdir)
+        .into_iter()
+        .filter_entry(|e| {
+            let name = e.file_name().to_string_lossy();
+            name != ".dft"
+                && name != ".git"
+                && name != "target"
+                && name != ".agents"
+                && name != "node_modules"
+        })
+        .filter_map(|e| e.ok())
+    {
         let path = entry.path();
         if path.starts_with(dft_dir) {
             continue;

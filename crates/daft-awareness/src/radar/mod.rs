@@ -135,7 +135,11 @@ impl RadarSubsystem {
                 .into_iter()
                 .filter_entry(|e| {
                     let name = e.file_name().to_string_lossy();
-                    name != ".dft" && name != ".git"
+                    name != ".dft"
+                        && name != ".git"
+                        && name != "target"
+                        && name != ".agents"
+                        && name != "node_modules"
                 })
                 .filter_map(|e| e.ok())
             {

@@ -25,7 +25,18 @@ pub fn add_paths(
 
     if all || pathspecs.iter().any(|p| p.as_os_str() == ".") {
         // Stage entire worktree
-        for entry in WalkDir::new(workdir).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(workdir)
+            .into_iter()
+            .filter_entry(|e| {
+                let name = e.file_name().to_string_lossy();
+                name != ".dft"
+                    && name != ".git"
+                    && name != "target"
+                    && name != ".agents"
+                    && name != "node_modules"
+            })
+            .filter_map(|e| e.ok())
+        {
             let path = entry.path();
             if path.starts_with(dft_dir) {
                 continue;
@@ -80,7 +91,18 @@ pub fn add_paths(
             }
 
             if full.is_dir() {
-                for entry in WalkDir::new(&full).into_iter().filter_map(|e| e.ok()) {
+                for entry in WalkDir::new(&full)
+                    .into_iter()
+                    .filter_entry(|e| {
+                        let name = e.file_name().to_string_lossy();
+                        name != ".dft"
+                            && name != ".git"
+                            && name != "target"
+                            && name != ".agents"
+                            && name != "node_modules"
+                    })
+                    .filter_map(|e| e.ok())
+                {
                     let path = entry.path();
                     if path.starts_with(dft_dir) {
                         continue;
