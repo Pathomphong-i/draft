@@ -580,7 +580,7 @@
 
         function renderBreadcrumbs(path) {
             const bar = document.getElementById('breadcrumbsBar');
-            bar.innerHTML = '<span class="breadcrumb-link" onclick="loadTree('')">Darf</span>';
+            bar.innerHTML = `<span class="breadcrumb-link" onclick="loadTree('')">Darf</span>`;
             if (!path) return;
 
             const parts = path.split('/');
