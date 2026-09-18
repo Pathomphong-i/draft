@@ -489,7 +489,7 @@
     <!-- Top Navbar (Gitea-style) -->
     <nav class="gitea-navbar">
         <a href="/" class="brand">
-            <img src="/docs/assets/draft_icon.svg" style="width: 28px; height: 28px; border-radius: 6px; margin-right: 8px; vertical-align: middle; box-shadow: 0 0 10px rgba(88,166,255,0.3);" alt="Draft Logo" />
+            <img src="/docs/assets/draft_icon.svg" style="width: 36px; height: 36px; border-radius: 8px; margin-right: 10px; vertical-align: middle; box-shadow: 0 0 14px rgba(88,166,255,0.4); border: 1px solid rgba(88,166,255,0.3);" alt="Draft Logo" />
             <div class="repo-title">DraftMultiverse</div>
             <span class="repo-badge">v0.1.0 Draft Multiverse</span>
         </a>
@@ -507,6 +507,35 @@
             </div>
             <div>
                 <span class="btn" style="cursor: default;"><span class="badge-live"></span>🪐 DraftUniverse Origin: Active</span>
+            </div>
+        </div>
+
+        <!-- Multiverse Hero Banner (Big Size Icon Showcase) -->
+        <div class="repo-hero-card" style="display: flex; align-items: center; gap: 1.75rem; padding: 1.25rem 2rem; background: linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(188, 140, 255, 0.08) 50%, rgba(63, 185, 80, 0.05) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+            <div class="hero-icon-container" style="position: relative; flex-shrink: 0;">
+                <img src="/docs/assets/draft_icon.svg" style="width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 0 35px rgba(88, 166, 255, 0.5), 0 8px 24px rgba(0, 0, 0, 0.6); border: 2px solid rgba(88, 166, 255, 0.45); display: block;" alt="Draft Multiverse Icon" />
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+                    <h1 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: -0.5px;">Draft <span style="color: var(--cyan); font-weight: 600; font-size: 1.2rem;">(`dft`)</span></h1>
+                    <span style="font-size: 0.75rem; background: rgba(88, 166, 255, 0.15); color: var(--cyan); border: 1px solid rgba(88, 166, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🌌 Multiverse VCS</span>
+                    <span style="font-size: 0.75rem; background: rgba(188, 140, 255, 0.15); color: var(--quantum-violet); border: 1px solid rgba(188, 140, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🤖 AI Swarm Native</span>
+                    <span style="font-size: 0.75rem; background: rgba(63, 185, 80, 0.15); color: var(--emerald); border: 1px solid rgba(63, 185, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">v0.1.0</span>
+                </div>
+                <p style="margin: 0 0 0.6rem 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.45;">
+                    The Multiverse Version Control System engineered for concurrent AI agent swarms and parallel dimensions.
+                </p>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; font-size: 0.82rem;">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted);">
+                        <span style="color: var(--text-heading); font-weight: 500;">Quick Install:</span>
+                        <code style="background: rgba(0, 0, 0, 0.35); padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); color: var(--cyan); font-family: monospace;">curl -fsSL https://draftuniverse.org/install.sh | sh</code>
+                        <button class="btn" style="padding: 2px 8px; font-size: 0.75rem;" onclick="navigator.clipboard.writeText('curl -fsSL https://draftuniverse.org/install.sh | sh'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy', 1500);">Copy</button>
+                    </span>
+                    <span style="color: var(--border);">•</span>
+                    <span style="display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted);">
+                        <code style="background: rgba(0, 0, 0, 0.35); padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); color: var(--quantum-violet); font-family: monospace;">brew install Pathomphong-i/draft/dft</code>
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -1323,7 +1352,6 @@
 
         function parseInline(str) {
             if (!str) return '';
-            let s = escapeHtml(str);
 
             const placeholders = [];
             function stash(html) {
@@ -1331,6 +1359,20 @@
                 placeholders.push(html);
                 return id;
             }
+
+            // 0. Preserve allowed HTML tags before escaping (p, div, img, a, span)
+            let s = str.replace(/<\/?(?:p|div|img|span|a|b|i|strong|em|br|hr)(?:\s+[^>]*?)?\/?>/gi, (match) => {
+                let fixed = match.replace(/src=["']([^"']+)["']/i, (m, srcVal) => {
+                    let c = srcVal.trim();
+                    if (!c.startsWith('http') && !c.startsWith('/') && !c.startsWith('data:')) {
+                        c = '/' + c;
+                    }
+                    return `src="${c}"`;
+                });
+                return stash(fixed);
+            });
+
+            s = escapeHtml(s);
 
             // 1. Inline code: `code`
             s = s.replace(/`([^`]+)`/g, (match, code) => stash(`<code>${code}</code>`));
@@ -1346,7 +1388,11 @@
                 if (!cleanSrc.startsWith('http://') && !cleanSrc.startsWith('https://') && !cleanSrc.startsWith('data:') && !cleanSrc.startsWith('/')) {
                     cleanSrc = '/' + cleanSrc;
                 }
-                return stash(`<img alt="${alt}" src="${cleanSrc}" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: 1px solid var(--border); display: block; margin: 1.5rem auto;" loading="lazy" />`);
+                const isLogo = alt.toLowerCase().includes('logo') || alt.toLowerCase().includes('icon');
+                const imgStyle = isLogo
+                    ? 'width: 160px; height: 160px; border-radius: 32px; box-shadow: 0 0 40px rgba(88,166,255,0.5), 0 10px 30px rgba(0,0,0,0.7); border: 2.5px solid rgba(88,166,255,0.45); display: block; margin: 2rem auto;'
+                    : 'max-width: 100%; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.35); border: 1px solid var(--border); display: block; margin: 1.5rem auto;';
+                return stash(`<img alt="${alt}" src="${cleanSrc}" style="${imgStyle}" loading="lazy" />`);
             });
 
             // 4. Standard links: [text](url)

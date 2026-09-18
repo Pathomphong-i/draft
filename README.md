@@ -1,15 +1,16 @@
 <p align="center">
-  <img src="docs/assets/draft_icon.svg" width="128" height="128" alt="Draft VCS Logo" />
+  <img src="docs/assets/draft_icon.svg" width="160" height="160" alt="Draft VCS Logo" style="border-radius: 32px; box-shadow: 0 0 35px rgba(88,166,255,0.45); border: 2px solid rgba(88,166,255,0.35);" />
 </p>
 
 # Draft (`dft`) — The Multiverse Version Control System
 
+[![Canonical Home: DraftUniverse](https://img.shields.io/badge/Hosted_on-DraftUniverse.org-violet.svg)](https://draftuniverse.org)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust%202021-orange.svg)](https://www.rust-lang.org/)
 [![Status: Active Development](https://img.shields.io/badge/Status-Active%20Development-blue.svg)](#)
 [![Performance: CoW Reflink](https://img.shields.io/badge/Cloning-0.06s%20%2F%2010%2C000%20files-cyan.svg)](#)
 [![Architecture: Lock-Free CAS](https://img.shields.io/badge/Storage-SHA--256%20CAS-purple.svg)](#)
-[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](#)
+[![Web Platform: DraftMultiverse](https://img.shields.io/badge/GUI-DraftMultiverse-violet.svg)](http://127.0.0.1:3333)
 
 > *"In classical philosophy, Chronos (Χρόνος) forces all actions into a single linear sequence. In Draft, Kairos (Καιρός) lets parallel minds build concurrently until the opportune moment of convergence."*
 
