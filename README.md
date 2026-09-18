@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/draft_icon.svg" width="160" height="160" alt="Draft VCS Logo" style="border-radius: 32px; box-shadow: 0 0 35px rgba(88,166,255,0.45); border: 2px solid rgba(88,166,255,0.35);" />
+  <img src="docs/assets/draft_icon.jpg" width="160" height="160" alt="Draft VCS Logo" style="border-radius: 32px; box-shadow: 0 0 35px rgba(88,166,255,0.45); border: 2px solid rgba(88,166,255,0.35);" />
 </p>
 
 # Draft (`dft`) — The Multiverse Version Control System

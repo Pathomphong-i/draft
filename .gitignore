@@ -2,3 +2,4 @@ target/
 .agents/
 .DS_Store
 *.log
+.DS_Store
