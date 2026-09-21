@@ -133,13 +133,25 @@ impl DimensionManager {
 
         let cow_strategy = detect_best_strategy(dft_dir);
         if let Some(wd) = self.repo.workdir() {
-            for entry in WalkDir::new(wd).into_iter().filter_map(|e| e.ok()) {
+            let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(wd);
+            for entry in WalkDir::new(wd)
+                .into_iter()
+                .filter_entry(|e| {
+                    let name = e.file_name().to_string_lossy();
+                    !ignore.should_prune_dir(&name)
+                })
+                .filter_map(|e| e.ok())
+            {
                 let path = entry.path();
                 if path.starts_with(dft_dir) {
                     continue;
                 }
                 if entry.file_type().is_file() {
                     if let Ok(rel) = path.strip_prefix(wd) {
+                        let rel_str = rel.to_string_lossy().replace('\\', "/");
+                        if ignore.is_ignored(&rel_str, false) {
+                            continue;
+                        }
                         let dest = ws_dir.join(rel);
                         if let Some(parent) = dest.parent() {
                             let _ = fs::create_dir_all(parent);

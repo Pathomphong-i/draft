@@ -161,15 +161,13 @@ pub fn find_untracked_files(
 ) -> Result<Vec<String>, DaftError> {
     let mut untracked = Vec::new();
 
+    let ignore = crate::worktree::DaftIgnore::load_from_workdir(workdir);
+
     for entry in WalkDir::new(workdir)
         .into_iter()
         .filter_entry(|e| {
             let name = e.file_name().to_string_lossy();
-            name != ".dft"
-                && name != ".git"
-                && name != "target"
-                && name != ".agents"
-                && name != "node_modules"
+            !ignore.should_prune_dir(&name)
         })
         .filter_map(|e| e.ok())
     {
@@ -181,7 +179,7 @@ pub fn find_untracked_files(
         if entry.file_type().is_file() {
             if let Ok(rel) = path.strip_prefix(workdir) {
                 let rel_str = rel.to_string_lossy().replace('\\', "/");
-                if rel_str.is_empty() {
+                if rel_str.is_empty() || ignore.is_ignored(&rel_str, false) {
                     continue;
                 }
                 // Check if in index

@@ -23,17 +23,15 @@ pub fn add_paths(
 
     let mut files_to_stage = Vec::new();
 
+    let ignore = crate::worktree::DaftIgnore::load_from_workdir(workdir);
+
     if all || pathspecs.iter().any(|p| p.as_os_str() == ".") {
         // Stage entire worktree
         for entry in WalkDir::new(workdir)
             .into_iter()
             .filter_entry(|e| {
                 let name = e.file_name().to_string_lossy();
-                name != ".dft"
-                    && name != ".git"
-                    && name != "target"
-                    && name != ".agents"
-                    && name != "node_modules"
+                !ignore.should_prune_dir(&name)
             })
             .filter_map(|e| e.ok())
         {
@@ -43,7 +41,10 @@ pub fn add_paths(
             }
             if entry.file_type().is_file() {
                 if let Ok(rel) = path.strip_prefix(workdir) {
-                    files_to_stage.push(rel.to_path_buf());
+                    let rel_str = rel.to_string_lossy().replace('\\', "/");
+                    if !ignore.is_ignored(&rel_str, false) {
+                        files_to_stage.push(rel.to_path_buf());
+                    }
                 }
             }
         }
@@ -95,11 +96,7 @@ pub fn add_paths(
                     .into_iter()
                     .filter_entry(|e| {
                         let name = e.file_name().to_string_lossy();
-                        name != ".dft"
-                            && name != ".git"
-                            && name != "target"
-                            && name != ".agents"
-                            && name != "node_modules"
+                        !ignore.should_prune_dir(&name)
                     })
                     .filter_map(|e| e.ok())
                 {
@@ -109,13 +106,19 @@ pub fn add_paths(
                     }
                     if entry.file_type().is_file() {
                         if let Ok(rel) = path.strip_prefix(workdir) {
-                            files_to_stage.push(rel.to_path_buf());
+                            let rel_str = rel.to_string_lossy().replace('\\', "/");
+                            if !ignore.is_ignored(&rel_str, false) {
+                                files_to_stage.push(rel.to_path_buf());
+                            }
                         }
                     }
                 }
             } else if full.is_file() {
                 if let Ok(rel) = full.strip_prefix(workdir) {
-                    files_to_stage.push(rel.to_path_buf());
+                    let rel_str = rel.to_string_lossy().replace('\\', "/");
+                    if !ignore.is_ignored(&rel_str, false) {
+                        files_to_stage.push(rel.to_path_buf());
+                    }
                 }
             }
         }
