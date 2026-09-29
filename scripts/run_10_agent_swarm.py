@@ -19,7 +19,7 @@ import subprocess
 import concurrent.futures
 from pathlib import Path
 
-REPO_ROOT = Path("/Users/pathomphongphiphatsuriyawong/Workspace/Draft/projects/omnistack_fullstack")
+REPO_ROOT = Path(__file__).resolve().parent.parent / "projects" / "omnistack_fullstack"
 
 AGENT_SPECS = [
     {

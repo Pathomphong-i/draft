@@ -300,28 +300,26 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 
 ### 1. Installation
 
-#### A. Homebrew (macOS & Linux)
-Install directly from our official tap:
-```bash
-brew install Pathomphong-i/draft/dft
-```
-
-#### B. Standalone Shell Script (macOS & Linux)
+#### A. Standalone Universal Installer (macOS & Linux)
 Zero-dependency instant installer for workstations and CI/CD runners:
 ```bash
-curl -fsSL https://draftmultiverse.org/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/Pathomphong-i/draft/main/install.sh | sh
 ```
 
-#### C. Cargo (Rust Crates.io)
+#### B. Cargo (Rust)
 ```bash
-cargo install draft-vcs
+cargo install --git https://github.com/Pathomphong-i/draft.git daft-cli
+```
+
+#### C. Homebrew (macOS & Linux)
+```bash
+brew install Pathomphong-i/draft/dft
 ```
 
 #### D. Building from Source
 ```bash
 # Clone the repository
-dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse
-# or: git clone https://github.com/Pathomphong-i/draft.git
+git clone https://github.com/Pathomphong-i/draft.git
 cd draft
 
 # Build optimized release binaries

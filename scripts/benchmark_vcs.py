@@ -19,7 +19,7 @@ import concurrent.futures
 from pathlib import Path
 
 BENCHMARK_ROOT = Path("/tmp/vcs_benchmark_sandbox")
-TEMPLATE_SOURCE = Path("/Users/pathomphongphiphatsuriyawong/Workspace/Draft/projects/omnistack_fullstack")
+TEMPLATE_SOURCE = Path(__file__).resolve().parent.parent / "projects" / "omnistack_fullstack"
 
 NUM_AGENTS = 10
 AGENT_TASKS = [
@@ -398,7 +398,7 @@ def main():
     print("="*80)
 
     # Generate Markdown Report
-    report_path = Path("/Users/pathomphongphiphatsuriyawong/Workspace/Draft/docs/BENCHMARK_RESULTS.md")
+    report_path = Path(__file__).resolve().parent.parent / "docs" / "BENCHMARK_RESULTS.md"
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
     fastest_spawn = min([git_res, jj_res, dft_res], key=lambda x: x["ws_provision_sec"])
