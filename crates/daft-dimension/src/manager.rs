@@ -513,26 +513,60 @@ impl DimensionManager {
     pub fn is_dimension_dirty(&self, name: &str) -> bool {
         let current = self.current_dimension_name();
         if current == name {
-            if let Some(workdir) = self.repo.workdir() {
-                // Check if any tracked/untracked file exists in workdir
-                if let Ok(mut entries) = fs::read_dir(workdir) {
-                    return entries.any(|e| {
-                        if let Ok(entry) = e {
-                            entry.file_name() != ".dft"
-                        } else {
-                            false
-                        }
-                    });
-                }
+            if let Ok(report) = daft_core::worktree::get_status(&self.repo) {
+                return !report.is_clean();
             }
             return false;
         }
 
-        let ws = self.dimensions_dir.join(name).join("workspace");
-        ws.exists()
-            && fs::read_dir(&ws)
+        let dim_dir = self.dimensions_dir.join(name);
+        let ws = dim_dir.join("workspace");
+        if !ws.exists() {
+            return false;
+        }
+
+        let index_path = dim_dir.join("index");
+        if let Ok(index) = daft_core::Index::read_from(&index_path) {
+            let mut tracked_paths = std::collections::HashSet::new();
+            for entry in index.entries() {
+                tracked_paths.insert(entry.path.clone());
+                let file_path = ws.join(&entry.path);
+                if !file_path.exists() {
+                    return true; // deleted tracked file
+                }
+                if let Ok(meta) = fs::metadata(&file_path) {
+                    if meta.len() != entry.file_size as u64 {
+                        return true; // modified tracked file
+                    }
+                }
+            }
+
+            // Check for untracked files
+            let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&ws);
+            for entry in WalkDir::new(&ws)
+                .into_iter()
+                .filter_entry(|e| {
+                    let name = e.file_name().to_string_lossy();
+                    !ignore.should_prune_dir(&name)
+                })
+                .filter_map(|e| e.ok())
+            {
+                if entry.file_type().is_file() {
+                    if let Ok(rel) = entry.path().strip_prefix(&ws) {
+                        let rel_str = rel.to_string_lossy().replace('\\', "/");
+                        if !ignore.is_ignored(&rel_str, false) && !tracked_paths.contains(&rel_str) {
+                            return true; // untracked file
+                        }
+                    }
+                }
+            }
+
+            false
+        } else {
+            fs::read_dir(&ws)
                 .map(|mut r| r.next().is_some())
                 .unwrap_or(false)
+        }
     }
 }
 

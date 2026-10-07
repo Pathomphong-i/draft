@@ -21,6 +21,18 @@
 
 ---
 
+### 📑 Quick Navigation & Tutorials
+- ⚡ **[Why Draft for AI Agents?](#-the-concurrency-evolution-why-draft-for-ai-agents)** — How Draft solves multi-agent concurrency
+- 📦 **[Installation Guide](#1-installation)** — Universal script, Homebrew, Cargo, or from source
+- 🎯 **[Tutorial 1: 100% Familiar Git Quickstart](#2-quickstart-100-familiar-git-muscle-memory)** — Everyday commands, Git muscle memory & fast shortcuts
+- 🌌 **[Tutorial 2: Concurrent Parallel Dimensions](#3-step-by-step-tutorial-concurrency-in-parallel-dimensions)** — Instant CoW workspaces, territory claims, and radar
+- 🐙 **[Tutorial 3: Hybrid Workflow (Draft + GitHub)](#4-seamless-hybrid-workflow-develop-in-parallel-with-draft--push-to-git)** — Supercharge your existing Git repos without breaking CI/CD
+- 🤖 **[Tutorial 4: AI Agent Orchestration (`SKILL.md`)](#-how-to-use-skillmd-with-your-ai-agents)** — 8-step protocol for Claude Code, Antigravity, Cursor & Swarms
+- 🖥️ **[Tutorial 5: Self-Hosted Web Platform (`dft ui`)](#8-self-hosting-draftmultiverse-web--remote-server)** — Launching the real-time Spacetime DAG & radar web GUI
+- 📋 **[Comprehensive Command Matrix](#-comprehensive-command-matrix)** — Complete command reference table
+
+---
+
 ![DraftMultiverse 3D Architecture](docs/assets/draft_multiverse_3d.jpg)
 
 ---
@@ -31,7 +43,7 @@
 
 > *"We built Draft (`dft`) for concurrent AI swarms... but we still can't live without the GitHub community!"* 🐙💖
 
-When Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel mail servers. But in 2026, **the developer world, open-source contributors, and AI swarms live in GitHub's gravity well**.
+When Git was introduced in 2005, version control was designed around mailing lists and patch exchanges. But in 2026, **the developer world, open-source contributors, and AI swarms thrive in GitHub's collaborative gravity well**.
 
 - 🌌 **We develop Draft using Draft**: Internally, our parallel dimensions, lock-free content-addressable storage (CAS), and predictive 3-way merges are 100% dogfooded with `dft`.
 - 🐙 **We ❤️ the GitHub Community**: We host our open-source project and interactive demo on GitHub because this is where developers star repositories, report issues, submit PRs, and collaborate. We are proud to build together with the open-source community!
@@ -48,19 +60,23 @@ When Linus Torvalds engineered Git in 2005, he could host it on raw Linux kernel
 
 ---
 
-## ⚡ The Architectural Shift: Why Draft?
+## ⚡ The Concurrency Evolution: Why Draft for AI Agents?
 
-**Git was engineered in 2005 around a single checked-out working tree and linear branch switching.**  
-**Draft (`dft`) was architected in 2026 for concurrent, multi-agent AI and human swarms.**
+**Git was engineered in 2005 for human developers working on a single checked-out working tree.**  
+**Draft (`dft`) was architected in 2026 as a concurrency engine for autonomous AI swarms and human teams.**
 
 > [!TIP]
 > ### ⚡ Build Faster with Autonomous Swarms
 > Instead of waiting for one agent or developer to finish before switching branches, **Draft lets you dispatch multiple AI agents to write code across parallel dimensions at the exact same time**. They code concurrently, sense each other in real-time via cross-dimension radar, and converge cleanly into mainline without lock collisions — making you build and ship software drastically faster.
 
-Modern software engineering faces concurrency bottlenecks at the version control layer:
-1. **The Single Working-Tree Bottleneck**: Git limits a working repository to a single checked-out `HEAD` and working directory. Concurrently running multiple AI agents or collaborating developers requires brittle `git worktree` setups or multi-gigabyte repository clones that duplicate disk and memory.
-2. **Blind Collision**: Agents editing files concurrently have zero cross-branch awareness of each other until a final merge or rebase triggers complex conflict triage.
-3. **Reactive Merge Friction**: Traditional VCS operates reactively. Conflicts are discovered *after* code changes are completed, requiring manual 3-way triage.
+### Why AI Agent Swarms Need Specialized Version Control
+
+Git is the gold standard for human software collaboration, but autonomous AI agents introduce a fundamentally new operational paradigm:
+
+1. **Parallel Execution (vs. Serial Staging)**: Humans naturally focus on one task at a time, switching branches sequentially. Autonomous AI agents, however, work best when deployed concurrently in swarms (e.g., frontend, backend, test generation, and migrations simultaneously). Traditional single-checkout models require multiple full directory clones or manual worktree configurations that duplicate disk storage and build artifacts. Draft creates instant Copy-on-Write (CoW) parallel workspaces in **0.06 seconds** with zero duplicate disk blocks.
+2. **Machine-Readable Coordination (vs. Silent Edits)**: Humans coordinate through chat, standups, and code reviews. AI agents lack ambient awareness of peer agents working in the repository. Draft's **Cross-Dimensional Radar** (`dft radar`) and **Territory Claims** (`dft claim` / `dft fence`) provide real-time programmatic awareness of active file modifications across branches, preventing collisions before they happen.
+3. **Predictive Foresight (vs. Reactive Conflict Halts)**: Interactive conflict markers work well for human developers who can resolve them in an editor. For autonomous agent loops, discovering conflicts mid-merge halts unattended pipelines. Draft's **Predictive Merge Foresight** (`dft foresee`) simulates 3-way reconciliation in memory beforehand, enabling agents to verify clean integration before committing to a merge.
+4. **Lock-Free Swarm Concurrency**: When multiple agents commit simultaneously, shared repository index locks can serialize operations. Draft provides independent staging indexes and ref pointers for each dimension, allowing dozens of AI workers to commit in parallel with zero lock contention.
 
 ### What Draft (`dft`) Delivers:
 - 🌌 **Parallel Dimensions**: Spawn isolated, Copy-on-Write (CoW) workspaces in **0.06 seconds** sharing a lock-free, content-addressable storage (CAS) engine with zero duplicate disk blocks.
@@ -77,7 +93,7 @@ Modern software engineering faces concurrency bottlenecks at the version control
 
 ## 📖 Backstory & Philosophy: From Chronos to Kairos
 
-### The Swarm Concurrency Bottleneck
+### The Multi-Agent Orchestration Challenge
 In 2026, autonomous AI engineering agents transitioned from novelty to necessity. Engineering teams attempted to orchestrate teams of specialized AI agents working concurrently on single repositories:
 - **Agent Alpha**: Database engine & migration rewrite.
 - **Agent Beta**: HTTP REST & WebSocket API layer.
@@ -85,17 +101,22 @@ In 2026, autonomous AI engineering agents transitioned from novelty to necessity
 - **Agent Delta**: Comprehensive integration test suites.
 - **Agent Epsilon**: Memory profiling and algorithmic optimizations.
 
-The moment multiple agents executed in parallel, **traditional single-worktree Git workflows hit severe friction**:
-- Agents switching branches trampled each other's unstaged files.
-- Multiple local clones duplicated tens of thousands of build artifacts, causing disk thrashing and operating system resource exhaustion.
-- At the end of every sprint, merging diverged branches created painful manual triage.
+When multiple autonomous agents execute simultaneously, traditional single-worktree workflows face a new operational reality:
+- Sequential branch checkouts in a shared directory can overwrite uncommitted files generated by parallel agents.
+- Managing multiple full repository clones multiplies disk usage and duplicates gigabytes of dependencies and build artifacts.
+- Reactive merge conflict resolution halts automated pipelines, requiring manual human intervention.
 
-In ancient thought, the Greeks distinguished two forms of time: **Chronos (Χρόνος)**, the quantitative, sequential progression of linear events, and **Kairos (Καιρός)**, the qualitative, opportune moment of harmony and action. Git bound version control strictly to *Chronos*—a single linear arrow where only one branch could be active at a time. **Draft was built to bring Kairos (Καιρός) and Metis (Μῆτις, foresight) to version control**, enabling parallel development dimensions to evolve independently and converge into **Harmonia (Ἁρμονία)** without collision.
+In ancient thought, the Greeks distinguished two forms of time: **Chronos (Χρόνος)**, the quantitative, sequential progression of linear events, and **Kairos (Καιρός)**, the qualitative, opportune moment of harmony and action. Traditional version control was organized around *Chronos*—a single linear progression tailored for one developer focusing on one branch at a time. **Draft was built to bring Kairos (Καιρός) and Metis (Μῆτις, foresight) to multi-agent development**, enabling parallel dimensions to evolve independently and converge into **Harmonia (Ἁρμονία)** without collision.
 
-### Sincere Tribute to Linus Torvalds
-Draft stands on the shoulders of Linus Torvalds. In 2005, Linus revolutionized software engineering by creating Git in two weeks. His insights—content-addressable object storage, cryptographically verified acyclic commit graphs, and immutable blob snapshots—remain foundational.
+### Why Draft: Purpose-Built for Autonomous AI Swarms
 
-We named this system **Draft (`draft` / `dft`)** because every parallel dimension represents an agile, working *draft* of your project. Where Git forces developers to commit every experiment to a single rigid working-tree sequence, Draft allows agents and developers to iterate on preliminary versions concurrently before bringing them together. Draft retains Linus's CAS principles while unlocking **parallel dimension branching**.
+Content-addressable storage (CAS), cryptographically verified acyclic commit graphs, and immutable blob snapshots are proven foundations of version control. Draft embraces these core CAS principles while introducing a next-generation concurrency architecture engineered specifically for AI swarms:
+
+1. **Agile Working Drafts**: We named this system **Draft (`draft` / `dft`)** because every parallel dimension represents an agile, working *draft* of your project. Instead of forcing developers and agents to commit every early experiment into a single rigid working-tree sequence, Draft allows agents and developers to iterate on preliminary drafts concurrently before bringing them together into mainline.
+2. **Instant Copy-on-Write Dimensions**: Traditional clone-and-checkout setups take seconds and multiply disk consumption. Draft creates isolated filesystem namespaces in milliseconds (0.06s via kernel reflinks), sharing physical disk blocks until modified.
+3. **Machine-Readable Inter-Agent Coordination**: Autonomous agents lack ambient human coordination. Draft equips agents with real-time cross-dimension radar (`dft radar`), advisory path claims (`dft claim`), and boundary fences (`dft fence`) so they stay aware of peer agents.
+4. **Predictive In-Memory Merge Foresight (`dft foresee`)**: While human developers can resolve interactive conflicts, headless AI loops require predictive simulation to verify conflict-free integration before initiating convergence.
+5. **Seamless Synergy with Git**: Draft is designed to complement Git, not replace it. Teams can accelerate local multi-agent concurrency with Draft dimensions, and then push clean, standard commits upstream to GitHub or GitLab for code review and CI/CD pipelines.
 
 ---
 
@@ -296,7 +317,7 @@ $$H(D_A, D_B) = 0.50 \cdot C_{\text{commits}} + 0.25 \cdot F_{\text{files}} + 0.
 
 ---
 
-## 🛠️ Using Draft with Standard Open-Source Workflows
+## 🚀 Complete Tutorial & Hands-On Guide: How to Use Draft (`dft`)
 
 ### 1. Installation
 
@@ -334,63 +355,158 @@ dft --version
 
 ---
 
-### 2. Quickstart: Standard Version Control
+### 2. Quickstart: 100% Familiar Git Muscle Memory
 
-Draft offers a familiar interface for standard version control commands:
+If you know Git, you already know Draft (`dft`). There is **zero learning curve** for your everyday development workflow. All core commands and flags work identically:
 
 ```bash
-# Initialize a new Draft repository
+# Initialize a new repository
 dft init my-project
 cd my-project
 
-# Configure your developer identity
+# Configure your identity (global or local)
 dft config --set user.name "Your Name"
 dft config --set user.email "you@example.org"
 
-# Stage and commit files
+# Stage and commit files — exactly like Git
 echo "fn main() { println!(\"Hello World\"); }" > main.rs
 dft add main.rs
 dft commit -m "feat: initial commit"
 
-# Inspect status, history, and diffs
+# Check status, commit logs, and diffs
 dft status
 dft log
 dft diff
 ```
 
+#### ⚡ Everyday Command Cheat Sheet & Modern CLI Shortcuts
+
+Just like modern developer tools (`gh`, `cargo`, `docker`, `rg`), Draft includes **built-in ergonomics and fast aliases**:
+
+| Everyday Task | Git Command | Draft Command (`dft`) | Fast Modern Alias |
+|:---|:---|:---|:---|
+| **Repository Init** | `git init` | `dft init` | |
+| **Check Status** | `git status` | `dft status` | `dft st` |
+| **Stage Changes** | `git add .` | `dft add .` | |
+| **Commit Changes** | `git commit -m "..."` | `dft commit -m "..."` | `dft ci -m "..."` |
+| **Inspect Differences** | `git diff` | `dft diff` | `dft di` |
+| **View Commit History** | `git log` | `dft log` | `dft l` |
+| **Create & Switch Branch** | `git checkout -b feat` | `dft checkout -b feat` | `dft co -b feat` / `dft sw feat` |
+| **List Branches** | `git branch` | `dft branch` | `dft br` |
+| **Merge Branch** | `git merge feat` | `dft merge feat` | |
+| **Shelve Changes** | `git stash` | `dft stash` | |
+
+#### 🚀 Multiverse Commands & Fast Shortcuts
+
+When you are ready to unleash parallel AI swarms or concurrent feature branches:
+
+| Multiverse Workflow | Full Command | Fast CLI Shortcut |
+|:---|:---|:---|
+| **List Parallel Dimensions** | `dft dimension list` | `dft dim ls` |
+| **Create New Dimension** | `dft dimension create <name>` | `dft dim new <name>` *(or `dft dim add`)* |
+| **Switch Active Dimension** | `dft dimension enter <name>` | `dft dim switch <name>` *(or `dft dim cd`)* |
+| **Destroy Dimension** | `dft dimension destroy <name>` | `dft dim rm <name>` *(or `dft dim delete`)* |
+| **Scan Collision Radar** | `dft radar` | `dft scan` |
+| **Predict Merge Conflicts** | `dft foresee <dim1> <dim2>` | `dft predict <dim1> <dim2>` |
+
+> 💡 **Modern CLI Standards**:
+> - **Universal Help**: Add `--help` to any command (e.g., `dft --help`, `dft commit --help`, `dft dim --help`) for clear, colored usage guides.
+> - **Machine-Readable JSON**: Add `--json` to any command (`dft status --json`, `dft dim ls --json`) for automated scripting and agent integrations.
+> - **Quiet & Verbose Modes**: Use `-q` / `--quiet` for silent operation or `-v` / `--verbose` for detailed execution traces.
+
 ---
 
-### 3. Parallel Development: Multi-Agent & Multi-Feature Workflows
+### 3. Step-by-Step Tutorial: Concurrency in Parallel Dimensions
 
-Run multiple parallel feature branches simultaneously in the same repository:
+Draft's defining feature is **instant, isolated Copy-on-Write workspaces ("dimensions")**. While standard Git limits you to a single checked-out working tree, Draft lets multiple developers or autonomous AI agents build across separate branches at the exact same time without lock collisions or duplicate disk bloat.
 
+#### What is a Dimension?
+A dimension is an isolated workspace created in **0.06 seconds** via kernel-level Copy-on-Write reflinks (`clonefile` on macOS APFS, `ioctl(FICLONE)` on Linux Btrfs/XFS/ZFS). Clean files consume **0 KB** of additional physical disk because they share underlying CAS storage blocks. Modifications allocate new blocks strictly on write.
+
+```
+Root Mainline Repository
+   │
+   ├── Dimension: feat-auth  (.dft/dimensions/feat-auth/workspace)  [Agent / Dev 1]
+   └── Dimension: feat-api   (.dft/dimensions/feat-api/workspace)   [Agent / Dev 2]
+```
+
+#### Step 1: Create Parallel Dimensions
+Spawn dedicated dimensions for each feature or AI agent in milliseconds:
 ```bash
-# 1. Create parallel dimensions for concurrent work
-dft dimension create feature-auth
-dft dimension create feature-db
+# Create two isolated dimensions
+dft dim new feat-auth
+dft dim new feat-api
 
-# 2. List all active dimensions
-dft dimension list
+# List all active dimensions and their status
+dft dim ls
 # Output:
-#   feature-auth  [clean]
-#   feature-db    [clean]
-# * mainline      [clean]
+#   feat-auth  [clean]
+#   feat-api   [clean]
+# * mainline   [clean]
+```
 
-# 3. Enter a dimension and work in isolation
-dft dimension enter feature-auth
+#### Step 2: Work Inside an Isolated Dimension
+You can work inside a dimension in two ways:
+- **Option A (CLI Context Switch)**: Change the active branch context in your current terminal:
+  ```bash
+  dft dim switch feat-auth
+  # Now all dft commands (add, commit, status) apply to feat-auth
+  ```
+- **Option B (Direct Workspace Folder)**: Point an AI agent, background script, or IDE directly to the dimension's isolated folder:
+  ```bash
+  cd .dft/dimensions/feat-auth/workspace
+  # Work directly on files here without affecting mainline or other dimensions
+  ```
 
-# 4. Acquire an advisory lease on files
-dft claim src/auth.rs
+#### Step 3: Prevent Collisions with Advisory Territory Claims (`dft claim`)
+When multiple agents or engineers code concurrently, prevent accidental collisions on shared files:
+```bash
+# Claim an advisory lease on authentication files (TTL: 1 hour)
+dft claim src/auth.rs --ttl 3600
+```
+If another agent attempts to edit or claim `src/auth.rs`, Draft immediately alerts them of the active lease. When finished, release the lease:
+```bash
+dft yield src/auth.rs
+```
 
-# 5. Check real-time radar for concurrent hot zones
-dft radar --hot
+#### Step 4: Sense Fleet Activity with Real-Time Radar (`dft scan`)
+Check which files are actively being touched across all other dimensions:
+```bash
+# Scan active file modifications across the multiverse
+dft scan --hot
+```
+Draft outputs real-time activity metrics and highlights concurrent "hot zones" before merge time.
 
-# 6. Check for potential merge conflicts in memory before merging
-dft foresee feature-auth mainline
+#### Step 5: Simulate Merges in Memory with Predictive Foresight (`dft predict`)
+Before merging, simulate the 3-way tree reconciliation purely in memory without modifying your disk:
+```bash
+# Predict merge outcome between feat-auth and mainline
+dft predict feat-auth mainline
+# Output:
+#   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'
+#   [FORESEE] Clean auto-merge predicted: 0 conflicts detected.
+#   [FORESEE] Divergence Metric: H = 0.04 (minimal divergence)
+```
+If conflicts are detected, the simulation reports the exact conflicting files and lines so the agent can adjust *before* attempting the merge.
 
-# 7. Converge feature branch back into mainline
-dft dimension enter mainline
-dft converge feature-auth mainline
+#### Step 6: Converge & Collapse into Mainline
+When features are tested and ready:
+```bash
+# Return to mainline
+dft dim switch mainline
+
+# Converge a specific dimension into mainline
+dft converge feat-auth mainline
+
+# OR collapse all active dimensions back into mainline atomically in one command:
+dft collapse
+```
+
+#### Step 7: Clean Up Completed Dimensions
+Once changes are converged into mainline, safely tear down the temporary dimensions:
+```bash
+dft dim rm feat-auth
+dft dim rm feat-api
 ```
 
 ---
@@ -439,8 +555,8 @@ You do not need to replace your organization's Git infrastructure, GitHub Pull R
 | **Workspace Creation Speed** | 2.5s – 5.0s (full directory clone / worktree setup) | **0.06s** (instant APFS/Btrfs CoW reflink) |
 | **Disk Footprint** | Multiplies linearly per full clone or separate working tree (GBs) | **0 KB** additional blocks until modified (CoW) |
 | **Branch Switching Overhead** | Must stash, commit, or clean working tree | Zero overhead: each dimension is an isolated workspace |
-| **Multi-Agent Awareness** | Blind: agents overwrite shared files | **Real-Time Radar (`dft radar`)** & Territory Claims |
-| **Merge Conflict Triage** | Reactive: conflicts discovered after work | **Predictive: `dft foresee`** flags collisions in advance |
+| **Multi-Agent Awareness** | Isolated (agents lack inter-branch visibility) | **Real-Time Radar (`dft radar`)** & Territory Claims |
+| **Merge Conflict Triage** | Reactive (conflicts discovered during merge) | **Predictive: `dft foresee`** flags collisions in advance |
 | **Upstream Compatibility** | Native | **Fully Compatible**: push standard Git commits to GitHub/GitLab |
 
 ---
@@ -463,13 +579,13 @@ git add .gitignore && git commit -m "chore: enable Draft parallel multiverse eng
 ##### Step 2: Spawn Parallel Dimensions for Features or AI Agents
 Instead of fighting branch switches or juggling multiple working tree clones, spawn parallel dimensions in milliseconds:
 ```bash
-# Instant CoW branches for concurrent tasks
-dft dimension create feat-auth
-dft dimension create feat-billing
-dft dimension create feat-docs
+# Instant CoW branches for concurrent tasks (using fast shortcuts or full commands)
+dft dim new feat-auth        # or: dft dimension create feat-auth
+dft dim new feat-billing     # or: dft dimension create feat-billing
+dft dim new feat-docs        # or: dft dimension create feat-docs
 
 # Verify your multiverse fleet
-dft dimension list
+dft dim ls                   # or: dft dimension list
 #   feat-auth     [clean]
 #   feat-billing  [clean]
 #   feat-docs     [clean]
@@ -484,7 +600,7 @@ Each dimension operates in complete filesystem isolation under `.dft/dimensions/
   dft claim src/auth.rs                    # Claim advisory territory
   # Edit, test, and commit locally within dimension
   dft add src/auth.rs
-  dft commit -m "feat(auth): implement JWT token verification"
+  dft ci -m "feat(auth): implement JWT token verification"
   ```
 - **Developer / Agent Beta** works on Billing concurrently:
   ```bash
@@ -492,14 +608,14 @@ Each dimension operates in complete filesystem isolation under `.dft/dimensions/
   dft claim src/billing.rs                 # Claim advisory territory
   # Edit, test, and commit locally within dimension
   dft add src/billing.rs
-  dft commit -m "feat(billing): add Stripe webhook handler"
+  dft ci -m "feat(billing): add Stripe webhook handler"
   ```
 
 ##### Step 4: Proactive Collision Check with Predictive Merge Foresight
 Before bringing changes together, verify that no conflicting hunks exist:
 ```bash
 # In-memory simulation of 3-way reconciliation without touching working code
-dft foresee feat-auth mainline
+dft predict feat-auth mainline           # or: dft foresee feat-auth mainline
 # Output:
 #   [FORESEE] Simulated 3-way merge between 'feat-auth' and 'mainline'
 #   [FORESEE] Clean auto-merge predicted: 0 conflicts detected.
@@ -510,7 +626,7 @@ dft foresee feat-auth mainline
 When parallel work is finished and verified, collapse all dimensions or converge specific features back into `mainline`:
 ```bash
 # Return to the root workspace (mainline)
-dft dimension enter mainline
+dft dim switch mainline                  # or: dft dimension enter mainline
 
 # Converge features into mainline
 dft converge feat-auth mainline
@@ -573,8 +689,8 @@ Developers frequently ask how **Draft (`dft`)** compares to **[Jujutsu (`jj`)](h
 | **Staging Model** | Explicit index (`.git/index`) | Implicit snapshotting on every command (no staging area needed) | **Per-Dimension Lock-Free Index** (`.dft/dimensions/<name>/index`) |
 | **Working Copy Concurrency** | Single checked-out `HEAD`; extra copies require `git worktree add` | Single working copy; extra copies require `jj workspace add` | **Instant CoW Parallel Workspaces** (`dft dimension create`) |
 | **Locking & Contention** | Serial `.git/index.lock` contention under parallel access | Operation log serialization; lock contention under simultaneous writes | **Lock-Free Concurrency**: Each dimension has independent index & ref locks |
-| **Conflict Resolution Philosophy** | **Blocking**: Halts mid-merge/rebase; working tree left in dirty conflict state | **Recorded in History**: Conflicts stored inside commit tree objects; resolved later | **Predictive & Autonomous**: In-memory 3-way simulation (`dft foresee`) before merge + autonomous background convergence (`dft cronos`) |
-| **Cross-Worker Telemetry** | None (workers are blind to each other) | None (workspaces operate in isolation) | **Real-Time Cross-Dimension Radar (`dft radar`)** with divergence metric $H$ |
+| **Conflict Resolution Philosophy** | **Interactive**: Halts mid-merge/rebase for manual human resolution | **Recorded in History**: Conflicts stored inside commit tree objects; resolved later | **Predictive & Autonomous**: In-memory 3-way simulation (`dft foresee`) before merge + autonomous background convergence (`dft cronos`) |
+| **Cross-Worker Telemetry** | None (designed for independent human checkouts) | None (workspaces operate in isolation) | **Real-Time Cross-Dimension Radar (`dft radar`)** with divergence metric $H$ |
 | **Collision Prevention** | None (last write wins or merge conflicts) | None | **Territory Claims (`dft claim`)** & hard barriers (`dft fence`) |
 | **History Rewriting & Undo** | Destructive; recovered via append-only reflog | Non-destructive; first-class operation log (`jj op log`, `jj undo`) | Non-destructive; Spacetime DAG, point-in-time snapshots (`dft snapshot`), and vector clocks |
 | **Upstream Interoperability** | Native standard | Git-compatible backend (`.jj/repo/store/git`) | **Zero-Intrusion Hybrid Layer**: Run `dft` locally for swarm concurrency, push standard Git commits to GitHub/GitLab |
@@ -640,7 +756,7 @@ Measuring real-world multi-agent swarm commit throughput when **10 autonomous wo
 | **Average Commit Latency per Agent** | 1,199.36 ms | 418.75 ms | **119.23 ms** | **10.1x faster** | **3.5x faster** |
 | **Lock Contention & Concurrency Model** | Serial ref locks (`.git/refs/heads/`) block parallel writes | Operation log lock serializes history updates | **Zero Lock Contention**: Independent staging indexes & branch ref locks | Minimal lock wait | Zero serialization bottleneck |
 
-> **Why Draft dominates multi-agent swarms**: Under concurrent load, Git workers contend on shared reference locks and index locks, forcing parallel agents into serialized queues (1,392 ms wall clock). Jujutsu serializes concurrent updates through its global operation log lock (537 ms wall clock). Draft gives each dimension its own isolated staging index (`.dft/dimensions/<name>/index`) and writes immutable SHA-256 CAS objects directly to loose storage pools, allowing **all 10 agents to commit simultaneously in 129.4 ms with zero lock contention**.
+> **Why Draft excels for multi-agent swarms**: Under concurrent load, Git workers contend on shared reference locks and index locks, forcing parallel agents into serialized queues (1,392 ms wall clock). Jujutsu serializes concurrent updates through its global operation log lock (537 ms wall clock). Draft gives each dimension its own isolated staging index (`.dft/dimensions/<name>/index`) and writes immutable SHA-256 CAS objects directly to loose storage pools, allowing **all 10 agents to commit simultaneously in 129.4 ms with zero lock contention**.
 
 ---
 
@@ -703,7 +819,7 @@ Draft was specifically designed to bridge this gap without sacrificing Git compa
 Draft ships with a native, standardized agent skill definition located at [**`SKILL.md`**](SKILL.md). This file equips LLM coding agents (such as Google Antigravity, Claude Code, Cursor, GitHub Copilot, and custom autonomous swarms) with the exact operational protocol, commands, and safety invariants needed to collaborate concurrently in a Draft repository.
 
 #### Why AI Agents Need `SKILL.md`
-Standard coding agents assume Git's single-working-tree model: when multiple agents run concurrently, they switch branches under each other, overwrite uncommitted files, and trigger race conditions. 
+Traditional coding agents were designed around single-working-tree workflows: if multiple agents run concurrently in the same checkout, switching branches can interfere with uncommitted files from other agents. 
 
 By reading [`SKILL.md`](SKILL.md), agents understand how to:
 1. **Never work directly in `mainline`** during active feature development.

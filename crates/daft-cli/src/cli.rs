@@ -50,10 +50,10 @@ pub enum Commands {
     #[command(about = "Add file contents to the staging index")]
     Add(AddArgs),
 
-    #[command(about = "Show the working tree and staging status")]
+    #[command(about = "Show the working tree and staging status", alias = "st")]
     Status(StatusArgs),
 
-    #[command(about = "Record staged changes to the repository")]
+    #[command(about = "Record staged changes to the repository", alias = "ci")]
     Commit(CommitArgs),
 
     #[command(about = "Reset current HEAD to the specified state")]
@@ -77,13 +77,13 @@ pub enum Commands {
     // ------------------------------------------------------------------------
     // Layer 1: Branching & Merging
     // ------------------------------------------------------------------------
-    #[command(about = "List, create, or delete branches")]
+    #[command(about = "List, create, or delete branches", alias = "br")]
     Branch(BranchArgs),
 
-    #[command(about = "Switch branches or restore working tree files")]
+    #[command(about = "Switch branches or restore working tree files", alias = "co")]
     Checkout(CheckoutArgs),
 
-    #[command(about = "Switch branches")]
+    #[command(about = "Switch branches", alias = "sw")]
     Switch(SwitchArgs),
 
     #[command(about = "Join two or more development histories together")]
@@ -104,10 +104,10 @@ pub enum Commands {
     // ------------------------------------------------------------------------
     // Layer 1: History & Inspection
     // ------------------------------------------------------------------------
-    #[command(about = "Show commit logs")]
+    #[command(about = "Show commit logs", alias = "l")]
     Log(LogArgs),
 
-    #[command(about = "Show changes between commits, commit and working tree, etc.")]
+    #[command(about = "Show changes between commits, commit and working tree, etc.", alias = "di")]
     Diff(DiffArgs),
 
     #[command(about = "Show various types of objects")]
@@ -200,7 +200,7 @@ pub enum Commands {
     // ------------------------------------------------------------------------
     // Layer 2: Multiverse, Awareness, Convergence, Sync & Agent Commands
     // ------------------------------------------------------------------------
-    #[command(about = "Manage parallel dimension workspaces")]
+    #[command(about = "Manage parallel dimension workspaces", aliases = ["dim", "dims"])]
     Dimension(DimensionArgs),
 
     #[command(about = "Manage immutable dimension snapshots")]
@@ -209,10 +209,10 @@ pub enum Commands {
     #[command(about = "Inspect other dimensions non-destructively")]
     Observe(ObserveArgs),
 
-    #[command(about = "Cross-dimension activity radar and hot-zone detection")]
+    #[command(about = "Cross-dimension activity radar and hot-zone detection", alias = "scan")]
     Radar(RadarArgs),
 
-    #[command(about = "Predict merge conflicts before merging")]
+    #[command(about = "Predict merge conflicts before merging", alias = "predict")]
     Foresee(ForeseeArgs),
 
     #[command(about = "Detect concurrently modified files across dimensions")]
@@ -920,24 +920,24 @@ pub struct DimensionArgs {
 
 #[derive(Subcommand, Debug)]
 pub enum DimensionAction {
-    #[command(about = "Create a new parallel dimension workspace")]
+    #[command(about = "Create a new parallel dimension workspace", aliases = ["new", "add"])]
     Create {
         #[arg(required = true, help = "Name of dimension")]
         name: String,
         #[arg(long = "from", help = "Source branch, tag, or commit OID")]
         from: Option<String>,
     },
-    #[command(about = "List all active dimensions")]
+    #[command(about = "List all active dimensions", alias = "ls")]
     List,
     #[command(
         about = "Switch active context to specified dimension",
-        alias = "switch"
+        aliases = ["switch", "cd"]
     )]
     Enter {
         #[arg(required = true, help = "Name of dimension to enter")]
         name: String,
     },
-    #[command(about = "Destroy dimension workspace", alias = "delete")]
+    #[command(about = "Destroy dimension workspace", aliases = ["delete", "rm"])]
     Destroy {
         #[arg(required = true, help = "Name of dimension to destroy")]
         name: String,
