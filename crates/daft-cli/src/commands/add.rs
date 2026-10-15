@@ -138,9 +138,12 @@ pub fn check_fence_violations(
 pub fn execute(args: AddArgs) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Repository::discover(&cwd)?;
-    let current_dim = repo.dimension_name()
+    let current_dim = repo
+        .dimension_name()
         .map(|s| s.to_string())
-        .unwrap_or_else(|| crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir()));
+        .unwrap_or_else(|| {
+            crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir())
+        });
 
     check_fence_violations(&repo, &args.pathspecs, args.all, &current_dim)?;
 

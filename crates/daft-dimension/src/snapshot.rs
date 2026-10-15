@@ -156,9 +156,7 @@ impl SnapshotManager {
                     #[cfg(unix)]
                     let mode = {
                         use std::os::unix::fs::PermissionsExt;
-                        let meta = entry
-                            .metadata()
-                            .map_err(std::io::Error::other)?;
+                        let meta = entry.metadata().map_err(std::io::Error::other)?;
                         if meta.permissions().mode() & 0o111 != 0 {
                             FileMode(0o100755)
                         } else {
@@ -185,7 +183,9 @@ impl SnapshotManager {
         };
 
         let trimmed_head = head_content.trim();
-        let head_ref = trimmed_head.strip_prefix("ref: ").map(|sym| sym.to_string());
+        let head_ref = trimmed_head
+            .strip_prefix("ref: ")
+            .map(|sym| sym.to_string());
 
         let commit_oid = if let Some(ref sym) = head_ref {
             repo.refs().resolve(sym).ok()

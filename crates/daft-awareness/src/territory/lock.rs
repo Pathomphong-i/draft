@@ -31,6 +31,7 @@ impl TerritoryLockGuard {
             .read(true)
             .write(true)
             .create(true)
+            .truncate(false)
             .open(&lock_path)
             .map_err(|e| AwarenessError::TerritoryLock(format!("Failed to open .lock: {}", e)))?;
 

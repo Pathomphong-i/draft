@@ -17,14 +17,12 @@ pub fn execute_entangle(args: EntangleArgs) -> Result<(), CliError> {
     let is_json = args.args.iter().any(|a| a == "--json");
     let mut i = 0;
     while i < args.args.len() {
-        if args.args[i] == "--paths" {
-            if i + 1 < args.args.len() {
-                paths = Some(args.args[i + 1].clone());
-                i += 2;
-                continue;
-            }
-        } else if args.args[i].starts_with("--paths=") {
-            paths = Some(args.args[i]["--paths=".len()..].to_string());
+        if args.args[i] == "--paths" && i + 1 < args.args.len() {
+            paths = Some(args.args[i + 1].clone());
+            i += 2;
+            continue;
+        } else if let Some(stripped) = args.args[i].strip_prefix("--paths=") {
+            paths = Some(stripped.to_string());
             i += 1;
             continue;
         } else if args.args[i] == "--json" {
@@ -182,8 +180,7 @@ pub fn execute_cronos(args: CronosArgs) -> Result<(), CliError> {
                         interval_sec = if raw.ends_with('m') { num * 60 } else { num };
                     }
                     i += 2;
-                } else if args.args[i].starts_with("--interval=") {
-                    let raw = &args.args[i]["--interval=".len()..];
+                } else if let Some(raw) = args.args[i].strip_prefix("--interval=") {
                     let trimmed = raw.trim_end_matches('s').trim_end_matches('m');
                     if let Ok(num) = trimmed.parse::<u64>() {
                         interval_sec = if raw.ends_with('m') { num * 60 } else { num };
@@ -194,8 +191,7 @@ pub fn execute_cronos(args: CronosArgs) -> Result<(), CliError> {
                         strategy = st;
                     }
                     i += 2;
-                } else if args.args[i].starts_with("--strategy=") {
-                    let raw = &args.args[i]["--strategy=".len()..];
+                } else if let Some(raw) = args.args[i].strip_prefix("--strategy=") {
                     if let Ok(st) = raw.parse::<SyncStrategy>() {
                         strategy = st;
                     }
@@ -359,8 +355,7 @@ pub fn execute_cronos(args: CronosArgs) -> Result<(), CliError> {
                         .map_err(CliError::General)?;
                     strategy_opt = Some(st);
                     i += 2;
-                } else if token.starts_with("--strategy=") {
-                    let raw = &token["--strategy=".len()..];
+                } else if let Some(raw) = token.strip_prefix("--strategy=") {
                     let st = raw.parse::<SyncStrategy>().map_err(CliError::General)?;
                     strategy_opt = Some(st);
                     i += 1;
@@ -372,8 +367,7 @@ pub fn execute_cronos(args: CronosArgs) -> Result<(), CliError> {
                     })?;
                     interval_opt = Some(if raw.ends_with('m') { num * 60 } else { num });
                     i += 2;
-                } else if token.starts_with("--interval=") {
-                    let raw = &token["--interval=".len()..];
+                } else if let Some(raw) = token.strip_prefix("--interval=") {
                     let trimmed = raw.trim_end_matches('s').trim_end_matches('m');
                     let num = trimmed.parse::<u64>().map_err(|_| {
                         CliError::General(format!("Invalid interval duration: '{}'", raw))
@@ -383,26 +377,26 @@ pub fn execute_cronos(args: CronosArgs) -> Result<(), CliError> {
                 } else if token == "--watch" && i + 1 < sub_args.len() {
                     watch_dim_opt = Some(sub_args[i + 1].clone());
                     i += 2;
-                } else if token.starts_with("--watch=") {
-                    watch_dim_opt = Some(token["--watch=".len()..].to_string());
+                } else if let Some(stripped) = token.strip_prefix("--watch=") {
+                    watch_dim_opt = Some(stripped.to_string());
                     i += 1;
                 } else if token == "--target" && i + 1 < sub_args.len() {
                     target_dim_opt = Some(sub_args[i + 1].clone());
                     i += 2;
-                } else if token.starts_with("--target=") {
-                    target_dim_opt = Some(token["--target=".len()..].to_string());
+                } else if let Some(stripped) = token.strip_prefix("--target=") {
+                    target_dim_opt = Some(stripped.to_string());
                     i += 1;
                 } else if token == "--paths" && i + 1 < sub_args.len() {
                     paths_vec.push(sub_args[i + 1].clone());
                     i += 2;
-                } else if token.starts_with("--paths=") {
-                    paths_vec.push(token["--paths=".len()..].to_string());
+                } else if let Some(stripped) = token.strip_prefix("--paths=") {
+                    paths_vec.push(stripped.to_string());
                     i += 1;
                 } else if token == "--unwatch" && i + 1 < sub_args.len() {
                     unwatch_dim_opt = Some(sub_args[i + 1].clone());
                     i += 2;
-                } else if token.starts_with("--unwatch=") {
-                    unwatch_dim_opt = Some(token["--unwatch=".len()..].to_string());
+                } else if let Some(stripped) = token.strip_prefix("--unwatch=") {
+                    unwatch_dim_opt = Some(stripped.to_string());
                     i += 1;
                 } else if token == "--reset-watch" || token == "--clear-watch" || token == "--clear"
                 {
@@ -421,8 +415,7 @@ pub fn execute_cronos(args: CronosArgs) -> Result<(), CliError> {
                 } else if token == "--no-auto-entangle" {
                     auto_entangle_opt = Some(false);
                     i += 1;
-                } else if token.starts_with("--auto-entangle=") {
-                    let val = &token["--auto-entangle=".len()..];
+                } else if let Some(val) = token.strip_prefix("--auto-entangle=") {
                     auto_entangle_opt = Some(val == "true" || val == "1");
                     i += 1;
                 } else if token == "--json" {

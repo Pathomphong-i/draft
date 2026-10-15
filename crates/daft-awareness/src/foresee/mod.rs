@@ -11,7 +11,7 @@ use daft_dimension::DimensionRepository;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::ops::Range;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -350,7 +350,7 @@ impl ForeseeSubsystem {
 
     /// Checks if two sets of diff hunks intersect on base line ranges.
     fn detect_overlapping_hunks(
-        path: &PathBuf,
+        path: &Path,
         hunks1: &[DiffHunk],
         hunks2: &[DiffHunk],
     ) -> Vec<ConflictHunk> {
@@ -369,19 +369,16 @@ impl ForeseeSubsystem {
                     overlap_start <= overlap_end
                 };
 
-                if is_overlapping {
-                    // Check if replacement lines are identical
-                    if h1.inserted_lines != h2.inserted_lines {
-                        conflicts.push(ConflictHunk {
-                            path: path.clone(),
-                            conflict_type: ConflictType::TextOverlap,
-                            base_range: overlap_start..overlap_end.max(overlap_start) + 1,
-                            ours_range: h1.new_start..h1.new_end + 1,
-                            theirs_range: h2.new_start..h2.new_end + 1,
-                            ours_lines: h1.inserted_lines.clone(),
-                            theirs_lines: h2.inserted_lines.clone(),
-                        });
-                    }
+                if is_overlapping && h1.inserted_lines != h2.inserted_lines {
+                    conflicts.push(ConflictHunk {
+                        path: path.to_path_buf(),
+                        conflict_type: ConflictType::TextOverlap,
+                        base_range: overlap_start..overlap_end.max(overlap_start) + 1,
+                        ours_range: h1.new_start..h1.new_end + 1,
+                        theirs_range: h2.new_start..h2.new_end + 1,
+                        ours_lines: h1.inserted_lines.clone(),
+                        theirs_lines: h2.inserted_lines.clone(),
+                    });
                 }
             }
         }

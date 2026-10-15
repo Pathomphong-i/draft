@@ -32,7 +32,9 @@ pub fn execute(args: CommitArgs, quiet: bool) -> Result<(), CliError> {
     let current_dim = repo
         .dimension_name()
         .map(|s| s.to_string())
-        .unwrap_or_else(|| crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir()));
+        .unwrap_or_else(|| {
+            crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir())
+        });
 
     // Check fences
     for entry in index.entries() {
@@ -128,8 +130,7 @@ pub fn execute(args: CommitArgs, quiet: bool) -> Result<(), CliError> {
         let meta_path = dim_dir.join("meta.json");
         if meta_path.exists() {
             if let Ok(mut val) = fs::read_to_string(&meta_path).and_then(|s| {
-                serde_json::from_str::<serde_json::Value>(&s)
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+                serde_json::from_str::<serde_json::Value>(&s).map_err(std::io::Error::other)
             }) {
                 val["head_commit"] = serde_json::Value::String(commit_oid.to_hex());
                 let _ = fs::write(

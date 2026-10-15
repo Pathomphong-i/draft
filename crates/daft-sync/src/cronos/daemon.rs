@@ -93,6 +93,7 @@ impl DaemonManager {
             .read(true)
             .write(true)
             .create(true)
+            .truncate(false)
             .open(&lock_path)?;
 
         #[cfg(unix)]

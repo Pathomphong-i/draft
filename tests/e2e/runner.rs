@@ -41,19 +41,15 @@ fn parse_args() -> RunnerConfig {
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
-            "--tier" => {
-                if i + 1 < args.len() {
-                    i += 1;
-                    if let Ok(t) = args[i].parse::<u8>() {
-                        config.tier = Some(t);
-                    }
+            "--tier" if i + 1 < args.len() => {
+                i += 1;
+                if let Ok(t) = args[i].parse::<u8>() {
+                    config.tier = Some(t);
                 }
             }
-            "--filter" => {
-                if i + 1 < args.len() {
-                    i += 1;
-                    config.filter = Some(args[i].clone());
-                }
+            "--filter" if i + 1 < args.len() => {
+                i += 1;
+                config.filter = Some(args[i].clone());
             }
             "--verbose" | "-v" => {
                 config.verbose = true;
@@ -61,11 +57,9 @@ fn parse_args() -> RunnerConfig {
             "--verify" | "--dry-run" => {
                 config.verify_only = true;
             }
-            "--dft-bin" => {
-                if i + 1 < args.len() {
-                    i += 1;
-                    config.dft_bin = Some(args[i].clone());
-                }
+            "--dft-bin" if i + 1 < args.len() => {
+                i += 1;
+                config.dft_bin = Some(args[i].clone());
             }
             "--help" | "-h" => {
                 print_help();

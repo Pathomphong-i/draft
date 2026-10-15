@@ -62,10 +62,14 @@ pub fn test_agent_broadcast_and_inbox() {
     let bcast = env.dft(&["agent", "broadcast", "Coordinate: refactoring core modules"]);
     bcast.assert_success();
 
-    let inbox = env.dft(&["agent", "inbox", "agent-receiver"]);
+    let direct = env.dft(&["agent", "send", "agent-receiver", "Direct ping from sender"]);
+    direct.assert_success();
+
+    let inbox = env.dft(&["agent", "read", "agent-receiver"]);
     inbox.assert_success();
     if !env.is_dry_run {
         inbox.assert_output_contains("Coordinate: refactoring core modules");
+        inbox.assert_output_contains("Direct ping from sender");
     }
 }
 

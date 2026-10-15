@@ -18,13 +18,17 @@ use daft_core::Repository;
 use std::env;
 use std::sync::Arc;
 
-pub fn execute(args: TimelineArgs) -> Result<(), CliError> {
+pub fn execute(args: TimelineArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
 
-    let is_export = args.format.is_some()
+    let is_export = json
+        || args.format.is_some()
         || args.dimension.as_deref() == Some("export")
-        || args.args.iter().any(|s| s == "export" || s == "--format" || s.starts_with("--format="));
+        || args
+            .args
+            .iter()
+            .any(|s| s == "export" || s == "--format" || s.starts_with("--format="));
 
     if is_export {
         let mut fmt = args.format;
@@ -34,8 +38,8 @@ pub fn execute(args: TimelineArgs) -> Result<(), CliError> {
                 if (args.args[i] == "--format" || args.args[i] == "-f") && i + 1 < args.args.len() {
                     fmt = Some(args.args[i + 1].clone());
                     break;
-                } else if args.args[i].starts_with("--format=") {
-                    fmt = Some(args.args[i]["--format=".len()..].to_string());
+                } else if let Some(stripped) = args.args[i].strip_prefix("--format=") {
+                    fmt = Some(stripped.to_string());
                     break;
                 }
                 i += 1;

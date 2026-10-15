@@ -68,7 +68,7 @@ impl EntangleEngine {
 
         // Remove previous links between these two dimensions
         rules.retain(|r| {
-            !((&r.dim1 == dim1 && &r.dim2 == dim2) || (&r.dim1 == dim2 && &r.dim2 == dim1))
+            !((r.dim1 == dim1 && r.dim2 == dim2) || (r.dim1 == dim2 && r.dim2 == dim1))
         });
 
         rules.push(new_rule.clone());
@@ -86,7 +86,7 @@ impl EntangleEngine {
         let initial_len = rules.len();
 
         rules.retain(|r| {
-            !((&r.dim1 == dim1 && &r.dim2 == dim2) || (&r.dim1 == dim2 && &r.dim2 == dim1))
+            !((r.dim1 == dim1 && r.dim2 == dim2) || (r.dim1 == dim2 && r.dim2 == dim1))
         });
 
         if rules.len() != initial_len {

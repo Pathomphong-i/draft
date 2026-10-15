@@ -1,16 +1,17 @@
 //! Adversarial Concurrency & CAS Integrity Stress Tests (Challenger M3).
+#![allow(clippy::doc_lazy_continuation)]
 //!
 //! Rigorously verifies:
 //! 1. Intra-dimension lock mutual exclusion:
-//!    - Multi-threaded lock contention: simultaneous `try_acquire` rejects competing agents with accurate holder metadata.
-//!    - Timed blocking acquisition serialization: zero race conditions or lost updates under high-concurrency counter increments.
-//!    - Timeout boundary mechanics: sub-timeout fails, super-timeout succeeds after holder releases.
-//!    - Stale metadata crash recovery: unheld lock file with stale metadata is immediately overwritten.
+//!   - Multi-threaded lock contention: simultaneous `try_acquire` rejects competing agents with accurate holder metadata.
+//!   - Timed blocking acquisition serialization: zero race conditions or lost updates under high-concurrency counter increments.
+//!   - Timeout boundary mechanics: sub-timeout fails, super-timeout succeeds after holder releases.
+//!   - Stale metadata crash recovery: unheld lock file with stale metadata is immediately overwritten.
 //! 2. Cross-dimension concurrency:
-//!    - 10+ parallel agents committing simultaneously across isolated dimensions.
-//!    - Zero lock contention between distinct dimensions (measured acquisition latency < 100ms).
-//!    - Zero blocking across dimensions.
-//!    - 100% cryptographic CAS object store integrity under concurrent writes (loose objects verified with SHA-256).
+//!   - 10+ parallel agents committing simultaneously across isolated dimensions.
+//!   - Zero lock contention between distinct dimensions (measured acquisition latency < 100ms).
+//!   - Zero blocking across dimensions.
+//!   - 100% cryptographic CAS object store integrity under concurrent writes (loose objects verified with SHA-256).
 
 use daft_core::cas::{ObjectId, ObjectType, RawObject};
 use daft_core::init::{init, InitOptions};

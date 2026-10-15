@@ -606,7 +606,8 @@ fn test_challenger_cli_outside_repo_fails_cleanly() {
             cmd
         );
         assert!(
-            res.stderr.contains("Not a Draft repository") || res.stderr.contains("Not a Daft repository"),
+            res.stderr.contains("Not a Draft repository")
+                || res.stderr.contains("Not a Daft repository"),
             "dft {:?} stderr should mention 'Not a Draft repository', got: {}",
             cmd,
             res.stderr

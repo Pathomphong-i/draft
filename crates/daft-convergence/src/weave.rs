@@ -96,7 +96,7 @@ impl WeaveEngine {
         let mut all_commits: Vec<(String, ObjectId, Commit)> = Vec::new();
         let mut seen = HashSet::new();
 
-        for (d, oid) in s1.into_iter().chain(s2.into_iter()) {
+        for (d, oid) in s1.into_iter().chain(s2) {
             if seen.insert(oid) {
                 if let Ok(raw) = self.repo.cas().read_raw(&oid) {
                     if let Ok(commit) = Commit::deserialize(&raw.data) {

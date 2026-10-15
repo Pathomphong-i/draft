@@ -5,7 +5,8 @@ use crate::cli::{
 use crate::error::CliError;
 use crate::output::print_output;
 use daft_awareness::{
-    EntropySubsystem, ForeseeSubsystem, ObserveSubsystem, RadarSubsystem, TerritoryManager,
+    parse_ttl_string, EntropySubsystem, ForeseeSubsystem, ObserveSubsystem, RadarSubsystem,
+    TerritoryManager,
 };
 use daft_core::diff::format_unified_diff;
 use daft_core::Repository;
@@ -19,7 +20,7 @@ use std::sync::Arc;
 // Observe
 // ----------------------------------------------------------------------------
 
-pub fn execute_observe(args: ObserveArgs) -> Result<(), CliError> {
+pub fn execute_observe(args: ObserveArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let observe = ObserveSubsystem::new(Arc::clone(&repo));
@@ -43,7 +44,20 @@ pub fn execute_observe(args: ObserveArgs) -> Result<(), CliError> {
             let patches = observe
                 .diff(dim1, dim2, filter)
                 .map_err(|e| CliError::General(e.to_string()))?;
-            print!("{}", format_unified_diff(&patches));
+            let diff_text = format_unified_diff(&patches);
+            if json {
+                print_output(
+                    true,
+                    &serde_json::json!({
+                        "dim1": dim1,
+                        "dim2": dim2,
+                        "diff": diff_text,
+                    }),
+                    "",
+                );
+            } else {
+                print!("{}", diff_text);
+            }
         }
         "log" => {
             if args.args.len() < 2 {
@@ -53,7 +67,20 @@ pub fn execute_observe(args: ObserveArgs) -> Result<(), CliError> {
             let entries = observe
                 .log(dim, None)
                 .map_err(|e| CliError::General(e.to_string()))?;
-            if entries.is_empty() {
+            if json {
+                let items: Vec<serde_json::Value> = entries
+                    .iter()
+                    .map(|e| {
+                        serde_json::json!({
+                            "oid": e.oid.to_hex(),
+                            "author_name": e.author.name,
+                            "author_email": e.author.email,
+                            "message": e.message.trim(),
+                        })
+                    })
+                    .collect();
+                print_output(true, &items, "");
+            } else if entries.is_empty() {
                 println!("No commits in dimension '{}'", dim);
             } else {
                 for entry in entries {
@@ -74,7 +101,9 @@ pub fn execute_observe(args: ObserveArgs) -> Result<(), CliError> {
                 .status(dim)
                 .map_err(|e| CliError::General(e.to_string()))?;
 
-            if report.is_clean {
+            if json {
+                print_output(true, &report, "");
+            } else if report.is_clean {
                 println!(
                     "nothing to commit, working tree clean in dimension '{}'",
                     dim
@@ -120,7 +149,20 @@ pub fn execute_observe(args: ObserveArgs) -> Result<(), CliError> {
                     }
                     other => CliError::General(other.to_string()),
                 })?;
-            print!("{}", String::from_utf8_lossy(&bytes));
+            let content = String::from_utf8_lossy(&bytes);
+            if json {
+                print_output(
+                    true,
+                    &serde_json::json!({
+                        "dimension": dim,
+                        "path": rel_file,
+                        "content": content,
+                    }),
+                    "",
+                );
+            } else {
+                print!("{}", content);
+            }
         }
     }
 
@@ -199,7 +241,7 @@ pub fn execute_radar(args: RadarArgs, json: bool) -> Result<(), CliError> {
 // Foresee & Overlap & Entropy
 // ----------------------------------------------------------------------------
 
-pub fn execute_foresee(args: ForeseeArgs) -> Result<(), CliError> {
+pub fn execute_foresee(args: ForeseeArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let foresee = ForeseeSubsystem::new(Arc::clone(&repo));
@@ -213,6 +255,11 @@ pub fn execute_foresee(args: ForeseeArgs) -> Result<(), CliError> {
     let report = foresee
         .predict(&dim1, &dim2)
         .map_err(|e| CliError::General(e.to_string()))?;
+
+    if json {
+        print_output(true, &report, "");
+        return Ok(());
+    }
 
     if report.has_conflicts {
         println!(
@@ -232,7 +279,7 @@ pub fn execute_foresee(args: ForeseeArgs) -> Result<(), CliError> {
     Ok(())
 }
 
-pub fn execute_overlap(_args: OverlapArgs) -> Result<(), CliError> {
+pub fn execute_overlap(_args: OverlapArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let radar = RadarSubsystem::new(Arc::clone(&repo));
@@ -240,6 +287,11 @@ pub fn execute_overlap(_args: OverlapArgs) -> Result<(), CliError> {
     let report = radar
         .scan(2)
         .map_err(|e| CliError::General(e.to_string()))?;
+
+    if json {
+        print_output(true, &report.hot_zones, "");
+        return Ok(());
+    }
 
     for act in &report.hot_zones {
         println!(
@@ -252,16 +304,42 @@ pub fn execute_overlap(_args: OverlapArgs) -> Result<(), CliError> {
     Ok(())
 }
 
-pub fn execute_entropy(args: EntropyArgs) -> Result<(), CliError> {
+pub fn execute_entropy(args: EntropyArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let entropy = EntropySubsystem::new(Arc::clone(&repo));
+    let dim_mgr = DimensionManager::new(Arc::clone(&repo));
+
+    let current = dim_mgr.current_dimension_name();
+    let default_dim1 = if current != "mainline" {
+        current
+    } else {
+        dim_mgr
+            .list_dimensions()
+            .ok()
+            .and_then(|list| {
+                list.into_iter()
+                    .find(|d| d.name != "mainline")
+                    .map(|d| d.name)
+            })
+            .unwrap_or_else(|| "mainline".to_string())
+    };
+
+    let dim1 = args.dim1.unwrap_or(default_dim1);
+    let dim2 = args.dim2.unwrap_or_else(|| "mainline".to_string());
 
     let metrics = entropy
-        .calculate(&args.dim1, &args.dim2)
+        .calculate(&dim1, &dim2)
         .map_err(|e| CliError::General(e.to_string()))?;
 
-    println!("entropy: {:.2}", metrics.total_entropy);
+    if json {
+        print_output(true, &metrics, "");
+    } else {
+        println!(
+            "entropy: {:.2} (risk: {}, action: {})",
+            metrics.total_entropy, metrics.risk_tier, metrics.recommended_action
+        );
+    }
     Ok(())
 }
 
@@ -281,7 +359,7 @@ pub struct TerritoryJsonOutput {
     pub fences: Vec<String>,
 }
 
-pub fn execute_claim(args: ClaimArgs) -> Result<(), CliError> {
+pub fn execute_claim(args: ClaimArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Repository::discover(&cwd)?;
     let dim_mgr = DimensionManager::new(Arc::new(Repository::discover(&cwd)?));
@@ -289,39 +367,106 @@ pub fn execute_claim(args: ClaimArgs) -> Result<(), CliError> {
         .dimension
         .unwrap_or_else(|| dim_mgr.current_dimension_name());
 
+    let ttl_secs = match &args.ttl {
+        Some(raw) => Some(parse_ttl_string(raw).map_err(|e| CliError::General(e.to_string()))?),
+        None => None,
+    };
+
+    let env_agent = env::var("DFT_AGENT_NAME").ok();
+    let agent_id = args.agent.as_deref().or(env_agent.as_deref());
+
     let territory_mgr = TerritoryManager::new(repo.dft_dir());
-    territory_mgr
-        .claim(&args.path, &claiming_dim, None, None, false)
+    let claim = territory_mgr
+        .claim(
+            &args.path,
+            &claiming_dim,
+            agent_id,
+            ttl_secs,
+            args.exclusive,
+        )
         .map_err(|e| CliError::General(e.to_string()))?;
 
-    println!("Claimed path: {} for dimension {}", args.path, claiming_dim);
+    if json {
+        print_output(true, &claim, "");
+    } else {
+        println!("Claimed path: {} for dimension {}", args.path, claiming_dim);
+    }
     Ok(())
 }
 
-pub fn execute_yield(args: YieldArgs) -> Result<(), CliError> {
+pub fn execute_yield(args: YieldArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Repository::discover(&cwd)?;
     let territory_mgr = TerritoryManager::new(repo.dft_dir());
 
-    territory_mgr
-        .yield_path(&args.path, None, None)
-        .map_err(|e| CliError::General(e.to_string()))?;
+    let released = if args.all {
+        territory_mgr
+            .yield_all()
+            .map_err(|e| CliError::General(e.to_string()))?
+    } else if let Some(ref p) = args.path {
+        territory_mgr
+            .yield_path(p, args.agent.as_deref(), args.dimension.as_deref())
+            .map_err(|e| CliError::General(e.to_string()))?
+    } else if let Some(ref ag) = args.agent {
+        territory_mgr
+            .yield_agent(ag, args.dimension.as_deref())
+            .map_err(|e| CliError::General(e.to_string()))?
+    } else {
+        return Err(CliError::General(
+            "Usage: dft yield <path> | dft yield --all | dft yield --agent <id>".into(),
+        ));
+    };
 
-    println!("Yielded claim on {}", args.path);
+    if json {
+        print_output(true, &released, "");
+    } else if let Some(ref p) = args.path {
+        println!("Yielded claim on {}", p);
+    } else {
+        println!("Yielded {} claims", released.len());
+    }
     Ok(())
 }
 
-pub fn execute_fence(args: FenceArgs) -> Result<(), CliError> {
+pub fn execute_fence(args: FenceArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Repository::discover(&cwd)?;
     let territory_mgr = TerritoryManager::new(repo.dft_dir());
+
+    if args.unfence {
+        let removed = territory_mgr
+            .unfence(&args.path)
+            .map_err(|e| CliError::General(e.to_string()))?;
+        if json {
+            print_output(true, &removed, "");
+        } else {
+            println!("Removed fence on: {}", args.path);
+        }
+        return Ok(());
+    }
+
     let current_dim = crate::commands::layer2::dimension::get_current_dimension(repo.dft_dir());
+    let owner_dim = args.dimension.as_deref().unwrap_or(&current_dim);
+    let ttl_secs = match &args.ttl {
+        Some(raw) => Some(parse_ttl_string(raw).map_err(|e| CliError::General(e.to_string()))?),
+        None => None,
+    };
 
-    territory_mgr
-        .fence(&args.path, Some(&current_dim), None, args.hard, None, None)
+    let fence = territory_mgr
+        .fence(
+            &args.path,
+            Some(owner_dim),
+            args.agent.as_deref(),
+            args.hard,
+            ttl_secs,
+            args.reason.as_deref(),
+        )
         .map_err(|e| CliError::General(e.to_string()))?;
 
-    println!("Fenced path: {}", args.path);
+    if json {
+        print_output(true, &fence, "");
+    } else {
+        println!("Fenced path: {}", args.path);
+    }
     Ok(())
 }
 
@@ -336,12 +481,16 @@ pub fn execute_territory(args: TerritoryArgs, json: bool) -> Result<(), CliError
         let report = territory_mgr
             .audit(fix)
             .map_err(|e| CliError::General(e.to_string()))?;
-        println!(
-            "Territory audit complete: {} violations found.",
-            report.violations.len()
-        );
-        for v in &report.violations {
-            println!("  [VIOLATION] {}", v.message);
+        if json {
+            print_output(true, &report, "");
+        } else {
+            println!(
+                "Territory audit complete: {} violations found.",
+                report.violations.len()
+            );
+            for v in &report.violations {
+                println!("  [VIOLATION] {}", v.message);
+            }
         }
         return Ok(());
     }

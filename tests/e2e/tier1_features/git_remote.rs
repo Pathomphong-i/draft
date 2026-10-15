@@ -15,8 +15,12 @@ pub fn test_git_export_basic() {
     env.dft(&["commit", "-m", "exportable commit"])
         .assert_success();
 
-    let res = env.dft(&["export", "git"]);
+    let res = env.dft(&["export", "git", "exported_out"]);
     res.assert_success();
+    if !env.is_dry_run {
+        assert!(env.file_exists(".dft/git_map"));
+        assert_eq!(env.read_file("exported_out/file.txt"), "content");
+    }
 }
 
 pub fn test_git_export_specific_dimension() {
@@ -31,15 +35,26 @@ pub fn test_git_export_specific_dimension() {
 pub fn test_git_import_preserves_history() {
     let env = TestEnv::new("git_import_history");
     env.dft(&["init"]).assert_success();
-    let res = env.dft(&["import", "git", "--help"]);
+    env.write_file("ext_src/imported.txt", "imported payload");
+    let res = env.dft(&["import", "git", "ext_src"]);
     res.assert_success();
+    if !env.is_dry_run {
+        assert!(env.file_exists(".dft/git_map"));
+    }
 }
 
 pub fn test_git_compat_bridge_command() {
     let env = TestEnv::new("git_compat_bridge");
     env.dft(&["init"]).assert_success();
-    let res = env.dft(&["compat", "git-bridge", "--help"]);
+    env.write_file("bridge.txt", "bridge data");
+    env.dft(&["add", "bridge.txt"]).assert_success();
+    env.dft(&["commit", "-m", "bridge commit"]).assert_success();
+    let res = env.dft(&["compat", "git-bridge"]);
     res.assert_success();
+    if !env.is_dry_run {
+        res.assert_output_contains("operational");
+        assert!(env.file_exists(".dft/git_map"));
+    }
 }
 
 pub fn test_git_map_translation_lookup() {
@@ -50,6 +65,11 @@ pub fn test_git_map_translation_lookup() {
     env.dft(&["commit", "-m", "sample commit"]).assert_success();
     let res = env.dft(&["export", "git"]);
     res.assert_success();
+    if !env.is_dry_run {
+        let map_content = env.read_file(".dft/git_map");
+        assert!(map_content.contains("dft_to_git"));
+        assert!(map_content.contains("git_to_dft"));
+    }
 }
 
 // ============================================================================
@@ -108,6 +128,13 @@ pub fn test_bundle_create_and_verify() {
     env.write_file("b.txt", "b");
     env.dft(&["add", "b.txt"]).assert_success();
     env.dft(&["commit", "-m", "b"]).assert_success();
-    let res = env.dft(&["bundle", "--help"]);
-    res.assert_success();
+    let bundle_path = env.root.join("repo.bundle");
+    let bundle_str = bundle_path.to_string_lossy().to_string();
+    let create_res = env.dft(&["bundle", "create", &bundle_str]);
+    create_res.assert_success();
+    let verify_res = env.dft(&["bundle", "verify", &bundle_str]);
+    verify_res.assert_success();
+    if !env.is_dry_run {
+        verify_res.assert_output_contains("is valid");
+    }
 }

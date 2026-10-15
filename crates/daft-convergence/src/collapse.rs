@@ -14,21 +14,11 @@ use std::fs;
 use std::sync::Arc;
 use walkdir::WalkDir;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CollapseOptions {
     pub into: Option<String>,
     pub strategy: Option<MergeStrategy>,
     pub message: Option<String>,
-}
-
-impl Default for CollapseOptions {
-    fn default() -> Self {
-        Self {
-            into: None,
-            strategy: None,
-            message: None,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

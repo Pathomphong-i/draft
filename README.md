@@ -701,7 +701,7 @@ Developers frequently ask how **Draft (`dft`)** compares to **[Jujutsu (`jj`)](h
 
 All benchmarks below were executed on Apple Silicon running macOS Darwin 25 with APFS (Apple File System). The benchmark environment measured raw wall-clock latency (using monotonic nanosecond timers), actual filesystem physical block allocation (`du -sk`), Darwin kernel process resource metrics (`/usr/bin/time -l`), and multi-agent concurrency throughput across repositories with **1,000 tracked files** spanning nested directory hierarchies.
 
-Tool versions tested: **Git 2.39+**, **Jujutsu (`jj`) 0.45.1**, and **Draft (`dft`) 0.1.0**.
+Tool versions tested: **Git 2.39+**, **Jujutsu (`jj`) 0.45.1**, and **Draft (`dft`) 0.2.3**.
 
 ---
 
@@ -1042,13 +1042,14 @@ dft push origin agent-quantum
 | `dft dimension enter <name>` | Parallel Workspace | Shift active shell context to another dimension |
 | `dft dimension destroy <name>`| Parallel Workspace | Tear down dimension while preserving CAS objects |
 | `dft snapshot` | Workspace Snapshot | Capture immutable point-in-time state across dimensions |
-| `dft observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state without checking it out |
-| `dft radar [--hot]` | Real-Time Telemetry | Detect concurrently edited files and collision hot zones |
+| `dft observe <dim> [path]` | Non-destructive Inspection | Read another dimension's state, diff, log, or status without checkout |
+| `dft radar [--hot] [--watch]` | Real-Time Telemetry | Detect concurrently edited files, hot zones, and stream live events |
 | `dft foresee <dim1> <dim2>` | Predictive Merge | Simulate 3-way tree reconciliation in memory before merging |
-| `dft entropy` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \in [0.0, 1.0]$ |
-| `dft claim <path>` | Territory Protocol | Acquire advisory file lease with TTL |
-| `dft yield <path>` | Territory Protocol | Release an active territory claim |
-| `dft fence <path>` | Territory Protocol | Erect hard modification barrier across all dimensions |
+| `dft overlap <dim1> <dim2>` | Collision Analysis | Inspect file and line-range overlap between two dimensions |
+| `dft entropy [dim1] [dim2]` | Divergence Metric | Compute weighted divergence score $H(D_1, D_2) \in [0.0, 1.0]$ across dimensions |
+| `dft claim <path> [--ttl]` | Territory Protocol | Acquire advisory or `--exclusive` file lease with TTL and `--agent` |
+| `dft yield [<path> \| --all]` | Territory Protocol | Release an active territory claim or `--all` claims |
+| `dft fence <path> [--unfence]`| Territory Protocol | Erect or remove hard modification barriers across dimensions |
 | `dft collapse` | Convergence Engine | Reconcile all active parallel dimensions back into mainline |
 | `dft converge <d1> <d2>` | Convergence Engine | Multi-head 3-way reconciliation of specific dimensions |
 | `dft cascade <d1> --to <d2>`| Convergence Engine | Propagate updates down a chain of dependent dimensions |
@@ -1056,23 +1057,28 @@ dft push origin agent-quantum
 | `dft splice <dim> <range>` | Convergence Engine | Transplant a commit slice between dimensions |
 | `dft entangle <d1> <d2>` | Entanglement Engine | Continuous bi-directional file auto-synchronization rule |
 | `dft cronos start/stop/log` | Background Sync | Autonomous background 3-way convergence daemon |
-| `dft agent register/list` | Multi-Agent Swarm | Register AI/human worker identities and roles |
-| `dft agent send/read` | Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |
+| `dft agent register/list/info`| Multi-Agent Swarm | Register AI/human worker identities, roles, and inspect metadata |
+| `dft agent send/read/mark-read`| Multi-Agent Swarm | Asynchronous Maildir-style agent communication queue |
 | `dft heartbeat` | Multi-Agent Swarm | Agent liveness monitor to prevent abandoned locks |
 | `dft timeline` | DAG Visualizer | Export spacetime DAG in ASCII, SVG, DOT, or JSON |
 | `dft ui [--port 3333]` | Web Platform | Launch the DraftMultiverse self-hosted web platform |
 | `dft remote / push / pull` | Decentralized Sync | Synchronize with headless DraftMultiverse remotes |
+| `dft bundle` | Portable Archives | Create, verify, list-heads, and unbundle binary CAS archives |
+| `dft export / import / compat`| Git Interoperability | Bidirectional Git tree export/import and SHA-256 $\leftrightarrow$ Git hash lookup |
 
 ---
 
 ## 🤝 Contributing & Community
 
-Draft is an open-source project welcoming developers, systems programmers, and AI researchers:
+Draft is an open-source project welcoming developers, systems programmers, and AI researchers. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for architecture guidelines, coding standards, and pull request checklists.
 
 ### Development Workflow
 ```bash
 # Run the complete test suite across all crates
 cargo test --workspace
+
+# Run the 169-test E2E CLI suite
+cargo test --test tier1_runner
 
 # Run targeted stress and adversarial tests
 cargo test -p daft-core

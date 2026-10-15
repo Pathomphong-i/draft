@@ -58,16 +58,16 @@ impl TerritoryManager {
                     continue;
                 }
 
-                if patterns_overlap(&existing.path_glob, path_glob) {
-                    if exclusive || existing.exclusive {
-                        return Err(AwarenessError::TerritoryConflict(format!(
-                            "Path '{}' conflicts with active claim '{}' held by dimension '{}' (agent: {:?})",
-                            path_glob,
-                            existing.id,
-                            existing.dimension,
-                            existing.agent_id
-                        )));
-                    }
+                if patterns_overlap(&existing.path_glob, path_glob)
+                    && (exclusive || existing.exclusive)
+                {
+                    return Err(AwarenessError::TerritoryConflict(format!(
+                        "Path '{}' conflicts with active claim '{}' held by dimension '{}' (agent: {:?})",
+                        path_glob,
+                        existing.id,
+                        existing.dimension,
+                        existing.agent_id
+                    )));
                 }
             }
         }

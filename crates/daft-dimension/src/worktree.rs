@@ -32,12 +32,42 @@ impl DimensionRepository {
     ) -> Result<Self, DimensionError> {
         let dft_dir = repo.dft_dir();
 
-        let (workdir, index_path, head_path) = if dimension_name == "mainline" {
+        let current_dim = {
+            let file = dft_dir.join("current_dimension");
+            if let Ok(c) = fs::read_to_string(file) {
+                let trimmed = c.trim();
+                if !trimmed.is_empty() {
+                    trimmed.to_string()
+                } else {
+                    "mainline".to_string()
+                }
+            } else {
+                "mainline".to_string()
+            }
+        };
+
+        let (workdir, index_path, head_path) = if dimension_name == current_dim {
             let wd = repo
                 .workdir()
                 .map(|p| p.to_path_buf())
                 .unwrap_or_else(|| dft_dir.to_path_buf());
-            (wd, repo.index_path(), dft_dir.join("HEAD"))
+            let hp = if dimension_name == "mainline" {
+                dft_dir.join("HEAD")
+            } else {
+                let dim_dir = dft_dir.join("dimensions").join(dimension_name);
+                if !dim_dir.exists() {
+                    return Err(DimensionError::NotFound(dimension_name.to_string()));
+                }
+                dim_dir.join("HEAD")
+            };
+            (wd, repo.index_path(), hp)
+        } else if dimension_name == "mainline" {
+            let mainline_dir = dft_dir.join("dimensions").join("mainline");
+            (
+                mainline_dir.join("workspace"),
+                mainline_dir.join("index"),
+                dft_dir.join("HEAD"),
+            )
         } else {
             let dim_dir = dft_dir.join("dimensions").join(dimension_name);
             if !dim_dir.exists() {

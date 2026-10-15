@@ -45,7 +45,7 @@ impl DaftIgnore {
 
         for pattern in &self.patterns {
             let pat = pattern.trim_end_matches('/');
-            if parts.iter().any(|&part| part == pat) {
+            if parts.contains(&pat) {
                 return true;
             }
             if clean == pat || clean.starts_with(&format!("{}/", pat)) {

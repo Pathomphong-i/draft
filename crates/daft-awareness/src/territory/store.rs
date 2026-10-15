@@ -83,7 +83,7 @@ impl TerritoryStore {
                 }
             }
         }
-        claims.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+        claims.sort_by_key(|a| a.created_at);
         Ok(claims)
     }
 
@@ -139,7 +139,7 @@ impl TerritoryStore {
                 }
             }
         }
-        fences.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+        fences.sort_by_key(|a| a.created_at);
         Ok(fences)
     }
 

@@ -17,7 +17,8 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
         Ok(r) => r,
         Err(_) => {
             return Err(CliError::General(
-                "Fatal: not inside a Draft repository. Run 'draft init' or 'dft init' first.".into(),
+                "Fatal: not inside a Draft repository. Run 'draft init' or 'dft init' first."
+                    .into(),
             ));
         }
     };
@@ -27,7 +28,11 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| repo.dft_dir().to_path_buf());
 
-    let host = if args.host.is_empty() { "127.0.0.1" } else { &args.host };
+    let host = if args.host.is_empty() {
+        "127.0.0.1"
+    } else {
+        &args.host
+    };
     let port = args.port;
     let listener = match TcpListener::bind(format!("{}:{}", host, port)) {
         Ok(l) => l,
@@ -57,7 +62,9 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
         #[cfg(target_os = "linux")]
         let _ = Command::new("xdg-open").arg(&server_url).spawn();
         #[cfg(target_os = "windows")]
-        let _ = Command::new("cmd").args(["/C", "start", &server_url]).spawn();
+        let _ = Command::new("cmd")
+            .args(["/C", "start", &server_url])
+            .spawn();
     }
 
     let exe_path = env::current_exe().unwrap_or_else(|_| PathBuf::from("draft"));
@@ -83,7 +90,10 @@ pub fn execute(args: UiArgs) -> Result<(), CliError> {
 fn get_active_dimension(repo_root: &Path) -> String {
     let cur_file = repo_root.join(".dft").join("current_dimension");
     if cur_file.exists() {
-        fs::read_to_string(cur_file).unwrap_or_else(|_| "mainline".into()).trim().to_string()
+        fs::read_to_string(cur_file)
+            .unwrap_or_else(|_| "mainline".into())
+            .trim()
+            .to_string()
     } else {
         "mainline".into()
     }
@@ -113,7 +123,16 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
 
     if (method == "GET" || method == "HEAD") && (path_part == "/" || path_part == "/index.html") {
         let html = render_dashboard_html(repo_root);
-        send_response(&mut stream, 200, "text/html; charset=utf-8", if method == "HEAD" { &[] } else { html.as_bytes() });
+        send_response(
+            &mut stream,
+            200,
+            "text/html; charset=utf-8",
+            if method == "HEAD" {
+                &[]
+            } else {
+                html.as_bytes()
+            },
+        );
     } else if method == "GET" && path_part == "/api/state" {
         let state_json = get_repository_state_json(repo_root);
         send_response(&mut stream, 200, "application/json", state_json.as_bytes());
@@ -127,7 +146,12 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
         send_response(&mut stream, 200, "application/json", blob_json.as_bytes());
     } else if method == "GET" && path_part == "/api/commits" {
         let commits_json = get_commits_json(exe_path, repo_root);
-        send_response(&mut stream, 200, "application/json", commits_json.as_bytes());
+        send_response(
+            &mut stream,
+            200,
+            "application/json",
+            commits_json.as_bytes(),
+        );
     } else if method == "GET" && path_part == "/api/commit" {
         let hash = extract_query_param(query_part, "hash").unwrap_or("");
         let commit_json = get_commit_diff_json(exe_path, repo_root, hash);
@@ -152,44 +176,69 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
             "application/json"
         };
         send_response(&mut stream, 200, mime, timeline_res.as_bytes());
-    } else if (method == "GET" || method == "HEAD") && (path_part == "/install.sh" || path_part == "/install") {
+    } else if (method == "GET" || method == "HEAD")
+        && (path_part == "/install.sh" || path_part == "/install")
+    {
         let install_script = include_str!("../../../../scripts/install.sh");
-        send_response(&mut stream, 200, "text/plain; charset=utf-8", if method == "HEAD" { &[] } else { install_script.as_bytes() });
-    } else if (method == "GET" || method == "HEAD") && (
-        path_part.ends_with(".jpg") ||
-        path_part.ends_with(".jpeg") ||
-        path_part.ends_with(".png") ||
-        path_part.ends_with(".svg") ||
-        path_part.ends_with(".webp") ||
-        path_part.ends_with(".gif") ||
-        path_part.starts_with("/docs/assets/") ||
-        path_part.starts_with("/assets/")
-    ) {
+        send_response(
+            &mut stream,
+            200,
+            "text/plain; charset=utf-8",
+            if method == "HEAD" {
+                &[]
+            } else {
+                install_script.as_bytes()
+            },
+        );
+    } else if (method == "GET" || method == "HEAD")
+        && (path_part.ends_with(".jpg")
+            || path_part.ends_with(".jpeg")
+            || path_part.ends_with(".png")
+            || path_part.ends_with(".svg")
+            || path_part.ends_with(".webp")
+            || path_part.ends_with(".gif")
+            || path_part.starts_with("/docs/assets/")
+            || path_part.starts_with("/assets/"))
+    {
         let clean_path = path_part.trim_start_matches('/');
         let mut candidate = repo_root.join(clean_path);
         if !candidate.exists() && clean_path.starts_with("assets/") {
             candidate = repo_root.join("docs").join(clean_path);
         }
-        if !candidate.exists() && (clean_path.contains("draft_multiverse_3d") || clean_path.contains("daft_multiverse_3d")) {
-            candidate = repo_root.join("docs").join("assets").join("draft_multiverse_3d.jpg");
+        if !candidate.exists()
+            && (clean_path.contains("draft_multiverse_3d")
+                || clean_path.contains("daft_multiverse_3d"))
+        {
+            candidate = repo_root
+                .join("docs")
+                .join("assets")
+                .join("draft_multiverse_3d.jpg");
             if !candidate.exists() {
-                candidate = repo_root.join("docs").join("assets").join("daft_multiverse_3d.jpg");
+                candidate = repo_root
+                    .join("docs")
+                    .join("assets")
+                    .join("daft_multiverse_3d.jpg");
             }
         }
         if candidate.exists() && candidate.is_file() {
             if let Ok(bytes) = fs::read(&candidate) {
-                let mime = if candidate.extension().map_or(false, |e| e == "svg") {
+                let mime = if candidate.extension().is_some_and(|e| e == "svg") {
                     "image/svg+xml"
-                } else if candidate.extension().map_or(false, |e| e == "png") {
+                } else if candidate.extension().is_some_and(|e| e == "png") {
                     "image/png"
-                } else if candidate.extension().map_or(false, |e| e == "webp") {
+                } else if candidate.extension().is_some_and(|e| e == "webp") {
                     "image/webp"
-                } else if candidate.extension().map_or(false, |e| e == "gif") {
+                } else if candidate.extension().is_some_and(|e| e == "gif") {
                     "image/gif"
                 } else {
                     "image/jpeg"
                 };
-                send_response(&mut stream, 200, mime, if method == "HEAD" { &[] } else { &bytes });
+                send_response(
+                    &mut stream,
+                    200,
+                    mime,
+                    if method == "HEAD" { &[] } else { &bytes },
+                );
                 return;
             }
         }
@@ -200,8 +249,13 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
             None => request_str.split("\n\n").nth(1).unwrap_or(""),
         };
 
-        let cmd_to_run: String = if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(body) {
-            parsed.get("command").and_then(|v| v.as_str()).unwrap_or("status").to_string()
+        let cmd_to_run: String = if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(body)
+        {
+            parsed
+                .get("command")
+                .and_then(|v| v.as_str())
+                .unwrap_or("status")
+                .to_string()
         } else {
             "status".into()
         };
@@ -256,7 +310,11 @@ struct CommandResult {
 
 fn execute_dft_command(exe_path: &Path, repo_root: &Path, cmd_str: &str) -> CommandResult {
     let mut parts: Vec<&str> = cmd_str.split_whitespace().collect();
-    if parts.first().map(|s| *s == "draft" || *s == "dft" || *s == "drf").unwrap_or(false) {
+    if parts
+        .first()
+        .map(|s| *s == "draft" || *s == "dft" || *s == "drf")
+        .unwrap_or(false)
+    {
         parts.remove(0);
     }
 
@@ -341,7 +399,8 @@ fn get_tree_json(repo_root: &Path, rel_path: &str) -> String {
     serde_json::json!({
         "current_path": rel_path,
         "entries": entries,
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn get_blob_json(repo_root: &Path, rel_path: &str) -> String {
@@ -351,7 +410,8 @@ fn get_blob_json(repo_root: &Path, rel_path: &str) -> String {
     if !full_path.exists() || !full_path.is_file() {
         return serde_json::json!({
             "error": "File not found"
-        }).to_string();
+        })
+        .to_string();
     }
 
     match fs::read_to_string(&full_path) {
@@ -363,13 +423,15 @@ fn get_blob_json(repo_root: &Path, rel_path: &str) -> String {
                 "size": size,
                 "lines": lines,
                 "content": content,
-            }).to_string()
+            })
+            .to_string()
         }
         Err(_) => serde_json::json!({
             "path": clean_path,
             "binary": true,
             "error": "Binary file format not previewable as text"
-        }).to_string(),
+        })
+        .to_string(),
     }
 }
 
@@ -411,7 +473,8 @@ fn get_commits_json(exe_path: &Path, repo_root: &Path) -> String {
 
     serde_json::json!({
         "commits": commits
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn get_commit_diff_json(exe_path: &Path, repo_root: &Path, hash: &str) -> String {
@@ -421,7 +484,8 @@ fn get_commit_diff_json(exe_path: &Path, repo_root: &Path, hash: &str) -> String
         "output": show_res.stdout,
         "error": show_res.stderr,
         "success": show_res.success
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn get_diff_json(exe_path: &Path, repo_root: &Path, base: &str, target: &str) -> String {
@@ -437,7 +501,8 @@ fn get_diff_json(exe_path: &Path, repo_root: &Path, base: &str, target: &str) ->
         "diff": diff_res.stdout,
         "error": diff_res.stderr,
         "success": diff_res.success
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn get_radar_json(exe_path: &Path, repo_root: &Path) -> String {
@@ -448,7 +513,8 @@ fn get_radar_json(exe_path: &Path, repo_root: &Path) -> String {
         "radar": radar_res.stdout,
         "foresee": foresee_res.stdout,
         "entropy": entropy_res.stdout
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn get_repository_state_json(repo_root: &Path) -> String {
@@ -474,7 +540,11 @@ fn get_repository_state_json(repo_root: &Path) -> String {
                         fs::read_to_string(meta_file)
                             .ok()
                             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-                            .and_then(|v| v.get("branch").and_then(|b| b.as_str()).map(|s| s.to_string()))
+                            .and_then(|v| {
+                                v.get("branch")
+                                    .and_then(|b| b.as_str())
+                                    .map(|s| s.to_string())
+                            })
                             .unwrap_or_else(|| name.clone())
                     } else {
                         name.clone()
@@ -496,7 +566,12 @@ fn get_repository_state_json(repo_root: &Path) -> String {
     if agents_dir.is_dir() {
         if let Ok(entries) = fs::read_dir(&agents_dir) {
             for entry in entries.flatten() {
-                if entry.path().extension().map(|e| e == "json").unwrap_or(false) {
+                if entry
+                    .path()
+                    .extension()
+                    .map(|e| e == "json")
+                    .unwrap_or(false)
+                {
                     if let Ok(content) = fs::read_to_string(entry.path()) {
                         if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
                             agents.push(val);
@@ -507,14 +582,16 @@ fn get_repository_state_json(repo_root: &Path) -> String {
         }
     }
 
-    let claims: serde_json::Value = fs::read_to_string(dft_dir.join("territory").join("claims.json"))
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_else(|| serde_json::json!({}));
-    let fences: serde_json::Value = fs::read_to_string(dft_dir.join("territory").join("fences.json"))
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_else(|| serde_json::json!([]));
+    let claims: serde_json::Value =
+        fs::read_to_string(dft_dir.join("territory").join("claims.json"))
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_else(|| serde_json::json!({}));
+    let fences: serde_json::Value =
+        fs::read_to_string(dft_dir.join("territory").join("fences.json"))
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_else(|| serde_json::json!([]));
 
     let remotes: serde_json::Value = fs::read_to_string(dft_dir.join("remotes.json"))
         .ok()
@@ -537,7 +614,8 @@ fn get_repository_state_json(repo_root: &Path) -> String {
             "running": cronos_running,
             "strategy": "3-way recursive convergence"
         }
-    }).to_string()
+    })
+    .to_string()
 }
 
 fn render_dashboard_html(repo_root: &Path) -> String {
@@ -551,12 +629,12 @@ fn render_dashboard_html(repo_root: &Path) -> String {
 }
 
 fn get_timeline_output(repo_root: &Path, fmt: &str, dim: Option<&str>) -> String {
-    use std::sync::Arc;
-    use daft_core::Repository;
     use crate::commands::layer2::timeline::{
-        TimelineGraphBuilder, render_ancestry_tree, render_dot, render_json, render_single_dimension,
-        render_svg, render_terminal_graph,
+        render_ancestry_tree, render_dot, render_json, render_single_dimension, render_svg,
+        render_terminal_graph, TimelineGraphBuilder,
     };
+    use daft_core::Repository;
+    use std::sync::Arc;
 
     let repo = match Repository::discover(repo_root) {
         Ok(r) => Arc::new(r),
@@ -582,4 +660,3 @@ fn get_timeline_output(repo_root: &Path, fmt: &str, dim: Option<&str>) -> String
         _ => render_json(&graph).unwrap_or_else(|e| format!("{{\"error\": \"{}\"}}", e)),
     }
 }
-

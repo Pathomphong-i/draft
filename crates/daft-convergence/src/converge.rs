@@ -143,7 +143,8 @@ impl ConvergeEngine {
             }
         }
 
-        let mut source_files: Vec<(String, BTreeMap<String, (FileMode, ObjectId)>)> = Vec::new();
+        type FileTreeMap = BTreeMap<String, (FileMode, ObjectId)>;
+        let mut source_files: Vec<(String, FileTreeMap)> = Vec::new();
         for (dim, h) in &source_heads {
             let mut s_files = BTreeMap::new();
             if let Ok(raw) = self.repo.cas().read_raw(h) {

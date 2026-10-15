@@ -123,40 +123,71 @@ impl DimensionManager {
 
         fs::write(target_dir.join("HEAD"), &head_content)?;
 
-        let index_path = self.repo.index_path();
-        if index_path.exists() {
-            let _ = fs::copy(&index_path, target_dir.join("index"));
-        } else {
-            let index = daft_core::Index::new();
-            let _ = index.write_to(&target_dir.join("index"));
-        }
-
         let cow_strategy = detect_best_strategy(dft_dir);
-        if let Some(wd) = self.repo.workdir() {
-            let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(wd);
-            for entry in WalkDir::new(wd)
-                .into_iter()
-                .filter_entry(|e| {
-                    let name = e.file_name().to_string_lossy();
-                    !ignore.should_prune_dir(&name)
-                })
-                .filter_map(|e| e.ok())
-            {
-                let path = entry.path();
-                if path.starts_with(dft_dir) {
-                    continue;
+        let current_dim = self.current_dimension_name();
+
+        if current_dim != "mainline" {
+            let mainline_dir = self.dimensions_dir.join("mainline");
+            let mainline_idx = mainline_dir.join("index");
+            let mainline_ws = mainline_dir.join("workspace");
+            if mainline_idx.exists() {
+                let _ = fs::copy(&mainline_idx, target_dir.join("index"));
+            } else {
+                let index = daft_core::Index::new();
+                let _ = index.write_to(&target_dir.join("index"));
+            }
+            if mainline_ws.exists() {
+                for entry in WalkDir::new(&mainline_ws)
+                    .into_iter()
+                    .filter_map(|e| e.ok())
+                {
+                    let path = entry.path();
+                    if entry.file_type().is_file() {
+                        if let Ok(rel) = path.strip_prefix(&mainline_ws) {
+                            let dest = ws_dir.join(rel);
+                            if let Some(parent) = dest.parent() {
+                                let _ = fs::create_dir_all(parent);
+                            }
+                            let _ = crate::cow::CowEngine::clone_file(path, &dest, cow_strategy);
+                        }
+                    }
                 }
-                if entry.file_type().is_file() {
-                    if let Ok(rel) = path.strip_prefix(wd) {
-                        let rel_str = rel.to_string_lossy().replace('\\', "/");
-                        if ignore.is_ignored(&rel_str, false) {
-                            continue;
+            }
+        } else {
+            let index_path = self.repo.index_path();
+            if index_path.exists() {
+                let _ = fs::copy(&index_path, target_dir.join("index"));
+            } else {
+                let index = daft_core::Index::new();
+                let _ = index.write_to(&target_dir.join("index"));
+            }
+
+            if let Some(wd) = self.repo.workdir() {
+                let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(wd);
+                for entry in WalkDir::new(wd)
+                    .into_iter()
+                    .filter_entry(|e| {
+                        let name = e.file_name().to_string_lossy();
+                        !ignore.should_prune_dir(&name)
+                    })
+                    .filter_map(|e| e.ok())
+                {
+                    let path = entry.path();
+                    if path.starts_with(dft_dir) {
+                        continue;
+                    }
+                    if entry.file_type().is_file() {
+                        if let Ok(rel) = path.strip_prefix(wd) {
+                            let rel_str = rel.to_string_lossy().replace('\\', "/");
+                            if ignore.is_ignored(&rel_str, false) {
+                                continue;
+                            }
+                            let dest = ws_dir.join(rel);
+                            if let Some(parent) = dest.parent() {
+                                let _ = fs::create_dir_all(parent);
+                            }
+                            let _ = crate::cow::CowEngine::clone_file(path, &dest, cow_strategy);
                         }
-                        let dest = ws_dir.join(rel);
-                        if let Some(parent) = dest.parent() {
-                            let _ = fs::create_dir_all(parent);
-                        }
-                        let _ = crate::cow::CowEngine::clone_file(path, &dest, cow_strategy);
                     }
                 }
             }
@@ -554,7 +585,8 @@ impl DimensionManager {
                 if entry.file_type().is_file() {
                     if let Ok(rel) = entry.path().strip_prefix(&ws) {
                         let rel_str = rel.to_string_lossy().replace('\\', "/");
-                        if !ignore.is_ignored(&rel_str, false) && !tracked_paths.contains(&rel_str) {
+                        if !ignore.is_ignored(&rel_str, false) && !tracked_paths.contains(&rel_str)
+                        {
                             return true; // untracked file
                         }
                     }

@@ -1002,6 +1002,7 @@ fn test_adversarial_posix_advisory_flock_concurrency_stress() {
         .read(true)
         .write(true)
         .create(true)
+        .truncate(false)
         .open(&lock_path)
         .unwrap();
 
@@ -1082,6 +1083,7 @@ fn test_adversarial_posix_advisory_flock_concurrency_stress() {
             .read(true)
             .write(true)
             .create(true)
+            .truncate(false)
             .open(&lock_path)
             .unwrap();
         let ret = unsafe { libc::flock(recheck_file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) };

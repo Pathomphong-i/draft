@@ -163,9 +163,9 @@ Every feature from the Survey phase is mapped to an assigned milestone.
 | M3 | Parallel Dimension Engine & CoW Workspaces | `daft-dimension`: dimension lifecycle, CoW storage engine (macOS `clonefile`, Linux `FICLONE`, hardlinks), isolated workspaces, live state fork, snapshots, 5+ concurrency | M1, M2 | DONE |
 | M4 | Awareness, Conflict Prevention & Convergence Operations | `daft-awareness` & `daft-convergence`: `observe`, `radar` & hot zones, `foresee`, divergence entropy scoring, `territory` claims/fences, `converge`, `collapse`, `cascade`, `weave`, `splice` | M3 | DONE |
 | M5 | Autonomous Entanglement, Cronos, Agent & Timeline | `daft-sync` & `daft-agent`: `entangle` live sync rules, `cronos` daemon (WAL recovery), agent identity/inbox/broadcast/heartbeat, `timeline` multiverse graph (ASCII/SVG/JSON) | M3, M4 | DONE |
-| M6 | Git Bridge, Remote Operations, Packaging & CI | `daft-git` & `daft-cli`: bidirectional Git import/export, `git_map`, remote wire transfer, GPL v2 LICENSE, README.md, CONTRIBUTING.md, GitHub Actions CI workflow, Clippy clean | M1–M5 | IN_PROGRESS |
+| M6 | Git Bridge, Remote Operations, Packaging & CI | `daft-cli`: bidirectional Git import/export, `git_map`, remote wire transfer, GPL v2 LICENSE, README.md, CONTRIBUTING.md, GitHub Actions CI workflow, Clippy clean | M1–M5 | DONE |
 | E2E | Opaque-Box E2E Testing Track | Independent test harness, test runner, Tiers 1-4 comprehensive test suite (Feature coverage, Boundaries, Combinations, Real-world workloads), publishes `TEST_READY.md` | none (Parallel) | DONE |
-| FINAL | Final Acceptance & Adversarial Hardening | Phase 1: 100% E2E test suite pass; Phase 2: Tier 5 adversarial white-box coverage hardening (Challenger loop); Forensic Integrity Audit signoff | M1–M6, E2E | PLANNED |
+| FINAL | Final Acceptance & Adversarial Hardening | Phase 1: 100% E2E test suite pass; Phase 2: Tier 5 adversarial white-box coverage hardening (Challenger loop); Forensic Integrity Audit signoff | M1–M6, E2E | DONE |
 
 ---
 

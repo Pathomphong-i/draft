@@ -20,33 +20,29 @@ pub fn execute(args: AgentArgs, json: bool) -> Result<(), CliError> {
             let mut i = 1;
             while i < args.args.len() {
                 let token = &args.args[i];
-                if token == "--type" || token == "-t" {
-                    if i + 1 < args.args.len() {
-                        if raw_type.is_none() {
-                            raw_type = Some(args.args[i + 1].clone());
-                        }
-                        i += 2;
-                        continue;
-                    }
-                } else if token.starts_with("--type=") {
+                if (token == "--type" || token == "-t") && i + 1 < args.args.len() {
                     if raw_type.is_none() {
-                        raw_type = Some(token["--type=".len()..].to_string());
+                        raw_type = Some(args.args[i + 1].clone());
+                    }
+                    i += 2;
+                    continue;
+                } else if let Some(stripped) = token.strip_prefix("--type=") {
+                    if raw_type.is_none() {
+                        raw_type = Some(stripped.to_string());
                     }
                     i += 1;
                     continue;
-                } else if token.starts_with("-t=") {
+                } else if let Some(stripped) = token.strip_prefix("-t=") {
                     if raw_type.is_none() {
-                        raw_type = Some(token["-t=".len()..].to_string());
+                        raw_type = Some(stripped.to_string());
                     }
                     i += 1;
                     continue;
                 } else if token == "--json" {
                     i += 1;
                     continue;
-                } else if !token.starts_with('-') {
-                    if name_opt.is_none() {
-                        name_opt = Some(token.clone());
-                    }
+                } else if !token.starts_with('-') && name_opt.is_none() {
+                    name_opt = Some(token.clone());
                 }
                 i += 1;
             }
@@ -116,8 +112,13 @@ pub fn execute(args: AgentArgs, json: bool) -> Result<(), CliError> {
         }
 
         "status" => {
+            let target_agent = args
+                .args
+                .get(1)
+                .filter(|s| !s.starts_with('-'))
+                .map(|s| s.as_str());
             let status = manager
-                .status(None)
+                .status(target_agent)
                 .map_err(|e| CliError::General(e.to_string()))?;
 
             if json {
@@ -148,14 +149,38 @@ pub fn execute(args: AgentArgs, json: bool) -> Result<(), CliError> {
                 "system broadcast".to_string()
             };
             let sender = env::var("DFT_AGENT_NAME").unwrap_or_else(|_| "system".to_string());
-            manager
+            let sent = manager
                 .broadcast(&sender, "broadcast", &msg)
                 .map_err(|e| CliError::General(e.to_string()))?;
-            println!("Broadcast sent to all agents");
+            if json {
+                print_output(true, &sent, "");
+            } else {
+                println!("Broadcast sent to all agents");
+            }
         }
 
-        "inbox" => {
+        "send" => {
+            if args.args.len() < 3 {
+                return Err(CliError::General(
+                    "Usage: dft agent send <recipient> <message>".into(),
+                ));
+            }
+            let recipient = &args.args[1];
+            let msg = args.args[2..].join(" ");
+            let sender = env::var("DFT_AGENT_NAME").unwrap_or_else(|_| "system".to_string());
+            let sent = manager
+                .send_message(&sender, recipient, "direct", &msg)
+                .map_err(|e| CliError::General(e.to_string()))?;
+            if json {
+                print_output(true, &sent, "");
+            } else {
+                println!("Message sent to '{}'", recipient);
+            }
+        }
+
+        "inbox" | "read" => {
             let is_json = json || args.args.iter().any(|a| a == "--json");
+            let unread_only = args.args.iter().any(|a| a == "--unread");
             let agent = args
                 .args
                 .get(1)
@@ -163,7 +188,7 @@ pub fn execute(args: AgentArgs, json: bool) -> Result<(), CliError> {
                 .map(|s| s.as_str());
 
             let msgs = manager
-                .read_inbox(agent, false)
+                .read_inbox(agent, unread_only)
                 .map_err(|e| CliError::General(e.to_string()))?;
 
             if is_json {
@@ -172,6 +197,45 @@ pub fn execute(args: AgentArgs, json: bool) -> Result<(), CliError> {
                 for m in msgs {
                     println!("[{}] {}: {}", m.timestamp_iso, m.sender, m.body);
                 }
+            }
+        }
+
+        "mark-read" => {
+            let msg_id = match args.args.get(1) {
+                Some(id) => id,
+                None => {
+                    return Err(CliError::General(
+                        "Usage: dft agent mark-read <message_id> [agent]".into(),
+                    ))
+                }
+            };
+            let agent = args
+                .args
+                .get(2)
+                .filter(|s| !s.starts_with('-'))
+                .map(|s| s.as_str());
+            manager
+                .mark_read(msg_id, agent)
+                .map_err(|e| CliError::General(e.to_string()))?;
+            println!("Marked message '{}' as read", msg_id);
+        }
+
+        "info" | "get" => {
+            let name = match args.args.get(1) {
+                Some(n) => n,
+                None => return Err(CliError::General("Usage: dft agent info <agent>".into())),
+            };
+            let identity = manager
+                .get(name)
+                .map_err(|e| CliError::General(e.to_string()))?;
+            if json {
+                print_output(true, &identity, "");
+            } else {
+                let dim = identity.assigned_dimension.as_deref().unwrap_or("mainline");
+                println!(
+                    "Agent: {} (id: {}, dimension: {})",
+                    identity.name, identity.id, dim
+                );
             }
         }
 

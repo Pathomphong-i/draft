@@ -118,20 +118,19 @@ impl<'a> AuditEngine<'a> {
                     continue;
                 }
 
-                if patterns_overlap(&ca.path_glob, &cb.path_glob) {
-                    if ca.exclusive || cb.exclusive {
-                        collisions.push(ClaimCollision {
-                            path_glob_a: ca.path_glob.clone(),
-                            claim_id_a: ca.id.clone(),
-                            agent_a: ca.agent_id.clone(),
-                            dimension_a: ca.dimension.clone(),
-                            path_glob_b: cb.path_glob.clone(),
-                            claim_id_b: cb.id.clone(),
-                            agent_b: cb.agent_id.clone(),
-                            dimension_b: cb.dimension.clone(),
-                            is_exclusive: true,
-                        });
-                    }
+                if patterns_overlap(&ca.path_glob, &cb.path_glob) && (ca.exclusive || cb.exclusive)
+                {
+                    collisions.push(ClaimCollision {
+                        path_glob_a: ca.path_glob.clone(),
+                        claim_id_a: ca.id.clone(),
+                        agent_a: ca.agent_id.clone(),
+                        dimension_a: ca.dimension.clone(),
+                        path_glob_b: cb.path_glob.clone(),
+                        claim_id_b: cb.id.clone(),
+                        agent_b: cb.agent_id.clone(),
+                        dimension_b: cb.dimension.clone(),
+                        is_exclusive: true,
+                    });
                 }
             }
         }

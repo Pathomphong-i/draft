@@ -107,7 +107,10 @@ pub enum Commands {
     #[command(about = "Show commit logs", alias = "l")]
     Log(LogArgs),
 
-    #[command(about = "Show changes between commits, commit and working tree, etc.", alias = "di")]
+    #[command(
+        about = "Show changes between commits, commit and working tree, etc.",
+        alias = "di"
+    )]
     Diff(DiffArgs),
 
     #[command(about = "Show various types of objects")]
@@ -209,7 +212,10 @@ pub enum Commands {
     #[command(about = "Inspect other dimensions non-destructively")]
     Observe(ObserveArgs),
 
-    #[command(about = "Cross-dimension activity radar and hot-zone detection", alias = "scan")]
+    #[command(
+        about = "Cross-dimension activity radar and hot-zone detection",
+        alias = "scan"
+    )]
     Radar(RadarArgs),
 
     #[command(about = "Predict merge conflicts before merging", alias = "predict")]
@@ -1056,6 +1062,12 @@ pub struct RadarArgs {
 
     #[arg(long = "hot", help = "Show concurrently modified hot zones")]
     pub hot: bool,
+
+    #[arg(
+        long = "watch",
+        help = "Continuously watch for cross-dimension file activity"
+    )]
+    pub watch: bool,
 }
 
 #[derive(Args, Debug)]
@@ -1072,11 +1084,11 @@ pub struct OverlapArgs {}
 
 #[derive(Args, Debug)]
 pub struct EntropyArgs {
-    #[arg(required = true, help = "First dimension")]
-    pub dim1: String,
+    #[arg(help = "First dimension (defaults to current dimension)")]
+    pub dim1: Option<String>,
 
-    #[arg(required = true, help = "Second dimension")]
-    pub dim2: String,
+    #[arg(help = "Second dimension (defaults to mainline)")]
+    pub dim2: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -1086,12 +1098,33 @@ pub struct ClaimArgs {
 
     #[arg(long = "dimension", help = "Claiming dimension")]
     pub dimension: Option<String>,
+
+    #[arg(
+        long = "ttl",
+        help = "Time-to-live in seconds or duration string (e.g. 3600, 1h, 30m)"
+    )]
+    pub ttl: Option<String>,
+
+    #[arg(long = "agent", help = "Claiming agent ID")]
+    pub agent: Option<String>,
+
+    #[arg(long = "exclusive", help = "Require exclusive ownership")]
+    pub exclusive: bool,
 }
 
 #[derive(Args, Debug)]
 pub struct YieldArgs {
-    #[arg(required = true, help = "Path to release ownership")]
-    pub path: String,
+    #[arg(help = "Path to release ownership")]
+    pub path: Option<String>,
+
+    #[arg(long = "all", help = "Release all claims")]
+    pub all: bool,
+
+    #[arg(long = "agent", help = "Release claims for specific agent")]
+    pub agent: Option<String>,
+
+    #[arg(long = "dimension", help = "Filter by dimension")]
+    pub dimension: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -1101,6 +1134,21 @@ pub struct FenceArgs {
 
     #[arg(long = "hard", help = "Hard barrier blocking edits")]
     pub hard: bool,
+
+    #[arg(long = "unfence", help = "Remove fence on path")]
+    pub unfence: bool,
+
+    #[arg(long = "dimension", help = "Owner dimension")]
+    pub dimension: Option<String>,
+
+    #[arg(long = "agent", help = "Owner agent ID")]
+    pub agent: Option<String>,
+
+    #[arg(long = "ttl", help = "Time-to-live in seconds or duration string")]
+    pub ttl: Option<String>,
+
+    #[arg(long = "reason", help = "Reason for placing the fence")]
+    pub reason: Option<String>,
 }
 
 #[derive(Args, Debug)]
@@ -1242,26 +1290,46 @@ pub struct ExportArgs {
 
     #[arg(long = "dimension", help = "Dimension to export")]
     pub dimension: Option<String>,
+
+    #[arg(help = "Optional target directory to export into")]
+    pub target: Option<String>,
 }
 
 #[derive(Args, Debug)]
 pub struct ImportArgs {
     #[arg(required = true, help = "Source format, e.g. 'git'")]
     pub format: String,
+
+    #[arg(help = "Optional source repository path to import from")]
+    pub path: Option<String>,
 }
 
 #[derive(Args, Debug)]
 pub struct CompatArgs {
     #[arg(required = true, help = "Bridge type, e.g. 'git-bridge'")]
     pub bridge: String,
+
+    #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+    pub args: Vec<String>,
 }
 
 #[derive(Args, Debug)]
 pub struct UiArgs {
-    #[arg(short = 'p', long = "port", default_value = "3333", env = "DFT_PORT", help = "Port to listen on")]
+    #[arg(
+        short = 'p',
+        long = "port",
+        default_value = "3333",
+        env = "DFT_PORT",
+        help = "Port to listen on"
+    )]
     pub port: u16,
 
-    #[arg(long = "host", default_value = "127.0.0.1", env = "DFT_HOST", help = "Host/IP address to bind to")]
+    #[arg(
+        long = "host",
+        default_value = "127.0.0.1",
+        env = "DFT_HOST",
+        help = "Host/IP address to bind to"
+    )]
     pub host: String,
 
     #[arg(long = "no-browser", help = "Do not automatically open the browser")]

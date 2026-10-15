@@ -1,5 +1,6 @@
 use crate::cli::{CascadeArgs, CollapseArgs, ConvergeArgs, SpliceArgs, WeaveArgs};
 use crate::error::CliError;
+use crate::output::print_output;
 use daft_convergence::{
     CascadeEngine, CascadeOutcome, CollapseEngine, CollapseOptions, CollapseOutcome,
     ConvergeEngine, ConvergeOptions, ConvergeOutcome, MergeStrategy, SpliceEngine, WeaveEngine,
@@ -9,7 +10,7 @@ use std::env;
 use std::str::FromStr;
 use std::sync::Arc;
 
-pub fn execute_collapse(args: CollapseArgs) -> Result<(), CliError> {
+pub fn execute_collapse(args: CollapseArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let collapse_engine = CollapseEngine::new(Arc::clone(&repo));
@@ -35,6 +36,11 @@ pub fn execute_collapse(args: CollapseArgs) -> Result<(), CliError> {
             other => CliError::General(other.to_string()),
         })?;
 
+    if json {
+        print_output(true, &outcome, "");
+        return Ok(());
+    }
+
     match outcome {
         CollapseOutcome::Clean {
             target_dimension, ..
@@ -59,7 +65,7 @@ pub fn execute_collapse(args: CollapseArgs) -> Result<(), CliError> {
     Ok(())
 }
 
-pub fn execute_converge(args: ConvergeArgs) -> Result<(), CliError> {
+pub fn execute_converge(args: ConvergeArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let converge_engine = ConvergeEngine::new(Arc::clone(&repo));
@@ -80,6 +86,11 @@ pub fn execute_converge(args: ConvergeArgs) -> Result<(), CliError> {
             }
             other => CliError::General(other.to_string()),
         })?;
+
+    if json {
+        print_output(true, &outcome, "");
+        return Ok(());
+    }
 
     match outcome {
         ConvergeOutcome::Clean {
@@ -105,7 +116,7 @@ pub fn execute_converge(args: ConvergeArgs) -> Result<(), CliError> {
     Ok(())
 }
 
-pub fn execute_cascade(args: CascadeArgs) -> Result<(), CliError> {
+pub fn execute_cascade(args: CascadeArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let cascade_engine = CascadeEngine::new(Arc::clone(&repo));
@@ -118,6 +129,11 @@ pub fn execute_cascade(args: CascadeArgs) -> Result<(), CliError> {
             }
             other => CliError::General(other.to_string()),
         })?;
+
+    if json {
+        print_output(true, &outcome, "");
+        return Ok(());
+    }
 
     match outcome {
         CascadeOutcome::Success {
@@ -143,7 +159,7 @@ pub fn execute_cascade(args: CascadeArgs) -> Result<(), CliError> {
     Ok(())
 }
 
-pub fn execute_weave(args: WeaveArgs) -> Result<(), CliError> {
+pub fn execute_weave(args: WeaveArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let weave_engine = WeaveEngine::new(Arc::clone(&repo));
@@ -157,6 +173,11 @@ pub fn execute_weave(args: WeaveArgs) -> Result<(), CliError> {
             other => CliError::General(other.to_string()),
         })?;
 
+    if json {
+        print_output(true, &outcome, "");
+        return Ok(());
+    }
+
     println!(
         "Weave completed into '{}' ({} commits woven)",
         outcome.target_dimension, outcome.commit_count
@@ -164,7 +185,7 @@ pub fn execute_weave(args: WeaveArgs) -> Result<(), CliError> {
     Ok(())
 }
 
-pub fn execute_splice(args: SpliceArgs) -> Result<(), CliError> {
+pub fn execute_splice(args: SpliceArgs, json: bool) -> Result<(), CliError> {
     let cwd = env::current_dir()?;
     let repo = Arc::new(Repository::discover(&cwd)?);
     let splice_engine = SpliceEngine::new(Arc::clone(&repo));
@@ -177,6 +198,11 @@ pub fn execute_splice(args: SpliceArgs) -> Result<(), CliError> {
             }
             other => CliError::General(other.to_string()),
         })?;
+
+    if json {
+        print_output(true, &outcome, "");
+        return Ok(());
+    }
 
     println!(
         "Spliced {} commits from '{}' into '{}'",

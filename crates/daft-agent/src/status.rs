@@ -73,13 +73,7 @@ impl StatusAggregator {
 
             let hb = heartbeats.get(&agent.name);
             let liveness = AgentLiveness::evaluate(hb.as_ref().map(|h| h.timestamp), now);
-            let seconds_since = hb.as_ref().map(|h| {
-                if now >= h.timestamp {
-                    now - h.timestamp
-                } else {
-                    0
-                }
-            });
+            let seconds_since = hb.as_ref().map(|h| now.saturating_sub(h.timestamp));
 
             match liveness {
                 AgentLiveness::Active => active_count += 1,

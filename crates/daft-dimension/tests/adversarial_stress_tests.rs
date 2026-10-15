@@ -3,8 +3,7 @@
 //! Tests:
 //! 1. CoW Cloning Benchmark (1,000 files, < 5.0s SLA, Clonefile/Hardlink/Copy strategies)
 //! 2. Break-on-Write (BoW) hardlink unlinking & isolation
-//! 3. Live State Fork (dirty workspace: unstaged edits, untracked files, staged index entries)
-//!    via CLI and API, with zero dummy commits and two-way isolation
+//! 3. Live State Fork (dirty workspace: unstaged edits, untracked files, staged index entries) via CLI and API, with zero dummy commits and two-way isolation
 //! 4. Snapshot Lifecycle (create, list, rejection without force, restore with force, delete)
 
 use daft_core::index::{Index, Stage};
@@ -462,7 +461,7 @@ fn stress_test_snapshot_lifecycle_cli_and_lib() {
     // Attempt restore WITHOUT --force -> MUST BE REJECTED
     let restore_attempt = Command::new(&dft_bin)
         .current_dir(&repo_root)
-        .args(&["snapshot", "restore", "baseline-state"])
+        .args(["snapshot", "restore", "baseline-state"])
         .output()
         .expect("run restore without force");
 
@@ -526,7 +525,7 @@ fn stress_test_snapshot_lifecycle_cli_and_lib() {
     // Restoring deleted snapshot must fail
     let restore_deleted = Command::new(&dft_bin)
         .current_dir(&repo_root)
-        .args(&["snapshot", "restore", "baseline-state", "--force"])
+        .args(["snapshot", "restore", "baseline-state", "--force"])
         .output()
         .expect("restore deleted");
     assert!(

@@ -55,14 +55,27 @@ impl Repository {
         //    <root>/.dft/dimensions/<dim_name>/workspace/...
         let mut check_dim = canonical.as_path();
         while let Some(parent) = check_dim.parent() {
-            if check_dim.file_name().map(|n| n == "workspace").unwrap_or(false) {
+            if check_dim
+                .file_name()
+                .map(|n| n == "workspace")
+                .unwrap_or(false)
+            {
                 if let Some(dim_dir) = check_dim.parent() {
                     if let Some(dims_dir) = dim_dir.parent() {
-                        if dims_dir.file_name().map(|n| n == "dimensions").unwrap_or(false) {
+                        if dims_dir
+                            .file_name()
+                            .map(|n| n == "dimensions")
+                            .unwrap_or(false)
+                        {
                             if let Some(dft_dir) = dims_dir.parent() {
-                                if dft_dir.join("objects").is_dir() && dft_dir.join("HEAD").is_file() {
-                                    let dim_name = dim_dir.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
-                                    let cas = Arc::new(ObjectStore::init(&dft_dir.join("objects"))?);
+                                if dft_dir.join("objects").is_dir()
+                                    && dft_dir.join("HEAD").is_file()
+                                {
+                                    let dim_name = dim_dir
+                                        .file_name()
+                                        .map(|n| n.to_string_lossy().to_string())
+                                        .unwrap_or_default();
+                                    let cas = Arc::new(ObjectStore::init(dft_dir.join("objects"))?);
                                     return Ok(Self {
                                         workdir: Some(check_dim.to_path_buf()),
                                         dft_dir: dft_dir.to_path_buf(),

@@ -167,6 +167,7 @@ impl CronosDaemon {
         false
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn sync_dimension_pair(
         &self,
         tx_id: &str,

@@ -215,6 +215,12 @@ pub fn test_foresee_predicts_conflict_without_merging() {
     if !env.is_dry_run {
         res.assert_output_contains("conflict");
     }
+
+    let json_res = env.dft(&["foresee", "patch-1", "patch-2", "--json"]);
+    json_res.assert_success();
+    if !env.is_dry_run {
+        json_res.assert_output_contains("\"has_conflicts\": true");
+    }
 }
 
 pub fn test_foresee_clean_prediction_on_disjoint_changes() {
@@ -278,6 +284,10 @@ pub fn test_entropy_divergence_score() {
         // Entropy score is a numeric value
         res.assert_output_contains("entropy");
     }
+
+    // Zero-argument entropy calculation (defaults to active/first dimension vs mainline)
+    let default_res = env.dft(&["entropy"]);
+    default_res.assert_success();
 }
 
 pub fn test_entropy_identical_dimensions_zero_or_minimal() {
@@ -300,7 +310,14 @@ pub fn test_territory_claim_path() {
     env.dft(&["init"]).assert_success();
     env.dft(&["dimension", "create", "owner-dim"])
         .assert_success();
-    let res = env.dft(&["claim", "src/auth/", "--dimension", "owner-dim"]);
+    let res = env.dft(&[
+        "claim",
+        "src/auth/",
+        "--dimension",
+        "owner-dim",
+        "--ttl",
+        "3600",
+    ]);
     res.assert_success();
 
     let map = env.dft(&["territory"]);
