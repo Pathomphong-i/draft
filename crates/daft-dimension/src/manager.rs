@@ -331,14 +331,26 @@ impl DimensionManager {
         };
         fs::create_dir_all(&old_ws)?;
 
+        let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(workdir);
         let mut current_files = Vec::new();
-        for entry in WalkDir::new(workdir).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(workdir)
+            .into_iter()
+            .filter_entry(|e| {
+                let name = e.file_name().to_string_lossy();
+                !ignore.should_prune_dir(&name)
+            })
+            .filter_map(|e| e.ok())
+        {
             let path = entry.path();
             if path.starts_with(dft_dir) {
                 continue;
             }
             if entry.file_type().is_file() {
                 if let Ok(rel) = path.strip_prefix(workdir) {
+                    let rel_str = rel.to_string_lossy().replace('\\', "/");
+                    if ignore.is_ignored(&rel_str, false) {
+                        continue;
+                    }
                     current_files.push(rel.to_path_buf());
                     let dest = old_ws.join(rel);
                     if let Some(p) = dest.parent() {
@@ -365,7 +377,7 @@ impl DimensionManager {
                 let _ = fs::remove_file(&p);
             }
         }
-        clean_empty_dirs(workdir, dft_dir)?;
+        clean_empty_dirs(workdir, dft_dir, &ignore)?;
 
         // 3. Restore target dimension
         let target_dim_dir = if name == "mainline" {
@@ -621,7 +633,11 @@ pub fn copy_dir_contents(src: &Path, dst: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
-fn clean_empty_dirs(root: &Path, dft_dir: &Path) -> std::io::Result<()> {
+fn clean_empty_dirs(
+    root: &Path,
+    dft_dir: &Path,
+    ignore: &daft_core::worktree::DaftIgnore,
+) -> std::io::Result<()> {
     for entry in WalkDir::new(root)
         .contents_first(true)
         .into_iter()
@@ -630,6 +646,14 @@ fn clean_empty_dirs(root: &Path, dft_dir: &Path) -> std::io::Result<()> {
         let path = entry.path();
         if path == root || path.starts_with(dft_dir) {
             continue;
+        }
+        if let Ok(rel) = path.strip_prefix(root) {
+            if rel
+                .components()
+                .any(|c| ignore.should_prune_dir(&c.as_os_str().to_string_lossy()))
+            {
+                continue;
+            }
         }
         if entry.file_type().is_dir() {
             let _ = fs::remove_dir(path);

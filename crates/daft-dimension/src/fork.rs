@@ -92,13 +92,25 @@ impl DimensionManager {
 
         if current == source_name {
             if let Some(wd) = workdir {
-                for entry in WalkDir::new(wd).into_iter().filter_map(|e| e.ok()) {
+                let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(wd);
+                for entry in WalkDir::new(wd)
+                    .into_iter()
+                    .filter_entry(|e| {
+                        let name = e.file_name().to_string_lossy();
+                        !ignore.should_prune_dir(&name)
+                    })
+                    .filter_map(|e| e.ok())
+                {
                     let path = entry.path();
                     if path.starts_with(dft_dir) {
                         continue;
                     }
                     if entry.file_type().is_file() {
                         if let Ok(rel) = path.strip_prefix(wd) {
+                            let rel_str = rel.to_string_lossy().replace('\\', "/");
+                            if ignore.is_ignored(&rel_str, false) {
+                                continue;
+                            }
                             let dest = child_ws.join(rel);
                             CowEngine::clone_file(path, &dest, cow_strategy)?;
                         }

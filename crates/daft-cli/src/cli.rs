@@ -1285,7 +1285,7 @@ pub struct BundleArgs {
 
 #[derive(Args, Debug)]
 pub struct ExportArgs {
-    #[arg(required = true, help = "Target format, e.g. 'git'")]
+    #[arg(default_value = "git", help = "Target format, e.g. 'git'")]
     pub format: String,
 
     #[arg(long = "dimension", help = "Dimension to export")]

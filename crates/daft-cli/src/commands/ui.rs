@@ -243,6 +243,28 @@ fn handle_connection(mut stream: TcpStream, repo_root: &Path, exe_path: &Path) {
             }
         }
         send_response(&mut stream, 404, "text/plain", b"Asset Not Found");
+    } else if method == "GET" && path_part == "/api/health" {
+        let health_json = serde_json::json!({
+            "status": "ok",
+            "version": env!("CARGO_PKG_VERSION"),
+            "active_dimension": get_active_dimension(repo_root),
+            "repository": repo_root.to_string_lossy()
+        })
+        .to_string();
+        send_response(&mut stream, 200, "application/json", health_json.as_bytes());
+    } else if method == "GET" && path_part == "/api/bundle" {
+        let tmp_bundle = env::temp_dir().join(format!("draft-{}.bundle", std::process::id()));
+        let cmd = format!("bundle create \"{}\"", tmp_bundle.to_string_lossy());
+        let res = execute_dft_command(exe_path, repo_root, &cmd);
+        if res.success && tmp_bundle.exists() {
+            if let Ok(bytes) = fs::read(&tmp_bundle) {
+                let _ = fs::remove_file(&tmp_bundle);
+                send_response(&mut stream, 200, "application/octet-stream", &bytes);
+                return;
+            }
+        }
+        let _ = fs::remove_file(&tmp_bundle);
+        send_response(&mut stream, 500, "text/plain", res.stderr.as_bytes());
     } else if method == "POST" && path_part == "/api/exec" {
         let body = match request_str.split("\r\n\r\n").nth(1) {
             Some(b) => b,
@@ -308,11 +330,50 @@ struct CommandResult {
     success: bool,
 }
 
+fn parse_command_args(cmd_str: &str) -> Vec<String> {
+    let mut args = Vec::new();
+    let mut current = String::new();
+    let mut in_single = false;
+    let mut in_double = false;
+    let mut escaped = false;
+
+    for ch in cmd_str.chars() {
+        if escaped {
+            current.push(ch);
+            escaped = false;
+            continue;
+        }
+        match ch {
+            '\\' if !in_single => {
+                escaped = true;
+            }
+            '\'' if !in_double => {
+                in_single = !in_single;
+            }
+            '"' if !in_single => {
+                in_double = !in_double;
+            }
+            c if c.is_whitespace() && !in_single && !in_double => {
+                if !current.is_empty() {
+                    args.push(std::mem::take(&mut current));
+                }
+            }
+            c => {
+                current.push(c);
+            }
+        }
+    }
+    if !current.is_empty() {
+        args.push(current);
+    }
+    args
+}
+
 fn execute_dft_command(exe_path: &Path, repo_root: &Path, cmd_str: &str) -> CommandResult {
-    let mut parts: Vec<&str> = cmd_str.split_whitespace().collect();
+    let mut parts = parse_command_args(cmd_str);
     if parts
         .first()
-        .map(|s| *s == "draft" || *s == "dft" || *s == "drf")
+        .map(|s| s == "draft" || s == "dft" || s == "drf")
         .unwrap_or(false)
     {
         parts.remove(0);
@@ -507,11 +568,38 @@ fn get_diff_json(exe_path: &Path, repo_root: &Path, base: &str, target: &str) ->
 
 fn get_radar_json(exe_path: &Path, repo_root: &Path) -> String {
     let radar_res = execute_dft_command(exe_path, repo_root, "radar --hot");
-    let foresee_res = execute_dft_command(exe_path, repo_root, "foresee");
     let entropy_res = execute_dft_command(exe_path, repo_root, "entropy");
+
+    let cur_dim = get_active_dimension(repo_root);
+    let peer_dim = if cur_dim != "mainline" {
+        Some(cur_dim)
+    } else {
+        fs::read_dir(repo_root.join(".dft").join("dimensions"))
+            .ok()
+            .and_then(|entries| {
+                entries
+                    .flatten()
+                    .filter(|e| e.path().is_dir())
+                    .map(|e| e.file_name().to_string_lossy().to_string())
+                    .find(|name| name != "mainline")
+            })
+    };
+
+    let (foresee_out, overlap_out) = if let Some(dim) = peer_dim {
+        let f = execute_dft_command(exe_path, repo_root, &format!("foresee {} mainline", dim));
+        let o = execute_dft_command(exe_path, repo_root, &format!("overlap {} mainline", dim));
+        (f.stdout, o.stdout)
+    } else {
+        (
+            "Single dimension (mainline) active — no cross-dimension conflicts.".to_string(),
+            "Single dimension (mainline) active — 0 overlapping files.".to_string(),
+        )
+    };
+
     serde_json::json!({
         "radar": radar_res.stdout,
-        "foresee": foresee_res.stdout,
+        "foresee": foresee_out,
+        "overlap": overlap_out,
         "entropy": entropy_res.stdout
     })
     .to_string()
@@ -535,6 +623,9 @@ fn get_repository_state_json(repo_root: &Path) -> String {
             for entry in entries.flatten() {
                 if entry.path().is_dir() {
                     let name = entry.file_name().to_string_lossy().to_string();
+                    if name == "mainline" {
+                        continue;
+                    }
                     let meta_file = entry.path().join("meta.json");
                     let branch = if meta_file.exists() {
                         fs::read_to_string(meta_file)
@@ -598,9 +689,42 @@ fn get_repository_state_json(repo_root: &Path) -> String {
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_else(|| serde_json::json!({}));
 
+    let entanglements: serde_json::Value =
+        fs::read_to_string(dft_dir.join("entangle").join("rules.json"))
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_else(|| serde_json::json!([]));
+
+    let mut snapshots: Vec<serde_json::Value> = Vec::new();
+    let snaps_dir = dft_dir.join("snapshots");
+    if snaps_dir.is_dir() {
+        if let Ok(dim_entries) = fs::read_dir(&snaps_dir) {
+            for d_entry in dim_entries.flatten() {
+                if d_entry.path().is_dir() {
+                    if let Ok(files) = fs::read_dir(d_entry.path()) {
+                        for f in files.flatten() {
+                            if f.path().extension().is_some_and(|e| e == "json") {
+                                if let Ok(c) = fs::read_to_string(f.path()) {
+                                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(&c) {
+                                        snapshots.push(val);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let git_bridge_entries = fs::read_to_string(dft_dir.join("git_map"))
+        .map(|s| s.lines().filter(|l| !l.trim().is_empty()).count())
+        .unwrap_or(0);
+
     let cronos_running = dft_dir.join("cronos").join("daemon.pid").exists();
 
     serde_json::json!({
+        "version": env!("CARGO_PKG_VERSION"),
         "repository": repo_root.to_string_lossy(),
         "active_dimension": cur_dim,
         "dimensions": dims,
@@ -610,6 +734,9 @@ fn get_repository_state_json(repo_root: &Path) -> String {
             "fences": fences
         },
         "remotes": remotes,
+        "entanglements": entanglements,
+        "snapshots": snapshots,
+        "git_bridge_entries": git_bridge_entries,
         "cronos": {
             "running": cronos_running,
             "strategy": "3-way recursive convergence"
@@ -625,6 +752,7 @@ fn render_dashboard_html(repo_root: &Path) -> String {
     let template = include_str!("dashboard.html");
     template
         .replace("__ACTIVE_DIM__", &cur_dim)
+        .replace("__VERSION__", env!("CARGO_PKG_VERSION"))
         .replace("__README_JSON__", &escaped_readme)
 }
 

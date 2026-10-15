@@ -135,8 +135,13 @@ impl SnapshotManager {
         let mut total_bytes = 0u64;
         let mut file_count = 0usize;
 
+        let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&worktree_dir);
         for entry in WalkDir::new(&worktree_dir)
             .into_iter()
+            .filter_entry(|e| {
+                let name = e.file_name().to_string_lossy();
+                !ignore.should_prune_dir(&name)
+            })
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
@@ -145,7 +150,10 @@ impl SnapshotManager {
             }
             if entry.file_type().is_file() {
                 if let Ok(rel) = path.strip_prefix(&worktree_dir) {
-                    let rel_str = rel.to_string_lossy().to_string();
+                    let rel_str = rel.to_string_lossy().replace('\\', "/");
+                    if ignore.is_ignored(&rel_str, false) {
+                        continue;
+                    }
                     let data = fs::read(path)?;
                     total_bytes += data.len() as u64;
                     file_count += 1;

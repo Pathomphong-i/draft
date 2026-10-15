@@ -491,9 +491,10 @@
         <a href="/" class="brand">
             <img src="/docs/assets/draft_icon.svg" style="width: 36px; height: 36px; border-radius: 8px; margin-right: 10px; vertical-align: middle; box-shadow: 0 0 14px rgba(88,166,255,0.4); border: 1px solid rgba(88,166,255,0.3);" alt="Draft Logo" />
             <div class="repo-title">DraftMultiverse</div>
-            <span class="repo-badge">v0.1.0 Draft Multiverse</span>
+            <span class="repo-badge">v__VERSION__ Draft Multiverse</span>
         </a>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a class="btn" href="/api/bundle" style="text-decoration: none;">📦 Bundle</a>
             <button class="btn" onclick="switchTab('terminal')">⚡ Terminal</button>
             <button class="btn btn-primary" onclick="copyClone()">📋 Clone</button>
         </div>
@@ -520,7 +521,7 @@
                     <h1 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: #fff; letter-spacing: -0.5px;">Draft <span style="color: var(--cyan); font-weight: 600; font-size: 1.2rem;">(`dft`)</span></h1>
                     <span style="font-size: 0.75rem; background: rgba(88, 166, 255, 0.15); color: var(--cyan); border: 1px solid rgba(88, 166, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🌌 Multiverse VCS</span>
                     <span style="font-size: 0.75rem; background: rgba(188, 140, 255, 0.15); color: var(--quantum-violet); border: 1px solid rgba(188, 140, 255, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">🤖 AI Swarm Native</span>
-                    <span style="font-size: 0.75rem; background: rgba(63, 185, 80, 0.15); color: var(--emerald); border: 1px solid rgba(63, 185, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">v0.1.0</span>
+                    <span style="font-size: 0.75rem; background: rgba(63, 185, 80, 0.15); color: var(--emerald); border: 1px solid rgba(63, 185, 80, 0.3); padding: 0.2rem 0.65rem; border-radius: 12px; font-weight: 600;">v__VERSION__</span>
                 </div>
                 <p style="margin: 0 0 0.6rem 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.45;">
                     The Multiverse Version Control System engineered for concurrent AI agent swarms and parallel dimensions.
@@ -567,8 +568,11 @@
                         <span>Draft</span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button class="btn" onclick="promptNewDim()">+ New Dimension</button>
+                    <button class="btn" onclick="promptForkDim()">🍴 Fork Dimension</button>
+                    <button class="btn" onclick="promptSnapshot()">📸 Snapshot</button>
+                    <button class="btn" onclick="runCmd(`observe status ${currentDim}`)">👁️ Observe</button>
                     <button class="btn" onclick="copyCloneCmd()">Clone URL</button>
                 </div>
             </div>
@@ -710,24 +714,29 @@
             </div>
         </section>
 
-        <!-- TAB 4: CONVERGENCE & COLLAPSE (PR EQUIVALENT) -->
+        <!-- TAB 4: CONVERGENCE, COLLAPSE, ENTANGLEMENT & REMOTE INTEROP -->
         <section id="view-convergence" class="tab-content">
             <div class="toolbar">
-                <div style="font-size: 1.1rem; font-weight: 600;">Parallel Convergence &amp; Wavefunction Collapse</div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn" onclick="runCmd('foresee')">🔮 Dry-Run Conflict Check</button>
+                <div style="font-size: 1.1rem; font-weight: 600;">Parallel Convergence, Entanglement &amp; Remote Interop</div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn" onclick="promptForesee()">🔮 Foresee 3-Way Check</button>
+                    <button class="btn" onclick="promptOverlap()">🔀 Overlap Check</button>
+                    <button class="btn" onclick="runCmd('entropy')">⚡ Entropy Score</button>
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div class="file-box" style="padding: 1.5rem;">
-                    <h3 style="margin-bottom: 0.75rem;">🌌 Wavefunction Collapse</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="file-box" style="padding: 1.5rem; margin-bottom: 0;">
+                    <h3 style="margin-bottom: 0.75rem;">🌌 Wavefunction Collapse (`dft collapse`)</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
                         Collapse all concurrent active dimensions down into mainline, applying 3-way reconciliation across spacetime.
                     </p>
-                    <button class="btn btn-primary" onclick="runCmd('collapse')">Execute dft collapse</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" onclick="runCmd('collapse')">Execute dft collapse</button>
+                        <button class="btn" onclick="runCmd('collapse --dry-run')">Dry-Run Collapse</button>
+                    </div>
                 </div>
-                <div class="file-box" style="padding: 1.5rem;">
-                    <h3 style="margin-bottom: 0.75rem;">🔀 Multi-Dimension Convergence</h3>
+                <div class="file-box" style="padding: 1.5rem; margin-bottom: 0;">
+                    <h3 style="margin-bottom: 0.75rem;">🔀 Multi-Dimension Convergence (`dft converge`)</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
                         Converge specific parallel dimensions into a unified target branch.
                     </p>
@@ -735,7 +744,44 @@
                         <input type="text" id="convergeSourceInput" class="btn" style="flex: 1; text-align: left;" placeholder="Source dimension (e.g. agent-quantum)">
                         <input type="text" id="convergeTargetInput" class="btn" style="flex: 1; text-align: left;" placeholder="Target (e.g. mainline)">
                     </div>
-                    <button class="btn" onclick="executeConverge()">Execute dft converge</button>
+                    <button class="btn btn-primary" onclick="executeConverge()">Execute dft converge</button>
+                </div>
+                <div class="file-box" style="padding: 1.5rem; margin-bottom: 0;">
+                    <h3 style="margin-bottom: 0.75rem;">⛓️ Cascade, Weave &amp; Splice (`dft cascade / weave / splice`)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Domino propagation across dependent dimensions, causal commit interleaving, or surgical range transplantation.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn" onclick="promptCascade()">⛓️ Cascade</button>
+                        <button class="btn" onclick="promptWeave()">🧬 Weave</button>
+                        <button class="btn" onclick="promptSplice()">✂️ Splice</button>
+                    </div>
+                </div>
+                <div class="file-box" style="padding: 1.5rem; margin-bottom: 0;">
+                    <h3 style="margin-bottom: 0.75rem;">🔗 Quantum Entanglement &amp; Snapshots (`dft entangle / snapshot`)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Bi-directional live file synchronization rules and immutable point-in-time workspace snapshots.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn" onclick="promptEntangle()">🔗 Entangle Files</button>
+                        <button class="btn" onclick="runCmd('entangle --list')">📋 List Entanglements</button>
+                        <button class="btn" onclick="promptSnapshot()">📸 Create Snapshot</button>
+                        <button class="btn" onclick="runCmd('snapshot list')">🗂️ List Snapshots</button>
+                    </div>
+                </div>
+            </div>
+            <div class="file-box" style="padding: 1.5rem;">
+                <h3 style="margin-bottom: 0.75rem;">🪐 Decentralized Remote Sync, Portable Bundles &amp; Git Bridge (`dft push / pull / bundle / export / compat`)</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Synchronize dimensions with DraftMultiverse remotes, create portable CAS archives, or run bidirectional Git bridge translation (<span id="gitBridgeCountBadge">0</span> mapped objects).
+                </p>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="runCmd(`push origin ${currentDim}`)">⬆️ Push Active Dimension</button>
+                    <button class="btn" onclick="runCmd(`pull origin ${currentDim}`)">⬇️ Pull Active Dimension</button>
+                    <button class="btn" onclick="runCmd('remote -v')">🌐 Remotes</button>
+                    <a class="btn" href="/api/bundle" style="text-decoration: none;">📦 Download CAS Bundle</a>
+                    <button class="btn" onclick="runCmd('export git')">🐙 Export Git Bridge</button>
+                    <button class="btn" onclick="runCmd('compat git-bridge')">🔍 Git Bridge Status</button>
                 </div>
             </div>
         </section>
@@ -744,23 +790,30 @@
         <section id="view-radar" class="tab-content">
             <div class="toolbar">
                 <div style="font-size: 1.1rem; font-weight: 600;">Cross-Dimensional Radar &amp; Territory Claims</div>
-                <div style="display: flex; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn" onclick="loadRadarTelemetry()">🔄 Refresh Telemetry</button>
                     <button class="btn" onclick="runCmd('radar --hot')">📡 Radar --hot</button>
-                    <button class="btn" onclick="runCmd('foresee')">🔮 Foresee</button>
+                    <button class="btn" onclick="promptForesee()">🔮 Foresee</button>
+                    <button class="btn" onclick="promptOverlap()">🔀 Overlap</button>
                     <button class="btn" onclick="runCmd('entropy')">⚡ Entropy</button>
                     <button class="btn" onclick="promptClaim()">🔒 Claim Path</button>
                     <button class="btn" onclick="promptFence()">🚧 Fence Path</button>
+                    <button class="btn" onclick="runCmd('yield --all')">🔓 Yield All</button>
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div class="file-box" style="padding: 1.25rem;">
-                    <h3 style="margin-bottom: 0.75rem;">🔒 Claimed Territories</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="file-box" style="padding: 1.25rem; margin-bottom: 0;">
+                    <h3 style="margin-bottom: 0.75rem;">🔒 Claimed Territories (`dft claim / yield`)</h3>
                     <div id="territoryClaimsList" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">None</div>
                 </div>
-                <div class="file-box" style="padding: 1.25rem;">
-                    <h3 style="margin-bottom: 0.75rem;">🚧 Boundary Fences</h3>
+                <div class="file-box" style="padding: 1.25rem; margin-bottom: 0;">
+                    <h3 style="margin-bottom: 0.75rem;">🚧 Boundary Fences (`dft fence`)</h3>
                     <div id="territoryFencesList" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">None</div>
                 </div>
+            </div>
+            <div class="file-box" style="padding: 1.25rem;">
+                <h3 style="margin-bottom: 0.75rem;">📡 Live Multiverse Telemetry (Radar / Entropy / Foresee / Overlap)</h3>
+                <pre id="radarLiveOutput" style="background: #0d1117; padding: 1rem; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 0.82rem; color: #7ee787; white-space: pre-wrap; max-height: 360px; overflow: auto;">Loading radar telemetry...</pre>
             </div>
         </section>
 
@@ -768,8 +821,9 @@
         <section id="view-agents" class="tab-content">
             <div class="toolbar">
                 <div style="font-size: 1.1rem; font-weight: 600;">AI &amp; Human Agent Fleet</div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn" onclick="promptRegisterAgent()">+ Register Agent</button>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn" onclick="runCmd('agent status')">📊 Fleet Status</button>
+                    <button class="btn btn-primary" onclick="promptRegisterAgent()">+ Register Agent</button>
                     <button class="btn" onclick="promptSendMessage()">✉️ Dispatch Message</button>
                 </div>
             </div>
@@ -785,6 +839,7 @@
                 <div style="display: flex; gap: 0.5rem;">
                     <button class="btn btn-primary" onclick="runCmd('cronos start')">Start Daemon</button>
                     <button class="btn btn-danger" onclick="runCmd('cronos stop')">Stop Daemon</button>
+                    <button class="btn" onclick="runCmd('cronos status')">Daemon Status</button>
                     <button class="btn" onclick="runCmd('cronos log')">View Event Log</button>
                 </div>
             </div>
@@ -805,7 +860,7 @@
                     <span>⚡ DraftMultiverse Interactive Console</span>
                     <span id="termStatus" style="color: var(--success); font-weight: bold;">READY</span>
                 </div>
-                <div class="terminal-body" id="termBody">DraftMultiverse v0.1.0 Ready. Type any dft command (e.g. status, radar, foresee, timeline, dimension)</div>
+                <div class="terminal-body" id="termBody">DraftMultiverse v__VERSION__ Ready. Type any dft command (e.g. status, radar, foresee, overlap, entropy, timeline, dimension, agent, bundle, export)</div>
                 <div class="terminal-input-row">
                     <span style="color: var(--quantum-violet); font-weight: 700; margin-right: 0.5rem;">dft$</span>
                     <input type="text" class="term-input" id="termInput" placeholder="Enter command..." autofocus>
@@ -817,6 +872,7 @@
     <script>
         let currentPath = "";
         let currentDim = "__ACTIVE_DIM__";
+        let repoStateCache = null;
         const rawReadme = __README_JSON__;
 
         function switchTab(tabId) {
@@ -833,6 +889,9 @@
                 loadTimeline();
             } else if (tabId === 'commits') {
                 loadCommits();
+            } else if (tabId === 'radar') {
+                fetchState();
+                loadRadarTelemetry();
             }
         }
 
@@ -1036,7 +1095,13 @@
             try {
                 const res = await fetch('/api/state');
                 const state = await res.json();
+                repoStateCache = state;
                 currentDim = state.active_dimension;
+
+                const bridgeBadge = document.getElementById('gitBridgeCountBadge');
+                if (bridgeBadge) {
+                    bridgeBadge.textContent = state.git_bridge_entries || 0;
+                }
 
                 // Populate Dim Select
                 const sel = document.getElementById('dimSelect');
@@ -1049,31 +1114,62 @@
                     sel.appendChild(opt);
                 });
 
-                // Territory
-                const claims = Object.keys(state.territory.claims || {});
-                document.getElementById('territoryClaimsList').innerHTML = claims.length > 0
-                    ? claims.map(c => `<div>🔒 <code>${c}</code> (claimed) <button class="btn" style="padding: 0.1rem 0.4rem; font-size: 0.7rem; margin-left: 0.5rem;" onclick="runCmd('yield ${c}')">Yield</button></div>`).join('')
+                // Territory Claims
+                const rawClaims = state.territory && state.territory.claims
+                    ? (Array.isArray(state.territory.claims.claims)
+                        ? state.territory.claims.claims
+                        : (Array.isArray(state.territory.claims) ? state.territory.claims : []))
+                    : [];
+                document.getElementById('territoryClaimsList').innerHTML = rawClaims.length > 0
+                    ? rawClaims.map(c => {
+                        const path = c.path_pattern || c.path || c;
+                        const holder = c.agent_id ? ` by <strong>${c.agent_id}</strong>` : '';
+                        const dim = c.dimension ? ` in <code>${c.dimension}</code>` : '';
+                        return `<div style="display:flex; justify-content:space-between; align-items:center; padding: 0.3rem 0; border-bottom: 1px solid var(--border);">
+                            <span>🔒 <code>${path}</code>${holder}${dim}</span>
+                            <button class="btn" style="padding: 0.15rem 0.5rem; font-size: 0.72rem;" onclick="runCmd('yield ${path}')">Yield</button>
+                        </div>`;
+                    }).join('')
                     : 'No active file claims.';
-                const fences = state.territory.fences || [];
-                document.getElementById('territoryFencesList').innerHTML = fences.length > 0
-                    ? fences.map(f => `<div>🚧 <code>${f}</code> (hard boundary fence)</div>`).join('')
+
+                // Territory Fences
+                const rawFences = state.territory && state.territory.fences
+                    ? (Array.isArray(state.territory.fences.fences)
+                        ? state.territory.fences.fences
+                        : (Array.isArray(state.territory.fences) ? state.territory.fences : []))
+                    : [];
+                document.getElementById('territoryFencesList').innerHTML = rawFences.length > 0
+                    ? rawFences.map(f => {
+                        const path = f.path_pattern || f.path || f;
+                        const owner = f.owner_dimension ? ` (owner: <code>${f.owner_dimension}</code>)` : '';
+                        return `<div style="display:flex; justify-content:space-between; align-items:center; padding: 0.3rem 0; border-bottom: 1px solid var(--border);">
+                            <span>🚧 <code>${path}</code>${owner}</span>
+                            <button class="btn" style="padding: 0.15rem 0.5rem; font-size: 0.72rem;" onclick="runCmd('fence --unfence ${path}')">Unfence</button>
+                        </div>`;
+                    }).join('')
                     : 'No active boundary fences.';
 
                 // Agents
                 const fleetBox = document.getElementById('agentFleetBox');
                 if (state.agents && state.agents.length > 0) {
-                    fleetBox.innerHTML = state.agents.map(a => `
+                    fleetBox.innerHTML = state.agents.map(a => {
+                        const agentId = a.id || a.name || a.agent_type || 'agent';
+                        const agentType = a.agent_type || a.kind || 'ai';
+                        const agentDim = a.dimension || 'mainline';
+                        return `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border);">
                             <div>
-                                <span>🤖 <strong>${a.name || a.agent_type || 'agent'}</strong> <span class="repo-badge">${a.agent_type || 'ai'}</span></span>
-                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Dimension: <code>${a.dimension || 'mainline'}</code></div>
+                                <span>🤖 <strong>${agentId}</strong> <span class="repo-badge">${agentType}</span></span>
+                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">Dimension: <code>${agentDim}</code></div>
                             </div>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent read ${a.name || a.agent_type}')">Mailbox</button>
-                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('heartbeat')">Heartbeat</button>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent info ${agentId}')">Info</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="promptAssignAgent('${agentId}')">Assign Dim</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('agent read ${agentId}')">Mailbox</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="runCmd('heartbeat ${agentId}')">Heartbeat</button>
                             </div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 } else {
                     fleetBox.innerHTML = '<div style="color: var(--text-muted); padding: 1rem 0;">No agents registered. Click "+ Register Agent" to recruit an AI agent.</div>';
                 }
@@ -1094,6 +1190,30 @@
                 }
             } catch (e) {
                 console.error(e);
+            }
+        }
+
+        async function loadRadarTelemetry() {
+            const box = document.getElementById('radarLiveOutput');
+            if (!box) return;
+            try {
+                const res = await fetch('/api/radar');
+                const data = await res.json();
+                box.textContent = [
+                    "=== 📡 RADAR HOT ZONES ===",
+                    (data.radar || "No active hot zones.").trim(),
+                    "",
+                    "=== ⚡ TIMELINE DIVERGENCE ENTROPY ===",
+                    (data.entropy || "H = 0.0000").trim(),
+                    "",
+                    "=== 🔮 PREDICTIVE 3-WAY FORESEE ===",
+                    (data.foresee || "Clean auto-merge predicted.").trim(),
+                    "",
+                    "=== 🔀 FILE & HUNK OVERLAP ===",
+                    (data.overlap || "0 overlapping files.").trim()
+                ].join("\n");
+            } catch (err) {
+                box.textContent = `Failed to load radar telemetry: ${err}`;
             }
         }
 
@@ -1222,7 +1342,8 @@
 
             const diffBtn = document.getElementById('tlInspectDiffBtn');
             diffBtn.onclick = () => {
-                viewDiff(node.id);
+                switchTab('commits');
+                viewCommitDiff(node.id);
             };
             inspector.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -1283,9 +1404,79 @@
             if (n) runCmd(`dimension create ${n}`);
         }
 
+        function promptForkDim() {
+            const n = prompt("New Forked Dimension Name:");
+            if (!n) return;
+            const from = prompt("Source Dimension to fork live state from:", currentDim || "mainline");
+            if (from) runCmd(`dimension fork ${n} --from ${from}`);
+        }
+
+        function promptSnapshot() {
+            const name = prompt("Snapshot Name (e.g. checkpoint-1):");
+            if (name) runCmd(`snapshot create ${name} -m "UI snapshot (${currentDim || 'mainline'})"`);
+        }
+
+        function promptObserve() {
+            const d = prompt("Dimension to observe:", currentDim || "mainline");
+            if (!d) return;
+            const f = prompt("File path to observe in dimension:", "README.md");
+            if (f) runCmd(`observe ${d} ${f}`);
+        }
+
+        function promptForesee() {
+            const d1 = prompt("First Dimension for 3-way conflict check:", currentDim !== 'mainline' ? currentDim : 'agent-quantum');
+            if (!d1) return;
+            const d2 = prompt("Second Dimension:", "mainline");
+            if (d2) runCmd(`foresee ${d1} ${d2}`);
+        }
+
+        function promptOverlap() {
+            const d1 = prompt("First Dimension for overlap check:", currentDim !== 'mainline' ? currentDim : 'agent-quantum');
+            if (!d1) return;
+            const d2 = prompt("Second Dimension:", "mainline");
+            if (d2) runCmd(`overlap ${d1} ${d2}`);
+        }
+
+        function promptCascade() {
+            const src = prompt("Source Dimension to cascade from:", "mainline");
+            if (!src) return;
+            const tgt = prompt("Target Dimension(s) (comma-separated):", "agent-quantum");
+            if (tgt) runCmd(`cascade ${src} --to ${tgt}`);
+        }
+
+        function promptWeave() {
+            const d1 = prompt("First Dimension to weave:", "agent-alpha");
+            if (!d1) return;
+            const d2 = prompt("Second Dimension to weave:", "agent-quantum");
+            if (d2) runCmd(`weave ${d1} ${d2}`);
+        }
+
+        function promptSplice() {
+            const src = prompt("Source Dimension:", "agent-quantum");
+            if (!src) return;
+            const range = prompt("Commit hash or range (start..end):");
+            if (!range) return;
+            const into = prompt("Target Dimension:", "mainline");
+            if (into) runCmd(`splice ${src} ${range} --into ${into}`);
+        }
+
+        function promptEntangle() {
+            const d1 = prompt("First Dimension:", "mainline");
+            if (!d1) return;
+            const d2 = prompt("Second Dimension:", "agent-quantum");
+            if (!d2) return;
+            const paths = prompt("Glob path pattern to entangle:", "Cargo.toml");
+            if (paths) runCmd(`entangle ${d1} ${d2} --paths ${paths}`);
+        }
+
         function promptRegisterAgent() {
             const a = prompt("Agent ID:");
             if (a) runCmd(`agent register ${a} --type ai`);
+        }
+
+        function promptAssignAgent(agentId) {
+            const d = prompt(`Assign agent '${agentId}' to dimension:`, currentDim || "mainline");
+            if (d) runCmd(`agent assign ${agentId} ${d}`);
         }
 
         function promptSendMessage() {
@@ -1295,8 +1486,8 @@
         }
 
         function promptClaim() {
-            const p = prompt("Path to claim exclusively:");
-            if (p) runCmd(`claim ${p}`);
+            const p = prompt("Path to claim:");
+            if (p) runCmd(`claim ${p} --ttl 1h`);
         }
 
         function promptFence() {
@@ -1315,7 +1506,8 @@
         }
 
         function copyClone() {
-            const cloneStr = "dft clone /Users/pathomphongphiphatsuriyawong/Workspace/DraftMultiverse";
+            const repoPath = (repoStateCache && repoStateCache.repository) ? repoStateCache.repository : window.location.origin;
+            const cloneStr = `dft clone ${repoPath}`;
             navigator.clipboard.writeText(cloneStr);
             alert("Copied: " + cloneStr);
         }
