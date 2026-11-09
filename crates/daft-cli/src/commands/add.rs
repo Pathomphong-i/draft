@@ -58,9 +58,15 @@ pub fn check_fence_violations(
         Ok(())
     };
 
+    let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(workdir);
+
     if all || pathspecs.iter().any(|p| p.as_os_str() == ".") {
         let index = repo.index().ok();
-        for entry in WalkDir::new(workdir).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(workdir)
+            .into_iter()
+            .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
+            .filter_map(|e| e.ok())
+        {
             let path = entry.path();
             if !workdir.starts_with(repo.dft_dir()) && path.starts_with(repo.dft_dir()) {
                 continue;
@@ -69,6 +75,9 @@ pub fn check_fence_violations(
                 if let Ok(rel) = path.strip_prefix(workdir) {
                     let rel_str = rel.to_string_lossy();
                     let norm = rel_str.trim_start_matches("./").replace('\\', "/");
+                    if ignore.is_ignored(&norm, false) {
+                        continue;
+                    }
 
                     let is_candidate = match &index {
                         Some(idx) => match idx.find_entry(&norm, Stage::Normal) {
@@ -110,14 +119,21 @@ pub fn check_fence_violations(
             };
 
             if full.is_dir() {
-                for entry in WalkDir::new(&full).into_iter().filter_map(|e| e.ok()) {
+                for entry in WalkDir::new(&full)
+                    .into_iter()
+                    .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
+                    .filter_map(|e| e.ok())
+                {
                     let path = entry.path();
                     if !workdir.starts_with(repo.dft_dir()) && path.starts_with(repo.dft_dir()) {
                         continue;
                     }
                     if entry.file_type().is_file() {
                         if let Ok(rel) = path.strip_prefix(workdir) {
-                            check_path(&rel.to_string_lossy())?;
+                            let rel_str = rel.to_string_lossy().replace('\\', "/");
+                            if !ignore.is_ignored(&rel_str, false) {
+                                check_path(&rel_str)?;
+                            }
                         }
                     }
                 }

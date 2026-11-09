@@ -162,17 +162,18 @@ impl StatusAggregator {
 
                     // 3. Untracked files
                     if workdir.exists() {
+                        let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(workdir);
                         for entry in WalkDir::new(workdir)
                             .into_iter()
-                            .filter_entry(|e| {
-                                let name = e.file_name().to_string_lossy();
-                                !name.starts_with(".dft") && !name.starts_with(".git")
-                            })
+                            .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
                             .flatten()
                         {
                             if entry.file_type().is_file() {
                                 if let Ok(rel) = entry.path().strip_prefix(workdir) {
-                                    let rel_str = rel.to_string_lossy().to_string();
+                                    let rel_str = rel.to_string_lossy().replace('\\', "/");
+                                    if ignore.is_ignored(&rel_str, false) {
+                                        continue;
+                                    }
                                     if index.find_entry(&rel_str, Stage::Normal).is_none() {
                                         untracked_files.push(rel_str);
                                     }

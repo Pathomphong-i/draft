@@ -39,6 +39,7 @@ pub fn clean_untracked(repo: &Repository, opts: CleanOptions) -> Result<Vec<Path
     }
 
     if opts.directories {
+        let ignore = crate::worktree::DaftIgnore::load_from_workdir(workdir);
         // Look for empty untracked directories
         for entry in walkdir::WalkDir::new(workdir)
             .contents_first(true)
@@ -50,10 +51,14 @@ pub fn clean_untracked(repo: &Repository, opts: CleanOptions) -> Result<Vec<Path
                 continue;
             }
             if entry.file_type().is_dir() {
-                // If directory is empty
-                if let Ok(mut read) = fs::read_dir(path) {
-                    if read.next().is_none() {
-                        if let Ok(rel) = path.strip_prefix(workdir) {
+                if let Ok(rel) = path.strip_prefix(workdir) {
+                    let rel_str = rel.to_string_lossy().replace('\\', "/");
+                    if ignore.is_ignored(&rel_str, true) {
+                        continue;
+                    }
+                    // If directory is empty
+                    if let Ok(mut read) = fs::read_dir(path) {
+                        if read.next().is_none() {
                             removed.push(rel.to_path_buf());
                             if !opts.dry_run {
                                 let _ = fs::remove_dir(path);

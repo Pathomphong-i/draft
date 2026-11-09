@@ -179,17 +179,18 @@ impl<'a> AuditEngine<'a> {
         }
 
         for (dim_name, ws_path) in checked_dimensions {
+            let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&ws_path);
             for entry in WalkDir::new(&ws_path)
                 .into_iter()
-                .filter_entry(|e| {
-                    let n = e.file_name().to_string_lossy();
-                    n != ".dft" && n != ".git"
-                })
+                .filter_entry(|e| !ignore.should_prune_entry(e, &ws_path))
                 .filter_map(|e| e.ok())
             {
                 if entry.file_type().is_file() {
                     if let Ok(rel) = entry.path().strip_prefix(&ws_path) {
                         let rel_str = rel.to_string_lossy().replace('\\', "/");
+                        if ignore.is_ignored(&rel_str, false) {
+                            continue;
+                        }
 
                         // Check fences
                         for fence in &fences {

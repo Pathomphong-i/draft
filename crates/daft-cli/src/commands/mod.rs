@@ -11,6 +11,7 @@ pub mod config;
 pub mod describe;
 pub mod diff;
 pub mod grep;
+pub mod http_wire;
 pub mod init;
 pub mod layer2;
 pub mod log;
@@ -23,6 +24,7 @@ pub mod reflog;
 pub mod reset;
 pub mod restore;
 pub mod rm;
+pub mod server;
 pub mod shortlog;
 pub mod show;
 pub mod stash;
@@ -110,5 +112,6 @@ pub fn dispatch(cli: Cli) -> Result<(), CliError> {
         Commands::Import(args) => layer2::remote::execute_import(args),
         Commands::Compat(args) => layer2::remote::execute_compat(args),
         Commands::Ui(args) => ui::execute(args),
+        Commands::Server(args) => server::execute(args),
     }
 }

@@ -1,15 +1,19 @@
 services:
-  draftmultiverse:
+  draft-server:
     build:
       context: .
       dockerfile: Dockerfile
-    image: draftmultiverse:latest
-    container_name: draftmultiverse
+    image: draftmultiverse-server:latest
+    container_name: draft-server
     restart: unless-stopped
     ports:
       - "3333:3333"
     volumes:
-      - ./:/repo
+      - draft-data:/data
     environment:
       - DFT_HOST=0.0.0.0
       - DFT_PORT=3333
+      - DFT_DATA_DIR=/data
+
+volumes:
+  draft-data:

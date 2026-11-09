@@ -92,7 +92,13 @@ pub fn ls_tree(
 ) -> Result<Vec<LsTreeEntry>, DaftError> {
     let tree_oid = if let Ok(oid) = ObjectId::from_hex(tree_ref) {
         if repo.cas().has_object(&oid) {
-            oid
+            let raw = repo.cas().read_raw(&oid)?;
+            if raw.object_type == ObjectType::Commit {
+                let commit = Commit::deserialize(&raw.data)?;
+                commit.tree
+            } else {
+                oid
+            }
         } else {
             let commit_oid = resolve_commit(repo, tree_ref)?;
             let raw = repo.cas().read_raw(&commit_oid)?;

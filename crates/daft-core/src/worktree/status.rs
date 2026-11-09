@@ -165,10 +165,7 @@ pub fn find_untracked_files(
 
     for entry in WalkDir::new(workdir)
         .into_iter()
-        .filter_entry(|e| {
-            let name = e.file_name().to_string_lossy();
-            !ignore.should_prune_dir(&name)
-        })
+        .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
         .filter_map(|e| e.ok())
     {
         let path = entry.path();

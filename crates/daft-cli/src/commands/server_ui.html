@@ -1,0 +1,2785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DraftMultiverse — Parallel Dimension Code Platform</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+  <style>
+    :root {
+      --bg-canvas: #070a10;
+      --bg-surface: #0d121b;
+      --bg-elevated: #141b27;
+      --bg-hover: #1b2434;
+      --border: #232f42;
+      --border-subtle: #192231;
+      --text-main: #e6edf6;
+      --text-muted: #8b9bb4;
+      --text-dim: #5d6d85;
+      --cyan: #38bdf8;
+      --cyan-dim: rgba(56, 189, 248, 0.14);
+      --violet: #a855f7;
+      --violet-dim: rgba(168, 85, 247, 0.16);
+      --emerald: #22c55e;
+      --emerald-dim: rgba(34, 197, 94, 0.15);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245, 158, 11, 0.16);
+      --rose: #f43f5e;
+      --rose-dim: rgba(244, 63, 94, 0.16);
+      --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 15% -10%, rgba(56, 189, 248, 0.08), transparent 42%),
+                  radial-gradient(circle at 85% 0%, rgba(168, 85, 247, 0.08), transparent 40%),
+                  var(--bg-canvas);
+      color: var(--text-main);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code, pre, .mono { font-family: var(--mono); }
+
+    /* Top Navigation */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: rgba(10, 14, 22, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .topbar-left, .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.02em;
+      cursor: pointer;
+      text-decoration: none !important;
+    }
+    .brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+    }
+    .brand-tag {
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--cyan-dim), var(--violet-dim));
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      color: #d8b4fe;
+      font-weight: 600;
+    }
+    .nav-link {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 13.5px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--text-main);
+      background: var(--bg-elevated);
+    }
+    .search-input {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 6px 11px;
+      font-size: 13px;
+      width: 220px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--cyan); }
+
+    /* Layout */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 22px 20px 64px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.75fr 1fr;
+      gap: 20px;
+    }
+    .grid-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 960px) {
+      .grid-2, .grid-equal, .grid-3 { grid-template-columns: 1fr; }
+      .search-input { display: none; }
+    }
+
+    /* Cards & Panels */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .card-header {
+      padding: 12px 16px;
+      background: rgba(20, 27, 39, 0.65);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-weight: 600;
+    }
+    .card-body { padding: 16px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.14s;
+      text-decoration: none !important;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--bg-hover); border-color: #364863; }
+    .btn-sm { padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-quantum {
+      background: linear-gradient(135deg, #7e22ce, #4f46e5);
+      border-color: #a855f7;
+      color: #fff;
+    }
+    .btn-quantum:hover { filter: brightness(1.12); }
+    .btn-emerald {
+      background: rgba(22, 163, 74, 0.9);
+      border-color: #22c55e;
+      color: #fff;
+    }
+    .btn-danger {
+      background: var(--rose-dim);
+      border-color: rgba(244, 63, 94, 0.45);
+      color: #fda4af;
+    }
+    .btn-danger:hover { background: rgba(244, 63, 94, 0.28); }
+
+    /* Badges / Pills */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .pill-dim {
+      background: var(--violet-dim);
+      border-color: rgba(168, 85, 247, 0.42);
+      color: #d8b4fe;
+    }
+    .pill-main {
+      background: var(--cyan-dim);
+      border-color: rgba(56, 189, 248, 0.42);
+      color: #7dd3fc;
+    }
+    .pill-clean {
+      background: var(--emerald-dim);
+      border-color: rgba(34, 197, 94, 0.42);
+      color: #86efac;
+    }
+    .pill-hot {
+      background: var(--amber-dim);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fcd34d;
+    }
+    .pill-conflict {
+      background: var(--rose-dim);
+      border-color: rgba(244, 63, 94, 0.45);
+      color: #fda4af;
+    }
+
+    /* Inputs & Forms */
+    input[type="text"], input[type="password"], input[type="email"], select, textarea {
+      width: 100%;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+    }
+    textarea.code-editor {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      min-height: 320px;
+      tab-size: 2;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--cyan); }
+    .form-group { margin-bottom: 13px; }
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    /* Repo Header & Tabs */
+    .repo-banner {
+      background: linear-gradient(180deg, rgba(20, 27, 39, 0.72), rgba(13, 18, 27, 0.95));
+      border-bottom: 1px solid var(--border);
+      padding: 18px 20px 0;
+      margin: -22px -20px 20px;
+    }
+    .repo-banner-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .repo-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .repo-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 1px;
+    }
+    .repo-tab {
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.14s;
+    }
+    .repo-tab:hover { color: var(--text-main); background: rgba(255,255,255,0.03); border-radius: 7px 7px 0 0; }
+    .repo-tab.active {
+      color: var(--text-main);
+      border-bottom-color: var(--violet);
+    }
+
+    /* Tables & File Tree */
+    .tree-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tree-table th, .tree-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+      font-size: 13.5px;
+    }
+    .tree-table tr:last-child td { border-bottom: none; }
+    .tree-table tr:hover td { background: rgba(255, 255, 255, 0.025); }
+
+    /* Code & Diff Viewer */
+    .code-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    .code-ln {
+      width: 48px;
+      text-align: right;
+      padding: 0 12px;
+      color: var(--text-dim);
+      user-select: none;
+      border-right: 1px solid var(--border-subtle);
+    }
+    .code-line {
+      padding: 0 14px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .diff-box {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #06090f;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .diff-line { padding: 1px 12px; white-space: pre; }
+    .diff-add { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+    .diff-del { background: rgba(244, 63, 94, 0.14); color: #fda4af; }
+    .diff-hunk { background: rgba(56, 189, 248, 0.12); color: #7dd3fc; font-weight: 600; }
+    .diff-hdr { color: var(--text-muted); font-weight: 600; background: rgba(255,255,255,0.03); }
+
+    /* Entropy Meter */
+    .entropy-bar {
+      width: 96px;
+      height: 7px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .entropy-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* Hero & Quickstart */
+    .hero {
+      background: linear-gradient(135deg, rgba(14, 24, 42, 0.95), rgba(25, 14, 43, 0.92));
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .pre-cmd {
+      background: #05070c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #cbd5e1;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    /* Dropdown & Modal */
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      min-width: 210px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+      padding: 6px;
+      z-index: 90;
+      display: none;
+    }
+    .dropdown.open .dropdown-menu { display: block; }
+    .dropdown-item {
+      padding: 7px 11px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dropdown-item:hover { background: var(--bg-hover); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 12, 0.78);
+      backdrop-filter: blur(5px);
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 820px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .modal-body {
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    /* Toast */
+    .toast-wrap {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--bg-elevated);
+      border: 1px solid var(--cyan);
+      color: var(--text-main);
+      padding: 10px 15px;
+      border-radius: 9px;
+      font-size: 13px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
+      max-width: 380px;
+    }
+    .toast.err { border-color: var(--rose); color: #fecdd3; }
+
+    /* Markdown Prose */
+    .markdown-body { font-size: 14px; line-height: 1.65; color: var(--text-main); }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+      margin-top: 20px;
+    }
+    .markdown-body pre {
+      background: #06090f;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .markdown-body code {
+      background: rgba(255,255,255,0.07);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 12.5px;
+    }
+    .markdown-body pre code { background: transparent; padding: 0; }
+    .muted { color: var(--text-muted); }
+    .flex-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .spacer { flex: 1; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <a class="brand" onclick="nav('/'); return false;" href="/">
+        <img src="/assets/logo.svg" alt="Draft" />
+        <span>DraftMultiverse</span>
+        <span class="brand-tag">Kairos L2 · v__VERSION__</span>
+      </a>
+      <a class="nav-link" onclick="nav('/explore'); return false;" href="/explore">🌌 Multiverses</a>
+      <a class="nav-link" onclick="nav('/pulls'); return false;" href="/pulls">🌊 Convergence</a>
+      <a class="nav-link" onclick="nav('/issues'); return false;" href="/issues">⊙ Swarm Tasks</a>
+      <button class="btn btn-sm btn-quantum" onclick="openSkillModal()">🤖 SKILL.md</button>
+    </div>
+    <div class="topbar-right">
+      <input id="globalSearch" class="search-input" type="text" placeholder="Search multiverses, dimensions..." onkeydown="if(event.key==='Enter'){nav('/explore?q='+encodeURIComponent(this.value));}" />
+      <div class="dropdown" id="plusDropdown">
+        <button class="btn btn-sm" onclick="toggleDropdown('plusDropdown')">＋ Spawn ▾</button>
+        <div class="dropdown-menu">
+          <div class="dropdown-item" onclick="closeDropdowns(); nav('/repo/create')">🌌 New Multiverse Repo</div>
+          <div class="dropdown-item" onclick="closeDropdowns(); nav('/repo/migrate')">⇄ Assimilate Git Repo</div>
+          <div class="dropdown-item" onclick="closeDropdowns(); nav('/org/create')">🛸 New Swarm Org</div>
+        </div>
+      </div>
+      <div id="authArea"></div>
+    </div>
+  </header>
+
+  <main class="container" id="appRoot">
+    <div class="card"><div class="card-body muted">Initializing Multiverse Spacetime Engine...</div></div>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="modalTitle">Inspector</span>
+        <button class="btn btn-sm" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    const SERVER_URL = "__SERVER_URL__";
+    const APP = {
+      me: null,
+      orgs: [],
+      tokens: [],
+      repoOverview: null,
+      repoRadar: null,
+    };
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".dropdown")) closeDropdowns();
+    });
+
+    function toggleDropdown(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const was = el.classList.contains("open");
+      closeDropdowns();
+      if (!was) el.classList.add("open");
+    }
+    function closeDropdowns() {
+      document.querySelectorAll(".dropdown.open").forEach(d => d.classList.remove("open"));
+    }
+
+    function openModal(title, html) {
+      document.getElementById("modalTitle").innerHTML = title;
+      document.getElementById("modalBody").innerHTML = html;
+      document.getElementById("modalBackdrop").classList.add("open");
+    }
+    function closeModal() {
+      document.getElementById("modalBackdrop").classList.remove("open");
+    }
+
+    function toast(msg, isErr = false) {
+      const wrap = document.getElementById("toastWrap");
+      const el = document.createElement("div");
+      el.className = "toast" + (isErr ? " err" : "");
+      el.textContent = msg;
+      wrap.appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
+
+    function copyText(txt, label = "Copied to clipboard") {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(txt).then(() => toast(label));
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = txt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        toast(label);
+      }
+    }
+
+    function esc(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function fmtBytes(bytes) {
+      const n = Number(bytes || 0);
+      if (n < 1024) return n + " B";
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+      return (n / (1024 * 1024)).toFixed(2) + " MB";
+    }
+
+    function timeAgo(iso) {
+      if (!iso) return "just now";
+      const sec = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+      if (sec < 60) return sec + "s ago";
+      if (sec < 3600) return Math.floor(sec / 60) + "m ago";
+      if (sec < 86400) return Math.floor(sec / 3600) + "h ago";
+      return Math.floor(sec / 86400) + "d ago";
+    }
+
+    function fmtTs(ts) {
+      if (!ts) return "";
+      const d = typeof ts === "number" ? new Date(ts * 1000) : new Date(ts);
+      return isNaN(d.getTime()) ? String(ts) : timeAgo(d.toISOString());
+    }
+
+    function renderMarkdown(md) {
+      if (!md) return "";
+      let html = esc(md);
+      html = html.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, _lang, code) => `<pre><code>${code}</code></pre>`);
+      html = html.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+      html = html.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+      html = html.replace(/^# (.*)$/gm, "<h1>$1</h1>");
+      html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      html = html.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+      html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g, `<a href="$2" target="_blank" rel="noopener">$1</a>`);
+      html = html.replace(/\n\n+/g, "</p><p>");
+      return `<div class="markdown-body"><p>${html}</p></div>`;
+    }
+
+    function renderDiffHtml(diffText) {
+      if (!diffText || !diffText.trim()) {
+        return `<div class="muted" style="padding:12px;">No tree differences between these spacetime states.</div>`;
+      }
+      const lines = diffText.split("\n").map(line => {
+        let cls = "diff-line";
+        if (line.startsWith("+++") || line.startsWith("---") || line.startsWith("diff ")) cls += " diff-hdr";
+        else if (line.startsWith("@@")) cls += " diff-hunk";
+        else if (line.startsWith("+")) cls += " diff-add";
+        else if (line.startsWith("-")) cls += " diff-del";
+        return `<div class="${cls}">${esc(line) || " "}</div>`;
+      }).join("");
+      return `<div class="diff-box">${lines}</div>`;
+    }
+
+    function entropyBadge(foresee) {
+      if (!foresee || !foresee.valid) return `<span class="pill">N/A</span>`;
+      const h = Number(foresee.entropy || 0);
+      const pct = Math.min(100, Math.round(h * 100));
+      const color = foresee.has_conflicts ? "#f43f5e" : (h > 0.35 ? "#f59e0b" : "#22c55e");
+      const statusPill = foresee.has_conflicts
+        ? `<span class="pill pill-conflict">⚡ Conflict (${(foresee.conflicting_files || []).length})</span>`
+        : `<span class="pill pill-clean">✓ Clean 3-Way</span>`;
+      return `
+        <span class="flex-row" style="display:inline-flex; gap:6px;">
+          ${statusPill}
+          <span class="pill mono" title="Divergence Entropy H(D_A, D_B) in [0, 1]">
+            H=${h.toFixed(2)} · ${esc(foresee.risk_tier || "Low")}
+            <span class="entropy-bar"><span class="entropy-fill" style="width:${pct}%; background:${color};"></span></span>
+          </span>
+        </span>
+      `;
+    }
+
+    async function api(path, opts = {}) {
+      const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+      const res = await fetch(path, Object.assign({}, opts, { headers }));
+      const ctype = res.headers.get("content-type") || "";
+      const data = ctype.includes("application/json") ? await res.json() : await res.text();
+      if (!res.ok) {
+        const msg = (data && data.error) ? data.error : (typeof data === "string" ? data : `HTTP ${res.status}`);
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    async function loadMe() {
+      try {
+        const d = await api("/api/v1/auth/me");
+        APP.me = d.user || null;
+        APP.orgs = d.orgs || [];
+        APP.tokens = d.tokens || [];
+      } catch (_) {
+        APP.me = null;
+      }
+      renderAuthArea();
+    }
+
+    function renderAuthArea() {
+      const box = document.getElementById("authArea");
+      if (!APP.me) {
+        box.innerHTML = `
+          <button class="btn btn-sm" onclick="nav('/login')">Sign In</button>
+          <button class="btn btn-sm btn-primary" onclick="nav('/register')">Register</button>
+        `;
+        return;
+      }
+      box.innerHTML = `
+        <div class="dropdown" id="userDropdown">
+          <button class="btn btn-sm" onclick="toggleDropdown('userDropdown')">
+            <span style="width:10px;height:10px;border-radius:50%;background:${esc(APP.me.avatar_color || '#38bdf8')};display:inline-block;"></span>
+            @${esc(APP.me.username)} ▾
+          </button>
+          <div class="dropdown-menu">
+            <div class="dropdown-item" onclick="closeDropdowns(); nav('/'+encodeURIComponent('${esc(APP.me.username)}'))">👤 Multiverse Profile</div>
+            <div class="dropdown-item" onclick="closeDropdowns(); nav('/user/settings')">🔑 PAT Tokens & Auth</div>
+            <div class="dropdown-item" onclick="closeDropdowns(); nav('/admin')">🛰️ Server Telemetry</div>
+            <div class="dropdown-item" onclick="doLogout()">🚪 Sign Out</div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function doLogout() {
+      closeDropdowns();
+      await api("/api/v1/auth/logout", { method: "POST", body: "{}" });
+      await loadMe();
+      toast("Signed out");
+      nav("/");
+    }
+
+    async function openSkillModal() {
+      try {
+        const md = await fetch("/SKILL.md").then(r => r.text());
+        openModal(
+          `🤖 Draft Agent Swarm Protocol (SKILL.md)`,
+          `
+            <div class="flex-row" style="margin-bottom:12px;">
+              <span class="pill pill-dim">${esc(SERVER_URL)}/SKILL.md</span>
+              <div class="spacer"></div>
+              <button class="btn btn-sm" onclick="copyText('curl -fsSL ${esc(SERVER_URL)}/SKILL.md', 'Copied curl SKILL.md command')">Copy curl Command</button>
+              <button class="btn btn-sm btn-primary" onclick="copyText(${JSON.stringify(md).replace(/</g,'\\u003c')}, 'SKILL.md copied for AI agent context')">Copy Full SKILL.md</button>
+            </div>
+            <pre class="pre-cmd" style="max-height:62vh; overflow:auto; white-space:pre-wrap;">${esc(md)}</pre>
+          `
+        );
+      } catch (e) {
+        toast(e.message, true);
+      }
+    }
+
+    function nav(url) {
+      history.pushState({}, "", url);
+      route();
+    }
+    window.addEventListener("popstate", route);
+
+    async function route() {
+      const path = window.location.pathname.replace(/\/+$/, "") || "/";
+      const params = new URLSearchParams(window.location.search);
+      const segs = path.split("/").filter(Boolean);
+
+      if (path === "/") return renderHome();
+      if (path === "/explore") return renderExplore(params);
+      if (path === "/pulls") return renderGlobalPulls(params);
+      if (path === "/issues") return renderGlobalIssues(params);
+      if (path === "/login") return renderLogin();
+      if (path === "/register") return renderRegister();
+      if (path === "/user/settings") return renderUserSettings();
+      if (path === "/admin") return renderAdmin();
+      if (path === "/repo/create") return renderCreateRepo();
+      if (path === "/repo/migrate") return renderMigrateRepo();
+      if (path === "/org/create") return renderCreateOrg();
+
+      if (segs.length === 1) return renderOwnerProfile(decodeURIComponent(segs[0]));
+      if (segs.length >= 2) {
+        const owner = decodeURIComponent(segs[0]);
+        const repo = decodeURIComponent(segs[1]).replace(/\.dft$/, "");
+        return renderRepoWorkspace(owner, repo, params);
+      }
+    }
+
+    // =========================================================================
+    // 1. Home — DraftMultiverse Command Deck
+    // =========================================================================
+    async function renderHome() {
+      const root = document.getElementById("appRoot");
+      try {
+        const [reposRes, actRes, health] = await Promise.all([
+          api("/api/v1/repos"),
+          api("/api/v1/activity?limit=20"),
+          api("/api/health").catch(() => ({})),
+        ]);
+        const repos = reposRes.repos || [];
+        const acts = actRes.activity || [];
+        const totalDims = repos.reduce((acc, r) => acc + (r.dimensions_count || 0), 0);
+
+        root.innerHTML = `
+          <section class="hero">
+            <div class="grid-2" style="align-items:center;">
+              <div>
+                <div class="flex-row" style="margin-bottom:8px;">
+                  <span class="pill pill-dim">Chronos → Kairos</span>
+                  <span class="pill pill-main">SHA-256 Content-Addressable Store</span>
+                  <span class="pill pill-clean">${repos.length} Multiverses · ${totalDims} Parallel Dimensions</span>
+                </div>
+                <h1 style="margin:0 0 8px; font-size:24px; letter-spacing:-0.02em;">
+                  DraftMultiverse — N-Dimensional Parallel Code Coordination
+                </h1>
+                <p class="muted" style="margin:0 0 14px; max-width:680px;">
+                  Unlike 1D Git servers where only one branch can exist per working tree, Draft treats
+                  <strong>Parallel Dimensions</strong>, <strong>Cross-Dimension Radar &amp; Hot Zones</strong>,
+                  <strong>Predictive 3-Way Foresee + Entropy</strong>, <strong>Territory Fences</strong>,
+                  <strong>Quantum Entanglement</strong>, and <strong>Wavefunction Collapse</strong> as native primitives for human + AI agent swarms.
+                </p>
+                <div class="flex-row">
+                  <button class="btn btn-primary" onclick="nav('/repo/create')">🌌 Spawn Multiverse</button>
+                  <button class="btn btn-quantum" onclick="openSkillModal()">🤖 Agent SKILL.md</button>
+                  <button class="btn" onclick="nav('/repo/migrate')">⇄ Assimilate Git Repo</button>
+                  <button class="btn" onclick="copyText('curl -fsSL ${esc(SERVER_URL)}/install.sh | sh', 'Installer command copied')">⬇ Install dft CLI</button>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:12px; font-weight:600; color:#d8b4fe; margin-bottom:6px;">
+                  ⚡ AI Agent Swarm 8-Step CLI Workflow (${esc(SERVER_URL)})
+                </div>
+                <pre class="pre-cmd">dft clone ${esc(repos[0] ? repos[0].clone_url : SERVER_URL + '/pathomphong/draft.dft')}
+dft dimension create agent-auth &amp;&amp; dft dimension enter agent-auth
+dft claim crates/auth/ --agent claude-1
+dft radar --hot &amp;&amp; dft foresee agent-auth mainline
+dft commit -m "Implement auth in isolated CoW dimension"
+dft push              # pushes refs/dimensions/agent-auth + claims
+dft collapse          # atomic wavefunction collapse into mainline</pre>
+              </div>
+            </div>
+          </section>
+
+          <div class="grid-2">
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <span>🌌 Active Multiverse Repositories (${repos.length})</span>
+                  <button class="btn btn-sm btn-primary" onclick="nav('/repo/create')">＋ New Multiverse</button>
+                </div>
+                <div class="card-body" style="padding:0;">
+                  ${repos.length === 0 ? `
+                    <div style="padding:24px; text-align:center;" class="muted">
+                      No multiverses hosted yet. Spawn one or push from <code>dft push</code>!
+                    </div>
+                  ` : repos.map(renderRepoRow).join("")}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <span>📡 Live Spacetime Telemetry</span>
+                  <span class="pill pill-clean">● Online · ${Math.floor((health.uptime_secs || 0) / 60)}m up</span>
+                </div>
+                <div class="card-body" style="padding:0;">
+                  ${acts.length === 0 ? `<div class="muted" style="padding:16px;">No multiverse events recorded yet.</div>` : acts.map(ev => `
+                    <div style="padding:11px 15px; border-bottom:1px solid var(--border-subtle); font-size:13px;">
+                      <div class="flex-row">
+                        <span class="pill ${ev.event_type === 'merge' ? 'pill-dim' : 'pill-main'}">${esc(ev.event_type)}</span>
+                        <strong>@${esc(ev.actor)}</strong>
+                        <span class="muted">in</span>
+                        <a href="/${encodeURIComponent(ev.owner)}/${encodeURIComponent(ev.repo)}" onclick="nav('/${encodeURIComponent(ev.owner)}/${encodeURIComponent(ev.repo)}'); return false;">
+                          ${esc(ev.owner)}/${esc(ev.repo)}
+                        </a>
+                        <span class="spacer"></span>
+                        <span class="muted" style="font-size:11.5px;">${timeAgo(ev.created_at)}</span>
+                      </div>
+                      <div class="muted" style="margin-top:3px;">${esc(ev.summary)}</div>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        root.innerHTML = `<div class="card"><div class="card-body">${esc(e.message)}</div></div>`;
+      }
+    }
+
+    function renderRepoRow(r) {
+      return `
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border-subtle);">
+          <div class="flex-row">
+            <a style="font-size:15px; font-weight:700;" href="/${encodeURIComponent(r.owner)}/${encodeURIComponent(r.name)}" onclick="nav('/${encodeURIComponent(r.owner)}/${encodeURIComponent(r.name)}'); return false;">
+              ${esc(r.full_name)}
+            </a>
+            ${r.private ? `<span class="pill pill-hot">Private</span>` : `<span class="pill">Public</span>`}
+            <span class="pill pill-dim" title="Active Parallel Dimensions">🌌 ${r.dimensions_count || 0} dimensions</span>
+            <span class="pill pill-main" title="Mainline Default Reference">⚡ ${esc(r.default_branch)}</span>
+            <div class="spacer"></div>
+            <span class="pill">★ ${r.stars_count || 0}</span>
+            <span class="pill">⑂ ${r.forks_count || 0}</span>
+          </div>
+          ${r.description ? `<div class="muted" style="margin-top:5px; font-size:13px;">${esc(r.description)}</div>` : ""}
+          <div class="flex-row" style="margin-top:8px; font-size:12px;" class="muted">
+            ${(r.topics || []).map(t => `<span class="pill">${esc(t)}</span>`).join("")}
+            <span class="muted">${r.commits_count || 0} commits · ${r.open_pulls_count || 0} convergence proposals · updated ${timeAgo(r.updated_at)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 2. Explore, Global Convergence & Global Swarm Tasks
+    // =========================================================================
+    async function renderExplore(params) {
+      const q = params.get("q") || "";
+      const sort = params.get("sort") || "updated";
+      const root = document.getElementById("appRoot");
+      const [reposRes, usersRes] = await Promise.all([
+        api(`/api/v1/repos?q=${encodeURIComponent(q)}&sort=${encodeURIComponent(sort)}`),
+        api("/api/v1/users"),
+      ]);
+      const repos = reposRes.repos || [];
+      const orgs = usersRes.orgs || [];
+      const users = usersRes.users || [];
+
+      root.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <span>🌌 Explore Multiverses (${repos.length})</span>
+              <div class="flex-row">
+                <input id="expQ" type="text" value="${esc(q)}" placeholder="Filter multiverses..." style="width:180px; padding:5px 9px;" onkeydown="if(event.key==='Enter') nav('/explore?q='+encodeURIComponent(this.value))" />
+                <select style="width:130px; padding:5px 8px;" onchange="nav('/explore?q='+encodeURIComponent(document.getElementById('expQ').value)+'&sort='+this.value)">
+                  <option value="updated" ${sort==='updated'?'selected':''}>Recently Active</option>
+                  <option value="stars" ${sort==='stars'?'selected':''}>Most Stars</option>
+                  <option value="name" ${sort==='name'?'selected':''}>Name</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              ${repos.length === 0 ? `<div class="muted" style="padding:20px;">No matching multiverses.</div>` : repos.map(renderRepoRow).join("")}
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-header"><span>🛸 Swarm Organizations (${orgs.length})</span></div>
+              <div class="card-body">
+                ${orgs.map(o => `
+                  <div class="flex-row" style="margin-bottom:8px;">
+                    <a href="/${encodeURIComponent(o.username)}" onclick="nav('/${encodeURIComponent(o.username)}'); return false;"><strong>@${esc(o.username)}</strong></a>
+                    <span class="muted">${esc(o.display_name)}</span>
+                    <span class="spacer"></span>
+                    <span class="pill">${o.repo_count} repos</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span>👥 Operators & Coordinators (${users.length})</span></div>
+              <div class="card-body">
+                ${users.map(u => `
+                  <div class="flex-row" style="margin-bottom:8px;">
+                    <a href="/${encodeURIComponent(u.username)}" onclick="nav('/${encodeURIComponent(u.username)}'); return false;"><strong>@${esc(u.username)}</strong></a>
+                    ${u.is_admin ? `<span class="pill pill-dim">Admin</span>` : ""}
+                    <span class="spacer"></span>
+                    <span class="pill">${u.repo_count} repos</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderGlobalPulls(params) {
+      const st = params.get("state") || "open";
+      const d = await api(`/api/v1/pulls?state=${encodeURIComponent(st)}`);
+      const items = d.pulls || [];
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <span>🌊 Global Dimension Convergence Proposals (${items.length})</span>
+            <div class="flex-row">
+              <button class="btn btn-sm ${st==='open'?'btn-primary':''}" onclick="nav('/pulls?state=open')">Open</button>
+              <button class="btn btn-sm ${st==='merged'?'btn-primary':''}" onclick="nav('/pulls?state=merged')">Converged</button>
+              <button class="btn btn-sm ${st==='all'?'btn-primary':''}" onclick="nav('/pulls?state=all')">All</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            ${items.length === 0 ? `<div class="muted" style="padding:20px;">No convergence proposals in this state.</div>` : items.map(x => `
+              <div style="padding:13px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+                <span class="pill ${x.pull.state==='merged'?'pill-dim':(x.pull.state==='open'?'pill-clean':'')}">${esc(x.pull.state)}</span>
+                <a href="/${encodeURIComponent(x.owner)}/${encodeURIComponent(x.repo)}?tab=pulls&pr=${x.pull.number}" onclick="nav('/${encodeURIComponent(x.owner)}/${encodeURIComponent(x.repo)}?tab=pulls&pr=${x.pull.number}'); return false;">
+                  <strong>${esc(x.owner)}/${esc(x.repo)} #${x.pull.number} — ${esc(x.pull.title)}</strong>
+                </a>
+                <span class="pill mono">${esc(x.pull.head_ref)} → ${esc(x.pull.base_ref)}</span>
+                <span class="spacer"></span>
+                <span class="muted">@${esc(x.pull.author)} · ${timeAgo(x.pull.updated_at)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    async function renderGlobalIssues(params) {
+      const st = params.get("state") || "open";
+      const d = await api(`/api/v1/issues?state=${encodeURIComponent(st)}`);
+      const items = d.issues || [];
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <span>⊙ Global Swarm Tasks & Issues (${items.length})</span>
+            <div class="flex-row">
+              <button class="btn btn-sm ${st==='open'?'btn-primary':''}" onclick="nav('/issues?state=open')">Open</button>
+              <button class="btn btn-sm ${st==='closed'?'btn-primary':''}" onclick="nav('/issues?state=closed')">Closed</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            ${items.length === 0 ? `<div class="muted" style="padding:20px;">No swarm tasks found.</div>` : items.map(x => `
+              <div style="padding:13px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+                <span class="pill ${x.issue.state==='open'?'pill-clean':'pill-dim'}">${esc(x.issue.state)}</span>
+                <a href="/${encodeURIComponent(x.owner)}/${encodeURIComponent(x.repo)}?tab=issues&issue=${x.issue.number}" onclick="nav('/${encodeURIComponent(x.owner)}/${encodeURIComponent(x.repo)}?tab=issues&issue=${x.issue.number}'); return false;">
+                  <strong>${esc(x.owner)}/${esc(x.repo)} #${x.issue.number} — ${esc(x.issue.title)}</strong>
+                </a>
+                ${x.issue.assignee ? `<span class="pill pill-dim">🤖 ${esc(x.issue.assignee)}</span>` : ""}
+                <span class="spacer"></span>
+                <span class="muted">@${esc(x.issue.author)} · ${timeAgo(x.issue.updated_at)}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 3. Auth, PAT Settings, Admin, Create/Migrate Multiverse, Profile
+    // =========================================================================
+    function renderLogin() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card" style="max-width:440px; margin:28px auto;">
+          <div class="card-header">Sign In to DraftMultiverse</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Username or Email</label>
+              <input id="loginUser" type="text" value="pathomphong" placeholder="pathomphong or admin" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input id="loginPass" type="password" value="" placeholder="Default seeded password: draft123" onkeydown="if(event.key==='Enter') submitLogin()" />
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="submitLogin()">Sign In</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitLogin() {
+      try {
+        await api("/api/v1/auth/login", {
+          method: "POST",
+          body: JSON.stringify({
+            username: document.getElementById("loginUser").value,
+            password: document.getElementById("loginPass").value,
+          }),
+        });
+        await loadMe();
+        toast("Signed in");
+        nav("/");
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function renderRegister() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card" style="max-width:460px; margin:28px auto;">
+          <div class="card-header">Register Multiverse Operator / Agent Account</div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Username</label><input id="regUser" type="text" placeholder="e.g. agent-alpha" /></div>
+            <div class="form-group"><label class="form-label">Display Name</label><input id="regName" type="text" placeholder="Agent Alpha" /></div>
+            <div class="form-group"><label class="form-label">Email</label><input id="regEmail" type="email" placeholder="agent@draft.local" /></div>
+            <div class="form-group"><label class="form-label">Password</label><input id="regPass" type="password" /></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="submitRegister()">Create Account</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitRegister() {
+      try {
+        await api("/api/v1/auth/register", {
+          method: "POST",
+          body: JSON.stringify({
+            username: document.getElementById("regUser").value,
+            display_name: document.getElementById("regName").value,
+            email: document.getElementById("regEmail").value,
+            password: document.getElementById("regPass").value,
+          }),
+        });
+        await loadMe();
+        toast("Account created");
+        nav("/");
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function renderUserSettings() {
+      await loadMe();
+      if (!APP.me) return renderLogin();
+      document.getElementById("appRoot").innerHTML = `
+        <div class="grid-equal">
+          <div class="card">
+            <div class="card-header">🔑 Personal & Agent Access Tokens (dft_pat_...)</div>
+            <div class="card-body">
+              <p class="muted" style="margin-top:0;">Use tokens as Bearer auth or HTTP Basic password with <code>DFT_TOKEN</code> for autonomous CLI &amp; swarm pushes.</p>
+              <div class="flex-row" style="margin-bottom:14px;">
+                <input id="patName" type="text" placeholder="Token label (e.g. swarm-worker-1)" style="flex:1;" />
+                <button class="btn btn-primary" onclick="createPat()">Generate PAT</button>
+              </div>
+              <div id="newPatBox"></div>
+              ${APP.tokens.map(t => `
+                <div class="flex-row" style="padding:8px 0; border-bottom:1px solid var(--border-subtle);">
+                  <strong>${esc(t.name)}</strong>
+                  <code class="pill">${esc(t.prefix)}...</code>
+                  <span class="spacer"></span>
+                  <button class="btn btn-sm btn-danger" onclick="revokePat('${esc(t.id)}')">Revoke</button>
+                </div>
+              `).join("") || `<div class="muted">No tokens generated yet.</div>`}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">🔒 Change Password</div>
+            <div class="card-body">
+              <div class="form-group"><label class="form-label">Current Password</label><input id="curPw" type="password" /></div>
+              <div class="form-group"><label class="form-label">New Password</label><input id="newPw" type="password" /></div>
+              <button class="btn btn-primary" onclick="changePw()">Update Password</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function createPat() {
+      try {
+        const res = await api("/api/v1/user/tokens", {
+          method: "POST",
+          body: JSON.stringify({ name: document.getElementById("patName").value }),
+        });
+        await loadMe();
+        await renderUserSettings();
+        document.getElementById("newPatBox").innerHTML = `
+          <div class="card" style="border-color:var(--emerald); padding:10px; margin-bottom:12px;">
+            <div style="font-size:12px; color:#86efac; margin-bottom:4px;">Copy new token now (shown once):</div>
+            <div class="flex-row">
+              <code style="word-break:break-all;">${esc(res.token)}</code>
+              <button class="btn btn-sm" onclick="copyText('${esc(res.token)}')">Copy</button>
+            </div>
+          </div>
+        `;
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function revokePat(id) {
+      await api(`/api/v1/user/tokens/${encodeURIComponent(id)}`, { method: "DELETE" });
+      toast("Token revoked");
+      renderUserSettings();
+    }
+
+    async function changePw() {
+      try {
+        await api("/api/v1/user/password", {
+          method: "POST",
+          body: JSON.stringify({
+            current_password: document.getElementById("curPw").value,
+            new_password: document.getElementById("newPw").value,
+          }),
+        });
+        toast("Password updated");
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function renderAdmin() {
+      const d = await api("/api/v1/admin/overview");
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card">
+          <div class="card-header">🛰️ DraftMultiverse Server Telemetry</div>
+          <div class="card-body">
+            <div class="grid-3">
+              <div class="card"><div class="card-body"><div class="muted">Multiverse Repos</div><div style="font-size:24px;font-weight:700;">${d.repo_count}</div></div></div>
+              <div class="card"><div class="card-body"><div class="muted">Deduplicated CAS Objects</div><div style="font-size:24px;font-weight:700;">${d.total_cas_objects}</div></div></div>
+              <div class="card"><div class="card-body"><div class="muted">Storage Footprint</div><div style="font-size:24px;font-weight:700;">${fmtBytes(d.disk_bytes)}</div></div></div>
+              <div class="card"><div class="card-body"><div class="muted">Operators / Orgs</div><div style="font-size:20px;font-weight:700;">${d.user_count} / ${d.org_count}</div></div></div>
+              <div class="card"><div class="card-body"><div class="muted">Convergence / Tasks</div><div style="font-size:20px;font-weight:700;">${d.total_pulls} / ${d.total_issues}</div></div></div>
+              <div class="card"><div class="card-body"><div class="muted">Host Runtime</div><div class="mono" style="font-size:13px;">v${esc(d.version)} (${esc(d.os)}/${esc(d.arch)})<br/>${esc(d.data_dir)}</div></div></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function ownerOptionsHtml() {
+      const owners = [];
+      if (APP.me) owners.push(APP.me.username);
+      else owners.push("pathomphong", "admin");
+      (APP.orgs || []).forEach(o => { if (!owners.includes(o.name)) owners.push(o.name); });
+      return owners.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
+    }
+
+    function renderCreateRepo() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card" style="max-width:620px; margin:20px auto;">
+          <div class="card-header">🌌 Spawn New Multiverse Repository</div>
+          <div class="card-body">
+            <div class="grid-equal">
+              <div class="form-group"><label class="form-label">Owner / Swarm Org</label><select id="crOwner">${ownerOptionsHtml()}</select></div>
+              <div class="form-group"><label class="form-label">Multiverse Name</label><input id="crName" type="text" placeholder="quantum-core" /></div>
+            </div>
+            <div class="form-group"><label class="form-label">Description</label><input id="crDesc" type="text" placeholder="Parallel AI swarm workspace" /></div>
+            <div class="grid-equal">
+              <div class="form-group"><label class="form-label">Mainline Reference Name</label><input id="crBranch" type="text" value="main" /></div>
+              <div class="form-group"><label class="form-label">Topics (comma separated)</label><input id="crTopics" type="text" placeholder="draft, swarm, rust" /></div>
+            </div>
+            <div class="flex-row" style="margin-bottom:14px;">
+              <label class="flex-row"><input id="crInit" type="checkbox" checked style="width:auto;" /> Initialize Mainline CAS with README.md</label>
+              <label class="flex-row"><input id="crPriv" type="checkbox" style="width:auto;" /> Private Multiverse</label>
+            </div>
+            <button class="btn btn-primary" onclick="submitCreateRepo()">🌌 Create Multiverse</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitCreateRepo() {
+      try {
+        const topics = document.getElementById("crTopics").value.split(",").map(s => s.trim()).filter(Boolean);
+        const m = await api("/api/v1/repos", {
+          method: "POST",
+          body: JSON.stringify({
+            owner: document.getElementById("crOwner").value,
+            name: document.getElementById("crName").value,
+            description: document.getElementById("crDesc").value,
+            default_branch: document.getElementById("crBranch").value,
+            auto_init: document.getElementById("crInit").checked,
+            private: document.getElementById("crPriv").checked,
+            topics,
+          }),
+        });
+        toast("Multiverse spawned");
+        nav(`/${encodeURIComponent(m.owner)}/${encodeURIComponent(m.name)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function renderMigrateRepo() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card" style="max-width:620px; margin:20px auto;">
+          <div class="card-header">⇄ Assimilate External Git Repo into Draft CAS</div>
+          <div class="card-body">
+            <p class="muted" style="margin-top:0;">Transmutes any SHA-1 Git repository (GitHub, GitLab, Gitea, or local path) into Draft's SHA-256 Content-Addressable Multiverse store.</p>
+            <div class="form-group"><label class="form-label">Source Git Clone URL or Local Path</label><input id="migUrl" type="text" placeholder="https://github.com/org/repo.git" /></div>
+            <div class="grid-equal">
+              <div class="form-group"><label class="form-label">Target Owner</label><select id="migOwner">${ownerOptionsHtml()}</select></div>
+              <div class="form-group"><label class="form-label">Target Multiverse Name</label><input id="migName" type="text" placeholder="assimilated-repo" /></div>
+            </div>
+            <div class="form-group"><label class="form-label">Description</label><input id="migDesc" type="text" /></div>
+            <button class="btn btn-quantum" onclick="submitMigrateRepo()">⇄ Assimilate into Draft CAS</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitMigrateRepo() {
+      try {
+        toast("Assimilating Git history into SHA-256 CAS...");
+        const m = await api("/api/v1/repos/migrate", {
+          method: "POST",
+          body: JSON.stringify({
+            clone_addr: document.getElementById("migUrl").value,
+            owner: document.getElementById("migOwner").value,
+            name: document.getElementById("migName").value,
+            description: document.getElementById("migDesc").value,
+          }),
+        });
+        toast("Repository assimilated into Draft Multiverse!");
+        nav(`/${encodeURIComponent(m.owner)}/${encodeURIComponent(m.name)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function renderCreateOrg() {
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card" style="max-width:520px; margin:20px auto;">
+          <div class="card-header">🛸 Create Swarm Organization</div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Organization Handle</label><input id="orgSlug" type="text" placeholder="swarm-labs" /></div>
+            <div class="form-group"><label class="form-label">Display Name</label><input id="orgDisp" type="text" placeholder="Swarm Labs" /></div>
+            <div class="form-group"><label class="form-label">Description</label><input id="orgDesc" type="text" /></div>
+            <button class="btn btn-primary" onclick="submitCreateOrg()">Create Organization</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitCreateOrg() {
+      try {
+        const o = await api("/api/v1/orgs", {
+          method: "POST",
+          body: JSON.stringify({
+            name: document.getElementById("orgSlug").value,
+            display_name: document.getElementById("orgDisp").value,
+            description: document.getElementById("orgDesc").value,
+          }),
+        });
+        await loadMe();
+        nav(`/${encodeURIComponent(o.name)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function renderOwnerProfile(owner) {
+      const d = await api(`/api/v1/repos?owner=${encodeURIComponent(owner)}`);
+      const repos = d.repos || [];
+      document.getElementById("appRoot").innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <span>🌌 @${esc(owner)} — Multiverse Namespace (${repos.length})</span>
+            <button class="btn btn-sm btn-primary" onclick="nav('/repo/create')">＋ New Multiverse</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            ${repos.length === 0 ? `<div class="muted" style="padding:20px;">No multiverses under @${esc(owner)}.</div>` : repos.map(renderRepoRow).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 4. Multiverse Repository Workspace (/:owner/:repo)
+    // =========================================================================
+    async function renderRepoWorkspace(owner, repo, params) {
+      const root = document.getElementById("appRoot");
+      const tab = params.get("tab") || "code";
+      const refParam = params.get("ref") || "";
+
+      try {
+        const [ov, radar] = await Promise.all([
+          api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}${refParam ? `?ref=${encodeURIComponent(refParam)}` : ""}`),
+          api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/radar`).catch(() => ({})),
+        ]);
+        APP.repoOverview = ov;
+        APP.repoRadar = radar;
+
+        const m = ov.meta;
+        const st = ov.stats || {};
+        const selectedRef = ov.selected_ref || m.default_branch;
+        const hotCount = (radar.hot_zones || []).length;
+        const entCount = (radar.entanglements || []).length;
+        const agentCount = (radar.agents || []).length;
+
+        const tabUrl = (t, extra = "") => `/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=${t}${extra}`;
+
+        root.innerHTML = `
+          <div class="repo-banner">
+            <div class="repo-banner-inner">
+              <div class="repo-title-row">
+                <div>
+                  <div class="flex-row">
+                    <a style="font-size:19px;font-weight:600;" href="/${encodeURIComponent(m.owner)}" onclick="nav('/${encodeURIComponent(m.owner)}'); return false;">${esc(m.owner)}</a>
+                    <span class="muted">/</span>
+                    <a style="font-size:19px;font-weight:800;" href="/${encodeURIComponent(m.owner)}/${encodeURIComponent(m.name)}" onclick="nav('/${encodeURIComponent(m.owner)}/${encodeURIComponent(m.name)}'); return false;">${esc(m.name)}</a>
+                    ${m.private ? `<span class="pill pill-hot">Private</span>` : `<span class="pill">Public</span>`}
+                    <span class="pill pill-dim">🌌 ${st.dimensions || 0} Parallel Dimensions</span>
+                    <span class="pill pill-main">📦 ${st.objects || 0} CAS Objects</span>
+                    ${hotCount > 0 ? `<span class="pill pill-hot" style="cursor:pointer;" onclick="nav('${tabUrl('radar')}')">🔥 ${hotCount} Hot Zone${hotCount>1?'s':''}</span>` : ""}
+                  </div>
+                  ${m.description ? `<div class="muted" style="font-size:13px; margin-top:4px;">${esc(m.description)}</div>` : ""}
+                  ${m.forked_from ? `<div class="muted" style="font-size:12px;">⑂ Forked multiverse from <code>${esc(m.forked_from)}</code></div>` : ""}
+                  ${m.migrated_from ? `<div class="muted" style="font-size:12px;">⇄ Assimilated from <code>${esc(m.migrated_from)}</code></div>` : ""}
+                </div>
+                <div class="flex-row">
+                  <button class="btn btn-sm" onclick="promptObserveModal('${esc(owner)}','${esc(repo)}','')">👁️ Observe File</button>
+                  <button class="btn btn-sm" onclick="openSnapshotModal('${esc(owner)}','${esc(repo)}','${esc(selectedRef)}')">📸 Snapshot</button>
+                  <button class="btn btn-sm" onclick="toggleStar('${esc(owner)}','${esc(repo)}')">★ ${ov.starred_by_me ? "Starred" : "Star"} (${st.stars || 0})</button>
+                  <button class="btn btn-sm" onclick="forkMultiverse('${esc(owner)}','${esc(repo)}')">⑂ Fork (${st.forks || 0})</button>
+                </div>
+              </div>
+
+              <div class="repo-tabs">
+                <div class="repo-tab ${tab==='code'?'active':''}" onclick="nav('${tabUrl('code', '&ref='+encodeURIComponent(selectedRef))}')">〈〉 Workspace</div>
+                <div class="repo-tab ${tab==='timeline'?'active':''}" onclick="nav('${tabUrl('timeline')}')">🌌 Spacetime DAG <span class="pill">${(st.dimensions||0)+1}</span></div>
+                <div class="repo-tab ${tab==='pulls'?'active':''}" onclick="nav('${tabUrl('pulls')}')">🌊 Convergence &amp; Collapse <span class="pill">${st.open_pulls||0}</span></div>
+                <div class="repo-tab ${tab==='radar'?'active':''}" onclick="nav('${tabUrl('radar')}')">📡 Radar &amp; Territory ${hotCount?`<span class="pill pill-hot">${hotCount}</span>`:''}</div>
+                <div class="repo-tab ${tab==='entangle'?'active':''}" onclick="nav('${tabUrl('entangle')}')">🔗 Entangle &amp; Cronos <span class="pill">${entCount}</span></div>
+                <div class="repo-tab ${tab==='agents'?'active':''}" onclick="nav('${tabUrl('agents')}')">🤖 Agent Swarm <span class="pill">${agentCount}</span></div>
+                <div class="repo-tab ${tab==='issues'?'active':''}" onclick="nav('${tabUrl('issues')}')">⊙ Swarm Tasks <span class="pill">${st.open_issues||0}</span></div>
+                <div class="repo-tab ${(tab==='commits'||tab==='settings')?'active':''}" onclick="nav('${tabUrl('commits', '&ref='+encodeURIComponent(selectedRef))}')">⚙️ History &amp; Settings</div>
+              </div>
+            </div>
+          </div>
+          <div id="repoTabBody"></div>
+        `;
+
+        if (tab === "code") return renderCodeTab(owner, repo, ov, radar, params);
+        if (tab === "timeline") return renderTimelineTab(owner, repo, ov, radar, params);
+        if (tab === "pulls") return renderConvergenceTab(owner, repo, ov, radar, params);
+        if (tab === "radar") return renderRadarTab(owner, repo, ov, radar);
+        if (tab === "entangle") return renderEntangleTab(owner, repo, ov, radar);
+        if (tab === "agents") return renderAgentsTab(owner, repo, ov, radar);
+        if (tab === "issues") return renderIssuesTab(owner, repo, ov, params);
+        if (tab === "settings") return renderSettingsTab(owner, repo, ov);
+        return renderCommitsTab(owner, repo, ov, params);
+      } catch (e) {
+        root.innerHTML = `<div class="card"><div class="card-body">${esc(e.message)}</div></div>`;
+      }
+    }
+
+    async function toggleStar(owner, repo) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/star`, { method: "POST", body: "{}" });
+      route();
+    }
+
+    async function forkMultiverse(owner, repo) {
+      try {
+        const f = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/fork`, { method: "POST", body: "{}" });
+        toast(`Forked multiverse to ${f.owner}/${f.name}`);
+        nav(`/${encodeURIComponent(f.owner)}/${encodeURIComponent(f.name)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function buildDimensionOptions(ov, radar, selectedRef) {
+      const def = ov.meta.default_branch;
+      const dims = ov.dimensions || [];
+      const branches = (ov.branches || []).filter(b => b.name !== def);
+      const snaps = (radar && radar.snapshots) || [];
+      const tags = ov.tags || [];
+
+      let html = `<optgroup label="⚡ Mainline Spacetime">`;
+      html += `<option value="${esc(def)}" ${(selectedRef===def || selectedRef==='mainline')?'selected':''}>⚡ mainline (${esc(def)})</option>`;
+      html += `</optgroup>`;
+
+      if (dims.length > 0) {
+        html += `<optgroup label="🌌 Parallel Dimensions (${dims.length})">`;
+        dims.forEach(d => {
+          html += `<option value="${esc(d.name)}" ${selectedRef===d.name?'selected':''}>🌌 ${esc(d.name)} (${esc(d.short_commit)})</option>`;
+        });
+        html += `</optgroup>`;
+      }
+      if (snaps.length > 0) {
+        html += `<optgroup label="📸 Immutable Snapshots (${snaps.length})">`;
+        snaps.forEach(s => {
+          const full = `refs/snapshots/${s.name}`;
+          html += `<option value="${esc(full)}" ${selectedRef===full?'selected':''}>📸 ${esc(s.name)} (${esc(s.short_commit)})</option>`;
+        });
+        html += `</optgroup>`;
+      }
+      if (branches.length > 0 || tags.length > 0) {
+        html += `<optgroup label="🌿 Additional Heads & Tags">`;
+        branches.forEach(b => {
+          html += `<option value="${esc(b.name)}" ${selectedRef===b.name?'selected':''}>🌿 ${esc(b.name)}</option>`;
+        });
+        tags.forEach(t => {
+          html += `<option value="${esc(t.name)}" ${selectedRef===t.name?'selected':''}>🏷️ ${esc(t.name)}</option>`;
+        });
+        html += `</optgroup>`;
+      }
+      return html;
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 1: Workspace (Dimension-first CAS Explorer + Hot Zones + Observe)
+    // -------------------------------------------------------------------------
+    async function renderCodeTab(owner, repo, ov, radar, params) {
+      const box = document.getElementById("repoTabBody");
+      const ref = params.get("ref") || ov.selected_ref || ov.meta.default_branch;
+      const filePath = params.get("blob") || "";
+      const dirPath = params.get("path") || "";
+      const editMode = params.get("edit") === "1";
+      const newFileMode = params.get("newfile") === "1";
+
+      if (ov.is_empty && !newFileMode) {
+        box.innerHTML = `
+          <div class="card">
+            <div class="card-header">🌌 Empty Multiverse — Ready for Spacetime Initialization</div>
+            <div class="card-body">
+              <p class="muted">Push an existing Draft multiverse or create the first file directly in CAS:</p>
+              <pre class="pre-cmd" style="margin-bottom:14px;">dft init
+dft add . &amp;&amp; dft commit -m "Genesis spacetime commit"
+dft remote add origin ${esc(ov.clone_url)}
+dft push -u origin ${esc(ov.meta.default_branch)} --all</pre>
+              <button class="btn btn-primary" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&newfile=1&ref=${encodeURIComponent(ref)}')">＋ Create Genesis File in Browser</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Dimension awareness banner if viewing a parallel dimension
+      const matrixEntry = (radar.matrix || []).find(x => x.source === ref);
+      const dimBanner = matrixEntry ? `
+        <div class="card" style="border-color:rgba(168,85,247,0.45); background:rgba(168,85,247,0.06);">
+          <div class="card-body flex-row" style="padding:11px 16px;">
+            <span class="pill pill-dim">🌌 Active Dimension: ${esc(ref)}</span>
+            <span class="muted">vs Mainline (<code>${esc(ov.meta.default_branch)}</code>):</span>
+            ${entropyBadge(matrixEntry.foresee)}
+            <div class="spacer"></div>
+            <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&new=1&head=${encodeURIComponent(ref)}&base=${encodeURIComponent(ov.meta.default_branch)}')">🌊 Propose Convergence</button>
+            <button class="btn btn-sm btn-quantum" onclick="quickCollapseOne('${esc(owner)}','${esc(repo)}','${esc(ref)}')">⚡ Collapse into Mainline</button>
+          </div>
+        </div>
+      ` : "";
+
+      const toolbar = `
+        ${dimBanner}
+        <div class="flex-row" style="margin-bottom:14px;">
+          <select style="width:250px; font-weight:600;" onchange="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref='+encodeURIComponent(this.value))">
+            ${buildDimensionOptions(ov, radar, ref)}
+          </select>
+          <button class="btn btn-sm btn-quantum" onclick="openSpawnDimensionModal('${esc(owner)}','${esc(repo)}','${esc(ref)}')">＋ Spawn Dimension</button>
+          <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&newfile=1&ref=${encodeURIComponent(ref)}&dir=${encodeURIComponent(dirPath)}')">＋ New File</button>
+          <div class="spacer"></div>
+          <div class="flex-row" style="background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; padding:3px 8px;">
+            <code style="font-size:12px; color:var(--cyan);">dft clone ${esc(ov.clone_url)}</code>
+            <button class="btn btn-sm" style="padding:2px 7px;" onclick="copyText('dft clone ${esc(ov.clone_url)}', 'Clone command copied')">Copy</button>
+          </div>
+          <a class="btn btn-sm" href="/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/bundle" download="${esc(repo)}.dftbundle">⬇ Bundle</a>
+        </div>
+      `;
+
+      if (newFileMode) {
+        const prefix = params.get("dir") ? params.get("dir") + "/" : "";
+        box.innerHTML = toolbar + `
+          <div class="card">
+            <div class="card-header">Create New File in Dimension <code>${esc(ref)}</code></div>
+            <div class="card-body">
+              <div class="form-group"><label class="form-label">File Path</label><input id="nfPath" type="text" value="${esc(prefix)}" placeholder="crates/module/lib.rs" /></div>
+              <div class="form-group"><label class="form-label">Contents</label><textarea id="nfContent" class="code-editor"></textarea></div>
+              <div class="form-group"><label class="form-label">Commit Message</label><input id="nfMsg" type="text" placeholder="Add file in ${esc(ref)}" /></div>
+              <div class="flex-row">
+                <button class="btn btn-primary" onclick="saveCasFile('${esc(owner)}','${esc(repo)}','${esc(ref)}', true)">Commit directly to ${esc(ref)}</button>
+                <button class="btn" onclick="history.back()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (filePath) {
+        const blob = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/blob?ref=${encodeURIComponent(ref)}&path=${encodeURIComponent(filePath)}`);
+        if (editMode) {
+          box.innerHTML = toolbar + `
+            <div class="card">
+              <div class="card-header">Editing <code>${esc(filePath)}</code> on <code>${esc(ref)}</code></div>
+              <div class="card-body">
+                <input id="nfPath" type="hidden" value="${esc(filePath)}" />
+                <div class="form-group"><textarea id="nfContent" class="code-editor">${esc(blob.content || "")}</textarea></div>
+                <div class="form-group"><label class="form-label">Commit Message</label><input id="nfMsg" type="text" value="Update ${esc(filePath)}" /></div>
+                <div class="flex-row">
+                  <button class="btn btn-primary" onclick="saveCasFile('${esc(owner)}','${esc(repo)}','${esc(ref)}', false)">Commit Changes</button>
+                  <button class="btn" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}&blob=${encodeURIComponent(filePath)}')">Cancel</button>
+                </div>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const hotHit = (radar.hot_zones || []).find(h => h.path === filePath);
+        const lines = (blob.content || "").split("\n");
+        box.innerHTML = toolbar + `
+          <div class="card">
+            <div class="card-header">
+              <div class="flex-row">
+                <a href="/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}'); return false;">${esc(repo)}</a>
+                <span class="muted">/</span>
+                <strong>${esc(filePath)}</strong>
+                <span class="pill mono">SHA256:${esc((blob.oid || "").slice(0, 10))}</span>
+                <span class="muted" style="font-size:12px;">${blob.lines || 0} lines · ${fmtBytes(blob.size)}</span>
+                ${hotHit ? `<span class="pill pill-hot">🔥 Hot Zone (${hotHit.touch_count} dims)</span>` : ""}
+              </div>
+              <div class="flex-row">
+                <button class="btn btn-sm btn-quantum" onclick="promptObserveModal('${esc(owner)}','${esc(repo)}','${esc(filePath)}')">👁️ Observe Across Dimensions</button>
+                <button class="btn btn-sm" onclick="quickClaimPath('${esc(owner)}','${esc(repo)}','${esc(filePath)}','${esc(ref)}')">🔒 Claim</button>
+                ${!blob.is_binary ? `<button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}&blob=${encodeURIComponent(filePath)}&edit=1')">✎ Edit</button>` : ""}
+                <a class="btn btn-sm" href="${esc(blob.raw_url)}" target="_blank">Raw</a>
+                <button class="btn btn-sm btn-danger" onclick="deleteCasFile('${esc(owner)}','${esc(repo)}','${esc(ref)}','${esc(filePath)}')">Delete</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              ${blob.is_binary
+                ? `<div class="card-body muted">Binary CAS object (${fmtBytes(blob.size)}) — <a href="${esc(blob.raw_url)}" target="_blank">Download raw</a></div>`
+                : `<table class="code-table"><tbody>${lines.map((l, i) => `<tr><td class="code-ln">${i + 1}</td><td class="code-line">${esc(l)}</td></tr>`).join("")}</tbody></table>`
+              }
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Directory Listing
+      const tree = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/tree?ref=${encodeURIComponent(ref)}&path=${encodeURIComponent(dirPath)}`);
+      const claims = (radar.territory && radar.territory.claims) || {};
+      const fences = (radar.territory && radar.territory.fences) || [];
+      const hotZones = radar.hot_zones || [];
+
+      const fileBadges = (entryPath, isDir) => {
+        const badges = [];
+        const hz = hotZones.find(h => isDir ? h.path.startsWith(entryPath + "/") : h.path === entryPath);
+        if (hz) {
+          badges.push(`<span class="pill pill-hot" style="cursor:pointer;" title="Modified concurrently in: ${(hz.dimensions||[]).join(', ')}" onclick="event.stopPropagation(); promptObserveModal('${esc(owner)}','${esc(repo)}','${esc(hz.path)}')">🔥 Hot (${hz.touch_count} dims)</span>`);
+        }
+        Object.values(claims).forEach(c => {
+          const cp = (c.path || "").replace(/\/+$/, "");
+          if (cp && (entryPath === cp || entryPath.startsWith(cp + "/") || (isDir && cp.startsWith(entryPath + "/")))) {
+            badges.push(`<span class="pill pill-dim" title="Claimed territory">🔒 ${esc(c.dimension)} · ${esc(c.agent || 'agent')}</span>`);
+          }
+        });
+        fences.forEach(f => {
+          const fp = (f.path || "").replace(/\*+$/, "").replace(/\/+$/, "");
+          if (fp && (entryPath === fp || entryPath.startsWith(fp + "/"))) {
+            badges.push(`<span class="pill pill-conflict" title="Hard Boundary Fence: ${esc(f.reason || '')}">🚧 Fenced (${esc(f.dimension)})</span>`);
+          }
+        });
+        return badges.slice(0, 3).join(" ");
+      };
+
+      const lc = tree.latest_commit;
+      const parentDir = dirPath.includes("/") ? dirPath.split("/").slice(0, -1).join("/") : "";
+
+      box.innerHTML = toolbar + `
+        <div class="card">
+          ${lc ? `
+            <div class="card-header" style="font-weight:400; font-size:13px;">
+              <div class="flex-row">
+                <strong>${esc(lc.author_name)}</strong>
+                <span class="muted">${esc(lc.summary)}</span>
+              </div>
+              <div class="flex-row">
+                <a class="pill mono" href="#" onclick="inspectCommitModal('${esc(owner)}','${esc(repo)}','${esc(lc.id)}'); return false;">${esc(lc.short_id)}</a>
+                <span class="muted">${fmtTs(lc.timestamp)}</span>
+              </div>
+            </div>
+          ` : ""}
+          <table class="tree-table">
+            <tbody>
+              ${dirPath ? `
+                <tr style="cursor:pointer;" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}&path=${encodeURIComponent(parentDir)}')">
+                  <td colspan="4">📁 <a>..</a></td>
+                </tr>
+              ` : ""}
+              ${(tree.entries || []).map(e => {
+                const targetUrl = e.is_dir
+                  ? `/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}&path=${encodeURIComponent(e.path)}`
+                  : `/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ref)}&blob=${encodeURIComponent(e.path)}`;
+                return `
+                  <tr style="cursor:pointer;" onclick="nav('${targetUrl}')">
+                    <td>
+                      ${e.is_dir ? "📁" : "📄"}
+                      <a href="${targetUrl}" onclick="event.stopPropagation(); nav('${targetUrl}'); return false;" style="font-weight:${e.is_dir?'600':'400'}; margin-left:6px;">
+                        ${esc(e.name)}
+                      </a>
+                      <span style="margin-left:8px;">${fileBadges(e.path, e.is_dir)}</span>
+                    </td>
+                    <td class="mono muted" style="font-size:12px; width:120px;">${esc((e.oid || "").slice(0, 8))}</td>
+                    <td class="muted" style="text-align:right; width:100px;">${e.is_dir ? "tree" : fmtBytes(e.size)}</td>
+                    <td style="text-align:right; width:90px;">
+                      ${!e.is_dir ? `<button class="btn btn-sm" onclick="event.stopPropagation(); promptObserveModal('${esc(owner)}','${esc(repo)}','${esc(e.path)}')" title="Observe across dimensions">👁️</button>` : ""}
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+        ${tree.readme ? `
+          <div class="card">
+            <div class="card-header">📖 ${esc(tree.readme_name || "README.md")}</div>
+            <div class="card-body">${renderMarkdown(tree.readme)}</div>
+          </div>
+        ` : ""}
+      `;
+    }
+
+    async function saveCasFile(owner, repo, branch, isNew) {
+      try {
+        const path = document.getElementById("nfPath").value.trim();
+        const content = document.getElementById("nfContent").value;
+        const message = document.getElementById("nfMsg").value.trim();
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents`, {
+          method: "POST",
+          body: JSON.stringify({ branch, path, content, message, action: "write" }),
+        });
+        toast(`Committed ${path} to ${branch}`);
+        nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(branch)}&blob=${encodeURIComponent(path)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function deleteCasFile(owner, repo, branch, path) {
+      if (!confirm(`Delete ${path} from ${branch}?`)) return;
+      try {
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents`, {
+          method: "POST",
+          body: JSON.stringify({ branch, path, action: "delete", message: `Delete ${path}` }),
+        });
+        toast(`Deleted ${path}`);
+        nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(branch)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    // Cross-Dimension Observe Modal ('dft observe')
+    async function promptObserveModal(owner, repo, initialPath) {
+      const p = initialPath || prompt("Enter file path to observe across all Parallel Dimensions (e.g. README.md or Cargo.toml):", "README.md");
+      if (!p) return;
+      try {
+        const d = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/observe?path=${encodeURIComponent(p)}`);
+        const obs = d.observations || [];
+        const uniqueOids = new Set(obs.filter(o => o.exists).map(o => o.oid));
+        openModal(
+          `👁️ Cross-Dimension Observe — <code>${esc(d.path)}</code>`,
+          `
+            <div class="flex-row" style="margin-bottom:12px;">
+              <span class="pill pill-dim">${obs.length} Dimensions Inspected</span>
+              ${uniqueOids.size > 1
+                ? `<span class="pill pill-hot">🔥 Divergent State (${uniqueOids.size} distinct CAS blobs)</span>`
+                : `<span class="pill pill-clean">✓ Identical across active dimensions</span>`}
+            </div>
+            ${obs.map(o => `
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-header">
+                  <div class="flex-row">
+                    <span class="pill ${o.kind==='mainline'?'pill-main':'pill-dim'}">${esc(o.kind)}: ${esc(o.dimension)}</span>
+                    ${o.exists
+                      ? `<span class="pill mono">OID ${esc(o.short_oid)}</span><span class="muted" style="font-size:12px;">${o.lines} lines · ${fmtBytes(o.size)}</span>`
+                      : `<span class="pill pill-conflict">Absent in this dimension</span>`}
+                  </div>
+                  ${o.exists ? `<button class="btn btn-sm" onclick="closeModal(); nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(o.dimension)}&blob=${encodeURIComponent(d.path)}')">Open in Workspace</button>` : ""}
+                </div>
+                ${o.exists ? `<pre class="pre-cmd" style="max-height:190px; overflow:auto; border:none; border-radius:0;">${esc(o.content)}</pre>` : ""}
+              </div>
+            `).join("")}
+          `
+        );
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function openSpawnDimensionModal(owner, repo, fromRef) {
+      openModal(
+        `🌌 Spawn Parallel Dimension (CoW Isolated Ref)`,
+        `
+          <p class="muted" style="margin-top:0;">Spawns a first-class parallel dimension under <code>refs/dimensions/&lt;name&gt;</code> without disturbing Mainline.</p>
+          <div class="form-group"><label class="form-label">Dimension Name</label><input id="spDimName" type="text" placeholder="agent-refactor-auth" /></div>
+          <div class="form-group"><label class="form-label">Base Spacetime State</label><input id="spDimFrom" type="text" value="${esc(fromRef)}" /></div>
+          <button class="btn btn-quantum" onclick="submitSpawnDimension('${esc(owner)}','${esc(repo)}')">🌌 Spawn Dimension</button>
+        `
+      );
+    }
+
+    async function submitSpawnDimension(owner, repo) {
+      try {
+        const name = document.getElementById("spDimName").value.trim();
+        const from_ref = document.getElementById("spDimFrom").value.trim();
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/refs`, {
+          method: "POST",
+          body: JSON.stringify({ kind: "dimension", name, from_ref }),
+        });
+        closeModal();
+        toast(`Spawned parallel dimension '${name}'`);
+        nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(name)}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function openSnapshotModal(owner, repo, dim) {
+      openModal(
+        `📸 Capture Immutable Multiverse Snapshot`,
+        `
+          <p class="muted" style="margin-top:0;">Records immutable recovery checkpoints under <code>refs/snapshots/*</code> before risky convergence or agent sweeps.</p>
+          <div class="form-group"><label class="form-label">Snapshot Label</label><input id="snapLabel" type="text" placeholder="pre-collapse-v1" /></div>
+          <div class="form-group">
+            <label class="flex-row"><input id="snapAll" type="checkbox" checked style="width:auto;" /> Snapshot ALL Parallel Dimensions + Mainline simultaneously</label>
+          </div>
+          <button class="btn btn-primary" onclick="submitSnapshot('${esc(owner)}','${esc(repo)}','${esc(dim)}')">📸 Capture Snapshot</button>
+        `
+      );
+    }
+
+    async function submitSnapshot(owner, repo, dim) {
+      try {
+        const label = document.getElementById("snapLabel").value.trim();
+        const all = document.getElementById("snapAll").checked;
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/snapshots`, {
+          method: "POST",
+          body: JSON.stringify({ dimension: dim, all, label }),
+        });
+        closeModal();
+        toast(`Captured ${(res.created || []).length} snapshot(s)`);
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 2: Spacetime DAG & Parallel Dimension Lifecycle
+    // -------------------------------------------------------------------------
+    async function renderTimelineTab(owner, repo, ov, radar, params) {
+      const box = document.getElementById("repoTabBody");
+      const fmt = params.get("fmt") || "svg";
+      const dimFilter = params.get("dim") || "";
+      const q = `?format=${encodeURIComponent(fmt)}${dimFilter ? `&dimension=${encodeURIComponent(dimFilter)}` : ""}`;
+      const rawOut = await fetch(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/timeline${q}`).then(r => r.text());
+
+      const dims = ov.dimensions || [];
+      box.innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <div class="flex-row">
+              <span>🌌 Multiverse Spacetime DAG</span>
+              <button class="btn btn-sm ${fmt==='svg'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=timeline&fmt=svg')">SVG Graph</button>
+              <button class="btn btn-sm ${fmt==='ascii'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=timeline&fmt=ascii')">Terminal DAG</button>
+              <button class="btn btn-sm ${fmt==='ancestry'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=timeline&fmt=ancestry')">Ancestry Tree</button>
+              <button class="btn btn-sm ${fmt==='json'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=timeline&fmt=json')">JSON</button>
+            </div>
+            <div class="flex-row">
+              <button class="btn btn-sm btn-quantum" onclick="openSpawnDimensionModal('${esc(owner)}','${esc(repo)}','${esc(ov.meta.default_branch)}')">＋ Spawn Dimension</button>
+              <button class="btn btn-sm" onclick="openSnapshotModal('${esc(owner)}','${esc(repo)}','${esc(ov.meta.default_branch)}')">📸 Snapshot All</button>
+            </div>
+          </div>
+          <div class="card-body" style="overflow-x:auto; background:#06090f;">
+            ${fmt === "svg" ? rawOut : `<pre class="pre-cmd" style="border:none;">${esc(rawOut)}</pre>`}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">🌌 Active Parallel Dimensions (${dims.length}) &amp; Mainline</div>
+          <div class="card-body" style="padding:0;">
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+              <span class="pill pill-main">⚡ mainline (${esc(ov.meta.default_branch)})</span>
+              <span class="pill mono">${esc(ov.head_commit ? ov.head_commit.short_id : "empty")}</span>
+              <span class="muted">${esc(ov.head_commit ? ov.head_commit.summary : "")}</span>
+              <span class="spacer"></span>
+              <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(ov.meta.default_branch)}')">Browse</button>
+            </div>
+            ${dims.length === 0 ? `<div class="muted" style="padding:16px;">No parallel dimensions spawned yet. Click <strong>＋ Spawn Dimension</strong> or push with <code>dft push --all</code>.</div>` : dims.map(d => {
+              const mx = (radar.matrix || []).find(x => x.source === d.name);
+              return `
+                <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+                  <span class="pill pill-dim">🌌 ${esc(d.name)}</span>
+                  <a class="pill mono" href="#" onclick="inspectCommitModal('${esc(owner)}','${esc(repo)}','${esc(d.commit)}'); return false;">${esc(d.short_commit)}</a>
+                  ${mx ? entropyBadge(mx.foresee) : ""}
+                  <span class="muted">${esc(d.latest_commit ? d.latest_commit.summary : "")}</span>
+                  <span class="spacer"></span>
+                  <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent(d.name)}')">Workspace</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteRef('${esc(owner)}','${esc(repo)}','dimension','${esc(d.name)}')">Dissolve</button>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    async function deleteRef(owner, repo, kind, name) {
+      if (!confirm(`Dissolve ${kind} '${name}'?`)) return;
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/refs?kind=${encodeURIComponent(kind)}&name=${encodeURIComponent(name)}`, { method: "DELETE" });
+      toast(`Dissolved ${name}`);
+      route();
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 3: Convergence & Wavefunction Collapse Lab + Convergence Proposals
+    // -------------------------------------------------------------------------
+    async function renderConvergenceTab(owner, repo, ov, radar, params) {
+      const box = document.getElementById("repoTabBody");
+      const prNum = params.get("pr");
+      const newPr = params.get("new") === "1";
+      const stFilter = params.get("state") || "open";
+
+      if (prNum) return renderPullDetail(owner, repo, prNum, box);
+      if (newPr) return renderNewPullForm(owner, repo, ov, radar, params, box);
+
+      const pullsRes = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls?state=${encodeURIComponent(stFilter)}`);
+      const dims = ov.dimensions || [];
+      const allRefNames = [ov.meta.default_branch, ...dims.map(d => d.name)];
+
+      box.innerHTML = `
+        <div class="card" style="border-color:rgba(168,85,247,0.45);">
+          <div class="card-header">
+            <span>🌊 Multiverse Convergence &amp; Wavefunction Collapse Console</span>
+            <span class="pill pill-dim">Native Layer-2 Engine</span>
+          </div>
+          <div class="card-body">
+            <div class="grid-equal">
+              <div class="card" style="margin-bottom:0;">
+                <div class="card-header">⚡ Wavefunction Collapse &amp; Multi-Dimension Converge</div>
+                <div class="card-body">
+                  <p class="muted" style="margin-top:0; font-size:12.5px;">
+                    Atomically reconciles selected clean parallel dimensions into <code>${esc(ov.meta.default_branch)}</code> in a single octopus/3-way spacetime commit.
+                  </p>
+                  <div style="margin-bottom:10px;">
+                    ${dims.length === 0 ? `<div class="muted">No parallel dimensions active yet.</div>` : dims.map(d => `
+                      <label class="flex-row" style="margin-bottom:5px;">
+                        <input type="checkbox" class="conv-dim-cb" value="${esc(d.name)}" checked style="width:auto;" />
+                        <span class="pill pill-dim">🌌 ${esc(d.name)}</span>
+                        <span class="mono muted" style="font-size:12px;">${esc(d.short_commit)}</span>
+                      </label>
+                    `).join("")}
+                  </div>
+                  <div class="flex-row">
+                    <button class="btn btn-sm" onclick="runCollapse('${esc(owner)}','${esc(repo)}', true)">🔍 Dry-Run Foresee All</button>
+                    <button class="btn btn-sm btn-quantum" onclick="runCollapse('${esc(owner)}','${esc(repo)}', false)">🌊 Execute Wavefunction Collapse</button>
+                    <button class="btn btn-sm btn-primary" onclick="runSelectedConverge('${esc(owner)}','${esc(repo)}')">🔀 Converge Checked</button>
+                  </div>
+                  <div id="collapseResultBox" style="margin-top:10px;"></div>
+                </div>
+              </div>
+
+              <div class="card" style="margin-bottom:0;">
+                <div class="card-header">🁢 Domino Cascade &amp; 🧬 Surgical Splice</div>
+                <div class="card-body">
+                  <div style="margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-subtle);">
+                    <div class="flex-row">
+                      <div>
+                        <strong>Domino Cascade (<code>dft cascade</code>)</strong>
+                        <div class="muted" style="font-size:12px;">Propagates Mainline commits forward into all non-conflicting parallel dimensions.</div>
+                      </div>
+                      <span class="spacer"></span>
+                      <button class="btn btn-sm btn-emerald" onclick="runCascade('${esc(owner)}','${esc(repo)}')">🁢 Cascade Mainline</button>
+                    </div>
+                  </div>
+                  <div>
+                    <strong>Surgical Commit Splice (<code>dft splice</code>)</strong>
+                    <div class="grid-equal" style="margin-top:6px;">
+                      <input id="spliceSha" type="text" placeholder="Commit SHA or donor ref" />
+                      <select id="spliceInto">
+                        ${allRefNames.map(n => `<option value="${esc(n)}">into: ${esc(n)}</option>`).join("")}
+                      </select>
+                    </div>
+                    <button class="btn btn-sm btn-primary" style="margin-top:8px;" onclick="runSplice('${esc(owner)}','${esc(repo)}')">🧬 Transplant Commit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="flex-row">
+              <span>📋 Peer &amp; Swarm Convergence Proposals</span>
+              <button class="btn btn-sm ${stFilter==='open'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&state=open')">Open (${pullsRes.open_count||0})</button>
+              <button class="btn btn-sm ${stFilter==='merged'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&state=merged')">Converged (${pullsRes.merged_count||0})</button>
+              <button class="btn btn-sm ${stFilter==='closed'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&state=closed')">Closed (${pullsRes.closed_count||0})</button>
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&new=1')">＋ New Convergence Proposal</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            ${(pullsRes.pulls || []).length === 0 ? `<div class="muted" style="padding:20px;">No convergence proposals in this filter.</div>` : (pullsRes.pulls || []).map(item => {
+              const p = item.pull;
+              return `
+                <div style="padding:13px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+                  <span class="pill ${p.state==='merged'?'pill-dim':(p.state==='open'?'pill-clean':'')}">${esc(p.state)}</span>
+                  <a href="/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&pr=${p.number}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&pr=${p.number}'); return false;">
+                    <strong>#${p.number} ${esc(p.title)}</strong>
+                  </a>
+                  <span class="pill mono">${esc(p.head_ref)} → ${esc(p.base_ref)}</span>
+                  ${item.foresee ? entropyBadge(item.foresee) : ""}
+                  <span class="spacer"></span>
+                  <span class="muted">@${esc(p.author)} · ${timeAgo(p.updated_at)}</span>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    async function quickCollapseOne(owner, repo, dim) {
+      try {
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/converge`, {
+          method: "POST",
+          body: JSON.stringify({ dimensions: [dim], dry_run: false }),
+        });
+        if ((res.skipped_conflicting || []).length > 0) {
+          toast(`Conflicts detected in ${dim} — inspect in Radar/Convergence`, true);
+        } else {
+          toast(`Collapsed '${dim}' into ${res.target}`);
+          nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=timeline`);
+        }
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function runCollapse(owner, repo, dryRun) {
+      try {
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/collapse`, {
+          method: "POST",
+          body: JSON.stringify({ dry_run: dryRun }),
+        });
+        const box = document.getElementById("collapseResultBox");
+        if (box) {
+          box.innerHTML = `
+            <div class="pre-cmd">
+              <div><strong>${dryRun ? "🔍 Dry-Run Collapse Simulation" : "🌊 Wavefunction Collapse Complete"}</strong> → <code>${esc(res.target)}</code></div>
+              <div>Clean Dimensions: ${(res.converged_dimensions || []).map(d => `<span class="pill pill-clean">${esc(d)}</span>`).join(" ") || "none"}</div>
+              ${(res.skipped_conflicting || []).length > 0 ? `<div>Skipped (Conflicting): ${res.skipped_conflicting.map(s => `<span class="pill pill-conflict">${esc(s.dimension)}: ${(s.conflicting_files||[]).join(", ")}</span>`).join(" ")}</div>` : ""}
+              ${res.commit_id ? `<div>New Commit OID: <code>${esc(res.commit_id.slice(0, 12))}</code></div>` : ""}
+            </div>
+          `;
+        }
+        if (!dryRun) toast("Wavefunction collapse executed");
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function runSelectedConverge(owner, repo) {
+      const dims = Array.from(document.querySelectorAll(".conv-dim-cb:checked")).map(el => el.value);
+      if (dims.length === 0) return toast("Select at least one dimension", true);
+      try {
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/converge`, {
+          method: "POST",
+          body: JSON.stringify({ dimensions: dims, dry_run: false }),
+        });
+        toast(`Converged ${(res.converged_dimensions || []).length} dimension(s)`);
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function runCascade(owner, repo) {
+      try {
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/cascade`, {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+        toast(`Cascaded mainline into ${(res.propagated_dimensions || []).length} dimension(s) (${(res.blocked || []).length} blocked)`);
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function runSplice(owner, repo) {
+      try {
+        const commit = document.getElementById("spliceSha").value.trim();
+        const into = document.getElementById("spliceInto").value;
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/splice`, {
+          method: "POST",
+          body: JSON.stringify({ commit, into }),
+        });
+        toast(`Spliced into ${res.into} (${res.commit_id.slice(0, 8)})`);
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function renderNewPullForm(owner, repo, ov, radar, params, box) {
+      const allRefs = [ov.meta.default_branch, ...(ov.dimensions || []).map(d => d.name), ...(ov.branches || []).map(b => b.name).filter(n => n !== ov.meta.default_branch)];
+      const base = params.get("base") || ov.meta.default_branch;
+      const head = params.get("head") || (allRefs.find(r => r !== base) || base);
+      const cmp = head !== base
+        ? await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare?base=${encodeURIComponent(base)}&head=${encodeURIComponent(head)}`).catch(() => null)
+        : null;
+
+      box.innerHTML = `
+        <div class="card">
+          <div class="card-header">🌊 Propose Dimension Convergence</div>
+          <div class="card-body">
+            <div class="flex-row" style="margin-bottom:14px;">
+              <span>Target Base:</span>
+              <select id="prBase" style="width:200px;" onchange="updatePrCompare('${esc(owner)}','${esc(repo)}')">
+                ${allRefs.map(r => `<option value="${esc(r)}" ${r===base?'selected':''}>${esc(r)}</option>`).join("")}
+              </select>
+              <span>← Source Dimension:</span>
+              <select id="prHead" style="width:200px;" onchange="updatePrCompare('${esc(owner)}','${esc(repo)}')">
+                ${allRefs.map(r => `<option value="${esc(r)}" ${r===head?'selected':''}>${esc(r)}</option>`).join("")}
+              </select>
+              ${cmp && cmp.foresee ? entropyBadge(cmp.foresee) : ""}
+            </div>
+            <div class="form-group"><label class="form-label">Proposal Title</label><input id="prTitle" type="text" value="Converge ${esc(head)} into ${esc(base)}" /></div>
+            <div class="form-group"><label class="form-label">Convergence Notes</label><textarea id="prBody" rows="4" placeholder="Describe spacetime changes & territory boundaries..."></textarea></div>
+            <button class="btn btn-primary" onclick="submitNewPull('${esc(owner)}','${esc(repo)}')">Open Convergence Proposal</button>
+          </div>
+        </div>
+        ${cmp ? `
+          <div class="card">
+            <div class="card-header">🔮 Predictive 3-Way Foresee Diff (${cmp.stats?.files_changed || 0} files, +${cmp.stats?.additions || 0} / -${cmp.stats?.deletions || 0})</div>
+            <div class="card-body">${renderDiffHtml(cmp.diff)}</div>
+          </div>
+        ` : ""}
+      `;
+    }
+
+    function updatePrCompare(owner, repo) {
+      const b = document.getElementById("prBase").value;
+      const h = document.getElementById("prHead").value;
+      nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&new=1&base=${encodeURIComponent(b)}&head=${encodeURIComponent(h)}`);
+    }
+
+    async function submitNewPull(owner, repo) {
+      try {
+        const pr = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls`, {
+          method: "POST",
+          body: JSON.stringify({
+            base_ref: document.getElementById("prBase").value,
+            head_ref: document.getElementById("prHead").value,
+            title: document.getElementById("prTitle").value,
+            body: document.getElementById("prBody").value,
+          }),
+        });
+        nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls&pr=${pr.number}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function renderPullDetail(owner, repo, num, box) {
+      const d = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${encodeURIComponent(num)}`);
+      const pr = d.pull;
+      const cmp = d.comparison || {};
+      box.innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <div class="flex-row">
+              <span class="pill ${pr.state==='merged'?'pill-dim':(pr.state==='open'?'pill-clean':'')}">${esc(pr.state)}</span>
+              <strong>#${pr.number} ${esc(pr.title)}</strong>
+              <span class="pill mono">${esc(pr.head_ref)} → ${esc(pr.base_ref)}</span>
+              ${cmp.foresee ? entropyBadge(cmp.foresee) : ""}
+            </div>
+            <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=pulls')">← Back</button>
+          </div>
+          <div class="card-body">
+            ${pr.body ? renderMarkdown(pr.body) : `<div class="muted">No description provided.</div>`}
+            ${pr.state === "open" ? `
+              <div class="flex-row" style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border-subtle);">
+                <button class="btn btn-quantum" onclick="mergePull('${esc(owner)}','${esc(repo)}',${pr.number})">🌊 Execute 3-Way Convergence</button>
+                <button class="btn btn-danger" onclick="closePull('${esc(owner)}','${esc(repo)}',${pr.number})">Close Proposal</button>
+              </div>
+            ` : ""}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Unified Spacetime Diff (${cmp.stats?.files_changed || 0} files, +${cmp.stats?.additions || 0} / -${cmp.stats?.deletions || 0})</div>
+          <div class="card-body">${renderDiffHtml(cmp.diff)}</div>
+        </div>
+        <div class="card">
+          <div class="card-header">Discussion (${(pr.comments || []).length})</div>
+          <div class="card-body">
+            ${(pr.comments || []).map(c => `<div style="padding:8px 0; border-bottom:1px solid var(--border-subtle);"><strong>@${esc(c.author)}</strong> <span class="muted">${timeAgo(c.created_at)}</span><div>${esc(c.body)}</div></div>`).join("")}
+            <div class="flex-row" style="margin-top:10px;">
+              <input id="prCmt" type="text" placeholder="Add review note..." style="flex:1;" />
+              <button class="btn btn-primary" onclick="commentPull('${esc(owner)}','${esc(repo)}',${pr.number})">Comment</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function mergePull(owner, repo, num) {
+      try {
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${num}/merge`, { method: "POST", body: "{}" });
+        toast("Dimension converged cleanly!");
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function closePull(owner, repo, num) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${num}`, { method: "PATCH", body: JSON.stringify({ state: "closed" }) });
+      route();
+    }
+
+    async function commentPull(owner, repo, num) {
+      const body = document.getElementById("prCmt").value.trim();
+      if (!body) return;
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls/${num}/comments`, { method: "POST", body: JSON.stringify({ body }) });
+      route();
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 4: Radar, Hot Zones, Entropy Matrix & Territory Claims/Fences
+    // -------------------------------------------------------------------------
+    function renderRadarTab(owner, repo, ov, radar) {
+      const box = document.getElementById("repoTabBody");
+      const hot = radar.hot_zones || [];
+      const matrix = radar.matrix || [];
+      const claims = Object.values((radar.territory && radar.territory.claims) || {});
+      const fences = (radar.territory && radar.territory.fences) || [];
+      const dimChoices = [ov.meta.default_branch, ...(ov.dimensions || []).map(d => d.name)];
+
+      box.innerHTML = `
+        <div class="grid-equal">
+          <div class="card">
+            <div class="card-header">
+              <span>🔥 Cross-Dimensional Hot Zones (<code>dft radar --hot</code>)</span>
+              <span class="pill pill-hot">${hot.length} Overlapping Files</span>
+            </div>
+            <div class="card-body">
+              ${hot.length === 0 ? `<div class="muted">Zero overlapping file edits across parallel dimensions — collision risk is minimal.</div>` : hot.map(h => `
+                <div class="flex-row" style="padding:8px 0; border-bottom:1px solid var(--border-subtle);">
+                  <code style="color:#fcd34d;">${esc(h.path)}</code>
+                  <span class="muted">touched in:</span>
+                  ${(h.dimensions || []).map(d => `<span class="pill pill-dim">${esc(d)}</span>`).join("")}
+                  <span class="spacer"></span>
+                  <button class="btn btn-sm btn-quantum" onclick="promptObserveModal('${esc(owner)}','${esc(repo)}','${esc(h.path)}')">👁️ Observe</button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">🔮 Predictive Foresight &amp; Divergence Entropy Matrix</div>
+            <div class="card-body">
+              ${matrix.length === 0 ? `<div class="muted">Spawn parallel dimensions to compute pairwise 3-way virtual merge foresight &amp; entropy $H$.</div>` : matrix.map(m => `
+                <div style="padding:9px 0; border-bottom:1px solid var(--border-subtle);">
+                  <div class="flex-row">
+                    <span class="pill pill-dim">🌌 ${esc(m.source)}</span>
+                    <span class="muted">→</span>
+                    <span class="pill pill-main">${esc(m.target)}</span>
+                    <span class="spacer"></span>
+                    ${entropyBadge(m.foresee)}
+                  </div>
+                  ${(m.foresee?.conflicting_files || []).length > 0 ? `<div class="mono" style="font-size:11.5px; color:#fda4af; margin-top:4px;">Conflicts: ${esc(m.foresee.conflicting_files.join(", "))}</div>` : ""}
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-equal">
+          <div class="card">
+            <div class="card-header">🔒 Advisory &amp; Exclusive Territory Claims (<code>dft claim</code>)</div>
+            <div class="card-body">
+              <div class="grid-equal" style="margin-bottom:8px;">
+                <input id="clPath" type="text" placeholder="Path (e.g. crates/daft-merge/)" />
+                <select id="clDim">${dimChoices.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("")}</select>
+              </div>
+              <div class="flex-row" style="margin-bottom:12px;">
+                <input id="clAgent" type="text" placeholder="Agent ID (e.g. claude-opus-1)" style="flex:1;" />
+                <button class="btn btn-primary" onclick="submitClaim('${esc(owner)}','${esc(repo)}')">🔒 Claim Territory</button>
+              </div>
+              ${claims.length === 0 ? `<div class="muted">No active territory leases.</div>` : claims.map(c => `
+                <div class="flex-row" style="padding:7px 0; border-bottom:1px solid var(--border-subtle);">
+                  <code>${esc(c.path)}</code>
+                  <span class="pill pill-dim">${esc(c.dimension)}</span>
+                  <span class="pill">🤖 ${esc(c.agent || 'agent')}</span>
+                  <span class="spacer"></span>
+                  <button class="btn btn-sm btn-danger" onclick="yieldClaim('${esc(owner)}','${esc(repo)}','${esc(c.path)}')">Yield</button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">🚧 Hard Boundary Fences — Server Enforced (<code>dft fence</code>)</div>
+            <div class="card-body">
+              <p class="muted" style="margin-top:0; font-size:12px;">Pushes or commits from any non-owning dimension modifying fenced paths are rejected with HTTP <code>409 FenceViolation</code>.</p>
+              <div class="grid-equal" style="margin-bottom:8px;">
+                <input id="fnPath" type="text" placeholder="Protected path (e.g. migrations/*)" />
+                <select id="fnDim">${dimChoices.map(d => `<option value="${esc(d)}">owner: ${esc(d)}</option>`).join("")}</select>
+              </div>
+              <div class="flex-row" style="margin-bottom:12px;">
+                <input id="fnReason" type="text" placeholder="Reason (e.g. Frozen schema contract)" style="flex:1;" />
+                <button class="btn btn-danger" onclick="submitFence('${esc(owner)}','${esc(repo)}')">🚧 Erect Fence</button>
+              </div>
+              ${fences.length === 0 ? `<div class="muted">No hard boundary fences erected.</div>` : fences.map(f => `
+                <div class="flex-row" style="padding:7px 0; border-bottom:1px solid var(--border-subtle);">
+                  <code>${esc(f.path)}</code>
+                  <span class="pill pill-conflict">Owner: ${esc(f.dimension)}</span>
+                  <span class="muted" style="font-size:12px;">${esc(f.reason || '')}</span>
+                  <span class="spacer"></span>
+                  <button class="btn btn-sm" onclick="removeFence('${esc(owner)}','${esc(repo)}','${esc(f.path)}')">Remove</button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function quickClaimPath(owner, repo, path, dimension) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/territory/claim`, {
+        method: "POST",
+        body: JSON.stringify({ path, dimension, exclusive: true }),
+      });
+      toast(`Claimed ${path} for ${dimension}`);
+      route();
+    }
+
+    async function submitClaim(owner, repo) {
+      try {
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/territory/claim`, {
+          method: "POST",
+          body: JSON.stringify({
+            path: document.getElementById("clPath").value,
+            dimension: document.getElementById("clDim").value,
+            agent: document.getElementById("clAgent").value,
+            exclusive: true,
+          }),
+        });
+        toast("Territory claimed");
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function yieldClaim(owner, repo, path) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/territory/yield`, {
+        method: "POST",
+        body: JSON.stringify({ path }),
+      });
+      toast(`Yielded ${path}`);
+      route();
+    }
+
+    async function submitFence(owner, repo) {
+      try {
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/territory/fence`, {
+          method: "POST",
+          body: JSON.stringify({
+            path: document.getElementById("fnPath").value,
+            dimension: document.getElementById("fnDim").value,
+            reason: document.getElementById("fnReason").value,
+            action: "add",
+          }),
+        });
+        toast("Hard boundary fence erected");
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function removeFence(owner, repo, path) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/territory/fence`, {
+        method: "POST",
+        body: JSON.stringify({ path, action: "remove" }),
+      });
+      toast("Fence removed");
+      route();
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 5: Quantum Entanglement & Autonomous Cronos Engine
+    // -------------------------------------------------------------------------
+    function renderEntangleTab(owner, repo, ov, radar) {
+      const box = document.getElementById("repoTabBody");
+      const rules = radar.entanglements || [];
+      const wal = radar.cronos_log || [];
+      const snaps = radar.snapshots || [];
+      const dimChoices = [ov.meta.default_branch, ...(ov.dimensions || []).map(d => d.name)];
+
+      box.innerHTML = `
+        <div class="grid-equal">
+          <div class="card">
+            <div class="card-header">🔗 Quantum Entanglement Rules (<code>dft entangle</code>)</div>
+            <div class="card-body">
+              <p class="muted" style="margin-top:0; font-size:12.5px;">
+                Bidirectionally links matching file paths across two dimensions. Whenever matching files are pushed or edited in one dimension, the server automatically propagates the new CAS blobs into its entangled peer!
+              </p>
+              <div class="grid-equal" style="margin-bottom:8px;">
+                <select id="entD1">${dimChoices.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("")}</select>
+                <select id="entD2">${dimChoices.map((d, i) => `<option value="${esc(d)}" ${i===1?'selected':''}>${esc(d)}</option>`).join("")}</select>
+              </div>
+              <div class="flex-row" style="margin-bottom:14px;">
+                <input id="entPaths" type="text" placeholder="Path pattern (e.g. SKILL.md or crates/daft-core/*)" style="flex:1;" />
+                <button class="btn btn-quantum" onclick="createEntanglement('${esc(owner)}','${esc(repo)}')">🔗 Entangle</button>
+              </div>
+              ${rules.length === 0 ? `<div class="muted">No active quantum entanglement links.</div>` : rules.map(r => `
+                <div class="flex-row" style="padding:8px 0; border-bottom:1px solid var(--border-subtle);">
+                  <span class="pill pill-dim">${esc(r.dim1)}</span>
+                  <span>⇄</span>
+                  <span class="pill pill-dim">${esc(r.dim2)}</span>
+                  <code>${esc(r.paths)}</code>
+                  <span class="spacer"></span>
+                  <button class="btn btn-sm btn-danger" onclick="severEntanglement('${esc(owner)}','${esc(repo)}','${esc(r.id)}')">Sever</button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span>⏱️ Autonomous Cronos Engine &amp; WAL</span>
+              <button class="btn btn-sm btn-emerald" onclick="triggerCronosSweep('${esc(owner)}','${esc(repo)}')">⚡ Trigger Cronos Sweep</button>
+            </div>
+            <div class="card-body">
+              ${wal.length === 0 ? `<div class="muted">No Cronos reconciliation events logged yet.</div>` : wal.slice(0, 15).map(w => `
+                <div style="padding:7px 0; border-bottom:1px solid var(--border-subtle); font-size:12.5px;">
+                  <div class="flex-row">
+                    <span class="pill pill-main">${esc(w.action)}</span>
+                    ${w.commit ? `<code class="muted">${esc(w.commit.slice(0, 8))}</code>` : ""}
+                    <span class="spacer"></span>
+                    <span class="muted">${timeAgo(w.timestamp)}</span>
+                  </div>
+                  <div class="muted" style="margin-top:2px;">${esc(w.detail)}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span>📸 Immutable Dimension Snapshots (${snaps.length})</span>
+            <button class="btn btn-sm btn-primary" onclick="openSnapshotModal('${esc(owner)}','${esc(repo)}','${esc(ov.meta.default_branch)}')">＋ Capture Snapshot</button>
+          </div>
+          <div class="card-body">
+            ${snaps.length === 0 ? `<div class="muted">No immutable snapshots captured yet.</div>` : snaps.map(s => `
+              <div class="flex-row" style="padding:7px 0; border-bottom:1px solid var(--border-subtle);">
+                <span class="pill pill-main">📸 ${esc(s.name)}</span>
+                <code class="pill">${esc(s.short_commit)}</code>
+                <span class="muted">${esc(s.latest_commit?.summary || "")}</span>
+                <span class="spacer"></span>
+                <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=code&ref=${encodeURIComponent('refs/snapshots/' + s.name)}')">Inspect Tree</button>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    async function createEntanglement(owner, repo) {
+      try {
+        const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/entangle`, {
+          method: "POST",
+          body: JSON.stringify({
+            dim1: document.getElementById("entD1").value,
+            dim2: document.getElementById("entD2").value,
+            paths: document.getElementById("entPaths").value,
+          }),
+        });
+        toast(`Entangled! Propagated ${res.propagated_files || 0} file(s).`);
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function severEntanglement(owner, repo, id) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/entangle/${encodeURIComponent(id)}`, { method: "DELETE" });
+      toast("Entanglement severed");
+      route();
+    }
+
+    async function triggerCronosSweep(owner, repo) {
+      const res = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/cronos`, { method: "POST", body: "{}" });
+      toast(`Cronos sweep verified CAS & synced ${res.synced_files || 0} entangled file(s)`);
+      route();
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 6: AI Agent Swarm Fleet & Maildir Coordination Inbox
+    // -------------------------------------------------------------------------
+    function renderAgentsTab(owner, repo, ov, radar) {
+      const box = document.getElementById("repoTabBody");
+      const agents = radar.agents || [];
+      const msgs = radar.messages || [];
+      const dimChoices = ["mainline", ...(ov.dimensions || []).map(d => d.name)];
+
+      box.innerHTML = `
+        <div class="grid-equal">
+          <div class="card">
+            <div class="card-header">🤖 Registered AI &amp; Human Swarm Fleet (${agents.length})</div>
+            <div class="card-body">
+              <div class="grid-equal" style="margin-bottom:8px;">
+                <input id="agName" type="text" placeholder="Agent name (e.g. claude-auth-worker)" />
+                <select id="agDim">${dimChoices.map(d => `<option value="${esc(d)}">dim: ${esc(d)}</option>`).join("")}</select>
+              </div>
+              <div class="flex-row" style="margin-bottom:14px;">
+                <select id="agType" style="width:120px;"><option value="ai">🤖 AI Agent</option><option value="human">👤 Human</option></select>
+                <input id="agCaps" type="text" placeholder="Capabilities (rust, cas, auth)" style="flex:1;" />
+                <button class="btn btn-primary" onclick="registerAgent('${esc(owner)}','${esc(repo)}')">Register</button>
+              </div>
+              ${agents.length === 0 ? `<div class="muted">No swarm agents registered yet.</div>` : agents.map(a => `
+                <div style="padding:10px 0; border-bottom:1px solid var(--border-subtle);">
+                  <div class="flex-row">
+                    <strong>${a.agent_type === 'human' ? '👤' : '🤖'} ${esc(a.name || a.id)}</strong>
+                    <span class="pill pill-dim">🌌 ${esc(a.assigned_dimension || a.dimension || 'mainline')}</span>
+                    <span class="pill pill-clean">${esc(a.status || 'active')}</span>
+                    <span class="spacer"></span>
+                    <button class="btn btn-sm" onclick="pingAgent('${esc(owner)}','${esc(repo)}','${esc(a.name || a.id)}')">💓 Heartbeat</button>
+                  </div>
+                  <div class="muted" style="font-size:12px; margin-top:4px;">
+                    Capabilities: ${(a.capabilities || []).join(", ") || "general"} · Last pulse ${timeAgo(a.last_heartbeat)}
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">📬 Swarm Coordination Mailbox (<code>dft agent send</code>)</div>
+            <div class="card-body">
+              <div class="grid-equal" style="margin-bottom:8px;">
+                <input id="msgTo" type="text" value="*" placeholder="Recipient (* for Swarm Broadcast)" />
+                <input id="msgSubj" type="text" placeholder="Subject (e.g. ready-to-collapse)" />
+              </div>
+              <div class="flex-row" style="margin-bottom:14px;">
+                <input id="msgBody" type="text" placeholder="Coordination message to peer dimensions..." style="flex:1;" />
+                <button class="btn btn-quantum" onclick="sendSwarmMsg('${esc(owner)}','${esc(repo)}')">Broadcast</button>
+              </div>
+              ${msgs.length === 0 ? `<div class="muted">Swarm inbox is clear.</div>` : msgs.map(m => `
+                <div style="padding:9px 0; border-bottom:1px solid var(--border-subtle);">
+                  <div class="flex-row">
+                    <span class="pill pill-main">@${esc(m.sender)}</span>
+                    <span class="muted">→</span>
+                    <span class="pill ${m.recipient==='*'?'pill-dim':''}">${m.recipient === '*' ? '📡 All Swarm (*)' : esc(m.recipient)}</span>
+                    <strong>${esc(m.subject)}</strong>
+                    <span class="spacer"></span>
+                    <span class="muted" style="font-size:11.5px;">${timeAgo(m.created_at)}</span>
+                  </div>
+                  <div style="margin-top:4px; font-size:13px;">${esc(m.body)}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function registerAgent(owner, repo) {
+      try {
+        const caps = document.getElementById("agCaps").value.split(",").map(s => s.trim()).filter(Boolean);
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/agents`, {
+          method: "POST",
+          body: JSON.stringify({
+            name: document.getElementById("agName").value,
+            assigned_dimension: document.getElementById("agDim").value,
+            agent_type: document.getElementById("agType").value,
+            capabilities: caps,
+          }),
+        });
+        toast("Swarm agent registered");
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function pingAgent(owner, repo, name) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/agents/heartbeat`, {
+        method: "POST",
+        body: JSON.stringify({ name, status: "active" }),
+      });
+      toast(`Heartbeat recorded for ${name}`);
+      route();
+    }
+
+    async function sendSwarmMsg(owner, repo) {
+      try {
+        await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/messages`, {
+          method: "POST",
+          body: JSON.stringify({
+            recipient: document.getElementById("msgTo").value,
+            subject: document.getElementById("msgSubj").value,
+            body: document.getElementById("msgBody").value,
+          }),
+        });
+        toast("Swarm message dispatched");
+        route();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 7: Swarm Tasks & Issues
+    // -------------------------------------------------------------------------
+    async function renderIssuesTab(owner, repo, ov, params) {
+      const box = document.getElementById("repoTabBody");
+      const issNum = params.get("issue");
+      const st = params.get("state") || "open";
+
+      if (issNum) {
+        const iss = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${encodeURIComponent(issNum)}`);
+        box.innerHTML = `
+          <div class="card">
+            <div class="card-header">
+              <div class="flex-row">
+                <span class="pill ${iss.state==='open'?'pill-clean':'pill-dim'}">${esc(iss.state)}</span>
+                <strong>#${iss.number} ${esc(iss.title)}</strong>
+                ${iss.assignee ? `<span class="pill pill-dim">🤖 ${esc(iss.assignee)}</span>` : ""}
+              </div>
+              <div class="flex-row">
+                <button class="btn btn-sm" onclick="toggleIssueState('${esc(owner)}','${esc(repo)}',${iss.number},'${iss.state==='open'?'closed':'open'}')">${iss.state==='open'?'Close Task':'Reopen Task'}</button>
+                <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=issues')">← Back</button>
+              </div>
+            </div>
+            <div class="card-body">
+              ${iss.body ? renderMarkdown(iss.body) : `<div class="muted">No task details.</div>`}
+              <hr style="border:none;border-top:1px solid var(--border-subtle);margin:14px 0;" />
+              ${(iss.comments || []).map(c => `<div style="padding:7px 0;border-bottom:1px solid var(--border-subtle);"><strong>@${esc(c.author)}</strong> <span class="muted">${timeAgo(c.created_at)}</span><div>${esc(c.body)}</div></div>`).join("")}
+              <div class="flex-row" style="margin-top:10px;">
+                <input id="issCmt" type="text" placeholder="Add task update..." style="flex:1;" />
+                <button class="btn btn-primary" onclick="commentIssue('${esc(owner)}','${esc(repo)}',${iss.number})">Comment</button>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const d = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues?state=${encodeURIComponent(st)}`);
+      box.innerHTML = `
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="flex-row">
+                <span>⊙ Swarm Tasks</span>
+                <button class="btn btn-sm ${st==='open'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=issues&state=open')">Open (${d.open_count||0})</button>
+                <button class="btn btn-sm ${st==='closed'?'btn-primary':''}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=issues&state=closed')">Closed (${d.closed_count||0})</button>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              ${(d.issues || []).length === 0 ? `<div class="muted" style="padding:20px;">No tasks in this state.</div>` : (d.issues || []).map(i => `
+                <div style="padding:12px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+                  <span class="pill ${i.state==='open'?'pill-clean':'pill-dim'}">#${i.number}</span>
+                  <a href="/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=issues&issue=${i.number}" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=issues&issue=${i.number}'); return false;"><strong>${esc(i.title)}</strong></a>
+                  ${(i.labels || []).map(l => `<span class="pill">${esc(l)}</span>`).join("")}
+                  ${i.assignee ? `<span class="pill pill-dim">🤖 ${esc(i.assignee)}</span>` : ""}
+                  <span class="spacer"></span>
+                  <span class="muted">@${esc(i.author)} · ${timeAgo(i.updated_at)}</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">＋ Dispatch New Swarm Task</div>
+            <div class="card-body">
+              <div class="form-group"><label class="form-label">Task Title</label><input id="niTitle" type="text" placeholder="Implement zero-copy pack delta" /></div>
+              <div class="form-group"><label class="form-label">Assigned Agent / Dimension</label><input id="niAssign" type="text" placeholder="agent-storage" /></div>
+              <div class="form-group"><label class="form-label">Labels (comma separated)</label><input id="niLabels" type="text" placeholder="swarm, layer-2" /></div>
+              <div class="form-group"><label class="form-label">Specification</label><textarea id="niBody" rows="4"></textarea></div>
+              <button class="btn btn-primary" onclick="createIssue('${esc(owner)}','${esc(repo)}')">Create Swarm Task</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function createIssue(owner, repo) {
+      try {
+        const labels = document.getElementById("niLabels").value.split(",").map(s => s.trim()).filter(Boolean);
+        const iss = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`, {
+          method: "POST",
+          body: JSON.stringify({
+            title: document.getElementById("niTitle").value,
+            assignee: document.getElementById("niAssign").value,
+            labels,
+            body: document.getElementById("niBody").value,
+          }),
+        });
+        nav(`/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=issues&issue=${iss.number}`);
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function toggleIssueState(owner, repo, num, state) {
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${num}`, { method: "PATCH", body: JSON.stringify({ state }) });
+      route();
+    }
+
+    async function commentIssue(owner, repo, num) {
+      const body = document.getElementById("issCmt").value.trim();
+      if (!body) return;
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${num}/comments`, { method: "POST", body: JSON.stringify({ body }) });
+      route();
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 8: Commit History Inspector & Multiverse Settings
+    // -------------------------------------------------------------------------
+    async function renderCommitsTab(owner, repo, ov, params) {
+      const box = document.getElementById("repoTabBody");
+      const ref = params.get("ref") || ov.selected_ref || ov.meta.default_branch;
+      const d = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?ref=${encodeURIComponent(ref)}&limit=60`);
+      const commits = d.commits || [];
+
+      box.innerHTML = `
+        <div class="flex-row" style="margin-bottom:14px;">
+          <select style="width:260px;" onchange="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=commits&ref='+encodeURIComponent(this.value))">
+            ${buildDimensionOptions(ov, APP.repoRadar, ref)}
+          </select>
+          <span class="spacer"></span>
+          <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=settings')">⚙️ Multiverse Settings</button>
+        </div>
+        <div class="card">
+          <div class="card-header">⏱️ CAS Spacetime Commit Log — <code>${esc(ref)}</code> (${commits.length})</div>
+          <div class="card-body" style="padding:0;">
+            ${commits.map(c => `
+              <div style="padding:11px 16px; border-bottom:1px solid var(--border-subtle);" class="flex-row">
+                <div>
+                  <div style="font-weight:600;">${esc(c.summary)}</div>
+                  <div class="muted" style="font-size:12px;">${esc(c.author_name)} · ${fmtTs(c.timestamp)} ${(c.parents||[]).length > 1 ? `<span class="pill pill-dim">Converge (${c.parents.length} parents)</span>` : ""}</div>
+                </div>
+                <span class="spacer"></span>
+                <button class="btn btn-sm mono" onclick="inspectCommitModal('${esc(owner)}','${esc(repo)}','${esc(c.id)}')">${esc(c.short_id)}</button>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    async function inspectCommitModal(owner, repo, sha) {
+      try {
+        const d = await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(sha)}`);
+        const c = d.commit || {};
+        openModal(
+          `CAS Commit <code>${esc(c.short_id || sha.slice(0, 8))}</code>`,
+          `
+            <div style="margin-bottom:12px;">
+              <div style="font-weight:700; font-size:15px;">${esc(c.message || c.summary)}</div>
+              <div class="muted" style="font-size:12.5px; margin-top:4px;">
+                Author: ${esc(c.author_name)} &lt;${esc(c.author_email)}&gt; · Tree: <code>${esc((c.tree || "").slice(0, 12))}</code> ·
+                ${d.stats?.files_changed || 0} files (+${d.stats?.additions || 0} / -${d.stats?.deletions || 0})
+              </div>
+            </div>
+            ${renderDiffHtml(d.diff)}
+          `
+        );
+      } catch (e) { toast(e.message, true); }
+    }
+
+    function renderSettingsTab(owner, repo, ov) {
+      const m = ov.meta;
+      document.getElementById("repoTabBody").innerHTML = `
+        <div class="card" style="max-width:680px;">
+          <div class="card-header">
+            <span>⚙️ Multiverse Settings — ${esc(m.owner)}/${esc(m.name)}</span>
+            <button class="btn btn-sm" onclick="nav('/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}?tab=commits')">← Commit History</button>
+          </div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Description</label><input id="stDesc" type="text" value="${esc(m.description)}" /></div>
+            <div class="form-group"><label class="form-label">Mainline Default Reference</label><input id="stDef" type="text" value="${esc(m.default_branch)}" /></div>
+            <div class="form-group"><label class="form-label">Topics (comma separated)</label><input id="stTopics" type="text" value="${esc((m.topics || []).join(', '))}" /></div>
+            <div class="form-group"><label class="flex-row"><input id="stPriv" type="checkbox" ${m.private ? 'checked' : ''} style="width:auto;" /> Private Multiverse</label></div>
+            <div class="flex-row">
+              <button class="btn btn-primary" onclick="saveRepoSettings('${esc(owner)}','${esc(repo)}')">Save Settings</button>
+              <span class="spacer"></span>
+              <button class="btn btn-danger" onclick="deleteRepo('${esc(owner)}','${esc(repo)}')">Delete Multiverse</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveRepoSettings(owner, repo) {
+      const topics = document.getElementById("stTopics").value.split(",").map(s => s.trim()).filter(Boolean);
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          description: document.getElementById("stDesc").value,
+          default_branch: document.getElementById("stDef").value,
+          private: document.getElementById("stPriv").checked,
+          topics,
+        }),
+      });
+      toast("Multiverse settings saved");
+      route();
+    }
+
+    async function deleteRepo(owner, repo) {
+      if (!confirm(`Permanently delete multiverse ${owner}/${repo}?`)) return;
+      await api(`/api/v1/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, { method: "DELETE" });
+      toast("Multiverse deleted");
+      nav("/");
+    }
+
+    (async function boot() {
+      await loadMe();
+      await route();
+    })();
+  </script>
+</body>
+</html>

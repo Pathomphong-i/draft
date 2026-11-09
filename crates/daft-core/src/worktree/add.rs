@@ -29,10 +29,7 @@ pub fn add_paths(
         // Stage entire worktree
         for entry in WalkDir::new(workdir)
             .into_iter()
-            .filter_entry(|e| {
-                let name = e.file_name().to_string_lossy();
-                !ignore.should_prune_dir(&name)
-            })
+            .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
@@ -94,10 +91,7 @@ pub fn add_paths(
             if full.is_dir() {
                 for entry in WalkDir::new(&full)
                     .into_iter()
-                    .filter_entry(|e| {
-                        let name = e.file_name().to_string_lossy();
-                        !ignore.should_prune_dir(&name)
-                    })
+                    .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
                     .filter_map(|e| e.ok())
                 {
                     let path = entry.path();

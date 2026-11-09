@@ -133,17 +133,18 @@ impl CollapseEngine {
             // Also check workspace for uncommitted files
             let workdir = dim_repo.workdir();
             if workdir.exists() {
+                let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(workdir);
                 for entry in WalkDir::new(workdir)
                     .into_iter()
-                    .filter_entry(|e| {
-                        let name = e.file_name().to_string_lossy();
-                        name != ".dft" && name != ".git"
-                    })
+                    .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
                     .filter_map(|e| e.ok())
                 {
                     if entry.file_type().is_file() {
                         if let Ok(rel) = entry.path().strip_prefix(workdir) {
                             let rel_str = rel.to_string_lossy().replace('\\', "/");
+                            if ignore.is_ignored(&rel_str, false) {
+                                continue;
+                            }
                             if let Ok(data) = fs::read(entry.path()) {
                                 let raw = RawObject::new(ObjectType::Blob, data);
                                 if let Ok(oid) = self.repo.cas().write_raw(&raw) {

@@ -1,5 +1,5 @@
 # ==============================================================================
-# Multi-Stage Dockerfile for Draft VCS & DraftMultiverse Web Platform
+# Multi-Stage Dockerfile for Draft VCS & DraftMultiverse Server ('dft server')
 # ==============================================================================
 
 # Stage 1: Build Environment (using modern Rust toolchain)
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy workspace manifest and source trees
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml Cargo.lock SKILL.md ./
 COPY crates ./crates
 COPY scripts ./scripts
 
@@ -26,14 +26,15 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Draft binaries into system PATH
 COPY --from=builder /usr/src/draft/target/release/dft /usr/local/bin/dft
 RUN ln -s /usr/local/bin/dft /usr/local/bin/draft && ln -s /usr/local/bin/dft /usr/local/bin/drf
 
-# Mount target repository directory
-WORKDIR /repo
+RUN mkdir -p /data
+WORKDIR /data
 
 # Expose DraftMultiverse HTTP Port
 EXPOSE 3333
@@ -41,7 +42,7 @@ EXPOSE 3333
 # Environment defaults
 ENV DFT_HOST=0.0.0.0
 ENV DFT_PORT=3333
+ENV DFT_DATA_DIR=/data
 
-# Default entrypoint: Run DraftMultiverse Web Platform
-CMD ["dft", "ui", "--host", "0.0.0.0", "--port", "3333", "--no-browser"]
-
+# Default entrypoint: Run Multi-Workspace DraftMultiverse Server + Web UI
+CMD ["dft", "server", "--host", "0.0.0.0", "--port", "3333", "--data-dir", "/data"]

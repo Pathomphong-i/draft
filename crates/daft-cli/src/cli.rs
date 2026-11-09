@@ -295,6 +295,12 @@ pub enum Commands {
 
     #[command(about = "Launch the interactive real-time Draft Multiverse Web GUI")]
     Ui(UiArgs),
+
+    #[command(
+        about = "Launch the self-hosted Gitea-style Draft Server + Multi-Repo Web Platform",
+        aliases = ["serve", "hub"]
+    )]
+    Server(ServerArgs),
 }
 
 // ----------------------------------------------------------------------------
@@ -1334,4 +1340,40 @@ pub struct UiArgs {
 
     #[arg(long = "no-browser", help = "Do not automatically open the browser")]
     pub no_browser: bool,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ServerArgs {
+    #[arg(
+        short = 'p',
+        long = "port",
+        default_value = "3333",
+        env = "DFT_PORT",
+        help = "Port to listen on"
+    )]
+    pub port: u16,
+
+    #[arg(
+        long = "host",
+        default_value = "0.0.0.0",
+        env = "DFT_HOST",
+        help = "Host/IP address to bind to"
+    )]
+    pub host: String,
+
+    #[arg(
+        short = 'd',
+        long = "data-dir",
+        default_value = "./draft-server-data",
+        env = "DFT_DATA_DIR",
+        help = "Persistent data directory for repositories, users, issues, and pulls"
+    )]
+    pub data_dir: PathBuf,
+
+    #[arg(
+        long = "public-url",
+        env = "DFT_PUBLIC_URL",
+        help = "External base URL advertised for clone links (e.g. http://192.168.20.105:3333)"
+    )]
+    pub public_url: Option<String>,
 }

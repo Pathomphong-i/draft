@@ -137,13 +137,19 @@ impl DimensionManager {
                 let _ = index.write_to(&target_dir.join("index"));
             }
             if mainline_ws.exists() {
+                let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&mainline_ws);
                 for entry in WalkDir::new(&mainline_ws)
                     .into_iter()
+                    .filter_entry(|e| !ignore.should_prune_entry(e, &mainline_ws))
                     .filter_map(|e| e.ok())
                 {
                     let path = entry.path();
                     if entry.file_type().is_file() {
                         if let Ok(rel) = path.strip_prefix(&mainline_ws) {
+                            let rel_str = rel.to_string_lossy().replace('\\', "/");
+                            if ignore.is_ignored(&rel_str, false) {
+                                continue;
+                            }
                             let dest = ws_dir.join(rel);
                             if let Some(parent) = dest.parent() {
                                 let _ = fs::create_dir_all(parent);
@@ -166,10 +172,7 @@ impl DimensionManager {
                 let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(wd);
                 for entry in WalkDir::new(wd)
                     .into_iter()
-                    .filter_entry(|e| {
-                        let name = e.file_name().to_string_lossy();
-                        !ignore.should_prune_dir(&name)
-                    })
+                    .filter_entry(|e| !ignore.should_prune_entry(e, wd))
                     .filter_map(|e| e.ok())
                 {
                     let path = entry.path();
@@ -331,14 +334,12 @@ impl DimensionManager {
         };
         fs::create_dir_all(&old_ws)?;
 
+        let cow_strategy = detect_best_strategy(dft_dir);
         let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(workdir);
         let mut current_files = Vec::new();
         for entry in WalkDir::new(workdir)
             .into_iter()
-            .filter_entry(|e| {
-                let name = e.file_name().to_string_lossy();
-                !ignore.should_prune_dir(&name)
-            })
+            .filter_entry(|e| !ignore.should_prune_entry(e, workdir))
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
@@ -356,7 +357,7 @@ impl DimensionManager {
                     if let Some(p) = dest.parent() {
                         let _ = fs::create_dir_all(p);
                     }
-                    let _ = fs::copy(path, dest);
+                    let _ = crate::cow::CowEngine::clone_file(path, &dest, cow_strategy);
                 }
             }
         }
@@ -588,10 +589,7 @@ impl DimensionManager {
             let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&ws);
             for entry in WalkDir::new(&ws)
                 .into_iter()
-                .filter_entry(|e| {
-                    let name = e.file_name().to_string_lossy();
-                    !ignore.should_prune_dir(&name)
-                })
+                .filter_entry(|e| !ignore.should_prune_entry(e, &ws))
                 .filter_map(|e| e.ok())
             {
                 if entry.file_type().is_file() {
@@ -618,15 +616,25 @@ pub fn copy_dir_contents(src: &Path, dst: &Path) -> std::io::Result<()> {
     if !src.exists() {
         return Ok(());
     }
-    for entry in WalkDir::new(src).into_iter().filter_map(|e| e.ok()) {
+    let cow_strategy = detect_best_strategy(dst);
+    let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(src);
+    for entry in WalkDir::new(src)
+        .into_iter()
+        .filter_entry(|e| !ignore.should_prune_entry(e, src))
+        .filter_map(|e| e.ok())
+    {
         let path = entry.path();
         if entry.file_type().is_file() {
             if let Ok(rel) = path.strip_prefix(src) {
+                let rel_str = rel.to_string_lossy().replace('\\', "/");
+                if ignore.is_ignored(&rel_str, false) {
+                    continue;
+                }
                 let dest = dst.join(rel);
                 if let Some(parent) = dest.parent() {
                     fs::create_dir_all(parent)?;
                 }
-                fs::copy(path, dest)?;
+                crate::cow::CowEngine::clone_file(path, &dest, cow_strategy)?;
             }
         }
     }

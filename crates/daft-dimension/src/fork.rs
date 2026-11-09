@@ -95,10 +95,7 @@ impl DimensionManager {
                 let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(wd);
                 for entry in WalkDir::new(wd)
                     .into_iter()
-                    .filter_entry(|e| {
-                        let name = e.file_name().to_string_lossy();
-                        !ignore.should_prune_dir(&name)
-                    })
+                    .filter_entry(|e| !ignore.should_prune_entry(e, wd))
                     .filter_map(|e| e.ok())
                 {
                     let path = entry.path();
@@ -118,11 +115,9 @@ impl DimensionManager {
                 }
             }
         } else if source_dir.join("workspace").exists() {
-            // Source is inactive -> copy from source workspace directory
+            // Source is inactive -> copy from source workspace directory respecting DaftIgnore
             let src_ws = source_dir.join("workspace");
-            if CowEngine::clone_dir(&src_ws, &child_ws, cow_strategy).is_err() {
-                copy_dir_contents(&src_ws, &child_ws)?;
-            }
+            copy_dir_contents(&src_ws, &child_ws)?;
         }
 
         // 4. Inscribe Metadata

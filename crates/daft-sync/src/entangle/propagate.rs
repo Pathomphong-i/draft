@@ -121,12 +121,10 @@ impl Propagator {
         // Phase 1: Forward File Propagation (Creations & Updates in Source)
         // --------------------------------------------------------------------
         if source_workdir.exists() {
+            let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&source_workdir);
             for entry in WalkDir::new(&source_workdir)
                 .into_iter()
-                .filter_entry(|e| {
-                    let fname = e.file_name().to_string_lossy();
-                    !fname.starts_with(".dft") && !fname.starts_with(".git")
-                })
+                .filter_entry(|e| !ignore.should_prune_entry(e, &source_workdir))
                 .flatten()
             {
                 if !entry.file_type().is_file() {
@@ -134,9 +132,13 @@ impl Propagator {
                 }
 
                 let rel_path = match entry.path().strip_prefix(&source_workdir) {
-                    Ok(p) => p.to_string_lossy().to_string(),
+                    Ok(p) => p.to_string_lossy().replace('\\', "/"),
                     Err(_) => continue,
                 };
+
+                if ignore.is_ignored(&rel_path, false) {
+                    continue;
+                }
 
                 if !Self::matches_rule_paths(rule, &rel_path) {
                     continue;
@@ -372,12 +374,10 @@ impl Propagator {
         // Phase 2: Deletion Reconciliation (Deleted in Source -> Remove in Target)
         // --------------------------------------------------------------------
         if target_workdir.exists() {
+            let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&target_workdir);
             for entry in WalkDir::new(&target_workdir)
                 .into_iter()
-                .filter_entry(|e| {
-                    let fname = e.file_name().to_string_lossy();
-                    !fname.starts_with(".dft") && !fname.starts_with(".git")
-                })
+                .filter_entry(|e| !ignore.should_prune_entry(e, &target_workdir))
                 .flatten()
             {
                 if !entry.file_type().is_file() {
@@ -385,9 +385,13 @@ impl Propagator {
                 }
 
                 let rel_path = match entry.path().strip_prefix(&target_workdir) {
-                    Ok(p) => p.to_string_lossy().to_string(),
+                    Ok(p) => p.to_string_lossy().replace('\\', "/"),
                     Err(_) => continue,
                 };
+
+                if ignore.is_ignored(&rel_path, false) {
+                    continue;
+                }
 
                 if !Self::matches_rule_paths(rule, &rel_path) {
                     continue;

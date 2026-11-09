@@ -420,19 +420,22 @@ fn get_tree_json(repo_root: &Path, rel_path: &str) -> String {
     if let Ok(dir_entries) = fs::read_dir(&target_dir) {
         for entry in dir_entries.flatten() {
             let file_name = entry.file_name().to_string_lossy().to_string();
-            if ignore.should_prune_dir(&file_name) {
-                continue;
-            }
-
             let file_type = entry.file_type();
             let is_dir = file_type.as_ref().map(|t| t.is_dir()).unwrap_or(false);
-            let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
-
             let item_rel = if rel_path.is_empty() {
                 file_name.clone()
             } else {
                 format!("{}/{}", rel_path.trim_end_matches('/'), file_name)
             };
+
+            if ignore.should_prune_dir(&file_name)
+                || ignore.is_ignored(&item_rel, is_dir)
+                || (is_dir && DaftIgnore::is_venv_or_self_ignored_dir(&entry.path()))
+            {
+                continue;
+            }
+
+            let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
 
             entries.push(serde_json::json!({
                 "name": file_name,

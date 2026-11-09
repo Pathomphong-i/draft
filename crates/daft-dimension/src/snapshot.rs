@@ -138,10 +138,7 @@ impl SnapshotManager {
         let ignore = daft_core::worktree::DaftIgnore::load_from_workdir(&worktree_dir);
         for entry in WalkDir::new(&worktree_dir)
             .into_iter()
-            .filter_entry(|e| {
-                let name = e.file_name().to_string_lossy();
-                !ignore.should_prune_dir(&name)
-            })
+            .filter_entry(|e| !ignore.should_prune_entry(e, &worktree_dir))
             .filter_map(|e| e.ok())
         {
             let path = entry.path();

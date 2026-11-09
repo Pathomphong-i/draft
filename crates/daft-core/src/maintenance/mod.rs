@@ -86,7 +86,81 @@ pub fn find_reachable_objects(repo: &Repository) -> Result<HashSet<ObjectId>, Da
         }
     }
 
-    // 4. Mark traversal
+    // 4. Add stash ref & stash reflog entries
+    if let Ok(stash_content) = fs::read_to_string(repo.dft_dir().join("refs/stash")) {
+        if let Ok(oid) = ObjectId::from_hex(stash_content.trim()) {
+            queue.push(oid);
+        }
+    }
+    if let Ok(stash_log) = fs::read_to_string(repo.dft_dir().join("logs/refs/stash")) {
+        for line in stash_log.lines() {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() >= 2 {
+                if let Ok(oid) = ObjectId::from_hex(parts[1]) {
+                    queue.push(oid);
+                }
+            }
+        }
+    }
+
+    // 5. Add all dimension HEADs and dimension indexes
+    let dims_dir = repo.dft_dir().join("dimensions");
+    if let Ok(entries) = fs::read_dir(&dims_dir) {
+        for entry in entries.flatten() {
+            let dim_path = entry.path();
+            if !dim_path.is_dir() {
+                continue;
+            }
+            if let Ok(head_str) = fs::read_to_string(dim_path.join("HEAD")) {
+                let trimmed = head_str.trim();
+                if let Ok(oid) = ObjectId::from_hex(trimmed) {
+                    queue.push(oid);
+                } else if let Some(sym) = trimmed.strip_prefix("ref: ") {
+                    if let Ok(oid) = repo.refs().resolve(sym) {
+                        queue.push(oid);
+                    }
+                }
+            }
+            let dim_idx_path = dim_path.join("index");
+            if dim_idx_path.is_file() {
+                if let Ok(dim_idx) = crate::index::Index::read_from(&dim_idx_path) {
+                    for ie in dim_idx.entries() {
+                        queue.push(ie.oid);
+                    }
+                }
+            }
+        }
+    }
+
+    // 6. Add all snapshot tree_oid / commit_oid references
+    let snaps_dir = repo.dft_dir().join("snapshots");
+    if let Ok(dim_entries) = fs::read_dir(&snaps_dir) {
+        for dim_entry in dim_entries.flatten() {
+            if let Ok(snap_files) = fs::read_dir(dim_entry.path()) {
+                for snap_file in snap_files.flatten() {
+                    if let Ok(content) = fs::read_to_string(snap_file.path()) {
+                        for key in &["\"tree_oid\"", "\"commit_oid\""] {
+                            if let Some(pos) = content.find(key) {
+                                let after = &content[pos + key.len()..];
+                                if let Some(colon) = after.find(':') {
+                                    let val_part = after[colon + 1..].trim_start();
+                                    if let Some(stripped) = val_part.strip_prefix('"') {
+                                        if stripped.len() >= 64 {
+                                            if let Ok(oid) = ObjectId::from_hex(&stripped[..64]) {
+                                                queue.push(oid);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 7. Mark traversal
     while let Some(oid) = queue.pop() {
         if !reachable.insert(oid) {
             continue;
