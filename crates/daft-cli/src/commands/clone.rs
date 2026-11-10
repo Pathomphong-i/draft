@@ -230,31 +230,31 @@ fn execute_http_clone(args: CloneArgs) -> Result<(), CliError> {
     let mut synced_dims = 0usize;
     for (ref_name, commit_hex) in &pack.refs {
         if let Some(dim_name) = ref_name.strip_prefix("refs/dimensions/") {
-            if dim_name != "mainline" && dim_name != chosen_branch {
-                if dim_mgr
+            if dim_name != "mainline"
+                && dim_name != chosen_branch
+                && dim_mgr
                     .create_dimension(dim_name, Some(commit_hex.trim()), Some("remote-sync"))
                     .is_ok()
-                {
-                    if let Ok(d_oid) = ObjectId::from_hex(commit_hex.trim()) {
-                        if let Ok(raw) = repo_arc.cas().read_raw(&d_oid) {
-                            if let Ok(d_commit) = Commit::deserialize(&raw.data) {
-                                let dim_dir = dim_mgr.dimensions_dir().join(dim_name);
-                                let ws_dir = dim_dir.join("workspace");
-                                let _ = fs::remove_dir_all(&ws_dir);
-                                let _ = fs::create_dir_all(&ws_dir);
-                                let mut dim_idx = daft_core::Index::new();
-                                let _ = daft_core::merge::checkout_tree(
-                                    repo_arc.cas().as_ref(),
-                                    &d_commit.tree,
-                                    &ws_dir,
-                                    &mut dim_idx,
-                                );
-                                let _ = dim_idx.write_to(&dim_dir.join("index"));
-                            }
+            {
+                if let Ok(d_oid) = ObjectId::from_hex(commit_hex.trim()) {
+                    if let Ok(raw) = repo_arc.cas().read_raw(&d_oid) {
+                        if let Ok(d_commit) = Commit::deserialize(&raw.data) {
+                            let dim_dir = dim_mgr.dimensions_dir().join(dim_name);
+                            let ws_dir = dim_dir.join("workspace");
+                            let _ = fs::remove_dir_all(&ws_dir);
+                            let _ = fs::create_dir_all(&ws_dir);
+                            let mut dim_idx = daft_core::Index::new();
+                            let _ = daft_core::merge::checkout_tree(
+                                repo_arc.cas().as_ref(),
+                                &d_commit.tree,
+                                &ws_dir,
+                                &mut dim_idx,
+                            );
+                            let _ = dim_idx.write_to(&dim_dir.join("index"));
                         }
                     }
-                    synced_dims += 1;
                 }
+                synced_dims += 1;
             }
         }
     }

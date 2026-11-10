@@ -171,7 +171,14 @@ impl DaftIgnore {
         // If workdir itself is an in-place Python virtual environment (contains pyvenv.cfg),
         // ignore the standard top-level virtualenv directories.
         if workdir.join("pyvenv.cfg").exists() {
-            for venv_dir in &["/lib/", "/lib64/", "/include/", "/bin/", "/Scripts/", "/Share/"] {
+            for venv_dir in &[
+                "/lib/",
+                "/lib64/",
+                "/include/",
+                "/bin/",
+                "/Scripts/",
+                "/Share/",
+            ] {
                 if let Some(rule) = IgnoreRule::parse(venv_dir) {
                     rules.push(rule);
                 }
@@ -581,4 +588,3 @@ mod tests {
         assert!(!ignore.is_ignored("important.log", false));
     }
 }
-

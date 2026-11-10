@@ -456,9 +456,15 @@ pub fn execute_push(args: PushArgs) -> Result<(), CliError> {
         let dim_ref = dft_dir.join("refs/dimensions").join(spec);
         let dim_head = dft_dir.join("dimensions").join(spec).join("HEAD");
         if head_branch.is_file() {
-            (spec.to_string(), fs::read_to_string(head_branch)?.trim().to_string())
+            (
+                spec.to_string(),
+                fs::read_to_string(head_branch)?.trim().to_string(),
+            )
         } else if dim_ref.is_file() {
-            (spec.to_string(), fs::read_to_string(dim_ref)?.trim().to_string())
+            (
+                spec.to_string(),
+                fs::read_to_string(dim_ref)?.trim().to_string(),
+            )
         } else if dim_head.is_file() {
             let content = fs::read_to_string(dim_head)?.trim().to_string();
             let resolved = if let Some(sym) = content.strip_prefix("ref: ") {
@@ -706,8 +712,7 @@ fn execute_http_push(
                                 if let Ok(val) =
                                     serde_json::from_str::<serde_json::Value>(&meta_str)
                                 {
-                                    if let Some(h) =
-                                        val.get("head_commit").and_then(|v| v.as_str())
+                                    if let Some(h) = val.get("head_commit").and_then(|v| v.as_str())
                                     {
                                         resolved_hex = Some(h.to_string());
                                     }

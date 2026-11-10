@@ -220,10 +220,12 @@ impl ServerState {
             .canonicalize()
             .unwrap_or_else(|_| args.data_dir.clone());
 
-        let mut users: Vec<UserRecord> = read_json_file(&data_dir.join("users.json")).unwrap_or_default();
+        let mut users: Vec<UserRecord> =
+            read_json_file(&data_dir.join("users.json")).unwrap_or_default();
         let sessions: Vec<SessionRecord> =
             read_json_file(&data_dir.join("sessions.json")).unwrap_or_default();
-        let mut orgs: Vec<OrgRecord> = read_json_file(&data_dir.join("orgs.json")).unwrap_or_default();
+        let mut orgs: Vec<OrgRecord> =
+            read_json_file(&data_dir.join("orgs.json")).unwrap_or_default();
         let activity: Vec<ActivityEvent> =
             read_json_file(&data_dir.join("activity.json")).unwrap_or_default();
 
@@ -281,9 +283,7 @@ impl ServerState {
     }
 
     pub fn repo_dir(&self, owner: &str, repo: &str) -> PathBuf {
-        let clean_repo = repo
-            .trim_end_matches(".dft")
-            .trim_end_matches(".git");
+        let clean_repo = repo.trim_end_matches(".dft").trim_end_matches(".git");
         self.repos_root()
             .join(sanitize_slug(owner))
             .join(format!("{}.dft", sanitize_slug(clean_repo)))
@@ -293,7 +293,11 @@ impl ServerState {
         if let Some(ref pub_url) = self.public_url {
             return pub_url.trim_end_matches('/').to_string();
         }
-        if let Some(host) = req.headers.get("x-forwarded-host").or_else(|| req.headers.get("host")) {
+        if let Some(host) = req
+            .headers
+            .get("x-forwarded-host")
+            .or_else(|| req.headers.get("host"))
+        {
             let proto = req
                 .headers
                 .get("x-forwarded-proto")
@@ -319,7 +323,10 @@ impl ServerState {
 
         // 1. Check Authorization header (Bearer session/PAT or Basic user:pass/PAT)
         if let Some(auth_hdr) = req.headers.get("authorization") {
-            if let Some(bearer) = auth_hdr.strip_prefix("Bearer ").or_else(|| auth_hdr.strip_prefix("token ")) {
+            if let Some(bearer) = auth_hdr
+                .strip_prefix("Bearer ")
+                .or_else(|| auth_hdr.strip_prefix("token "))
+            {
                 let tok = bearer.trim();
                 if tok.starts_with("dft_pat_") {
                     let thash = sha256_hex(tok.as_bytes());
@@ -405,7 +412,10 @@ pub fn execute(args: ServerArgs) -> Result<(), CliError> {
     let state = ServerState::load_or_init(&args)?;
     let bind_addr = format!("{}:{}", args.host, args.port);
     let listener = TcpListener::bind(&bind_addr).map_err(|e| {
-        CliError::General(format!("Failed to bind Draft Server on {}: {}", bind_addr, e))
+        CliError::General(format!(
+            "Failed to bind Draft Server on {}: {}",
+            bind_addr, e
+        ))
     })?;
 
     let local_addr = listener.local_addr()?;
@@ -473,8 +483,7 @@ fn handle_client(mut stream: TcpStream, state: Arc<ServerState>) {
         return;
     }
 
-    if (req.method == "GET" || req.method == "HEAD")
-        && (path == "/SKILL.md" || path == "/skill.md")
+    if (req.method == "GET" || req.method == "HEAD") && (path == "/SKILL.md" || path == "/skill.md")
     {
         let base = state.base_url_for(&req);
         let raw_skill = include_str!("../../../../SKILL.md");
@@ -606,7 +615,10 @@ fn parse_raw_route(path: &str) -> Option<(String, String, String)> {
     let trimmed = path.trim_start_matches('/');
     let mut parts = trimmed.splitn(4, '/');
     let owner = parts.next()?;
-    let repo = parts.next()?.trim_end_matches(".dft").trim_end_matches(".git");
+    let repo = parts
+        .next()?
+        .trim_end_matches(".dft")
+        .trim_end_matches(".git");
     let marker = parts.next()?;
     let rest = parts.next()?;
     if marker == "raw" && owner != "api" && !rest.is_empty() {
@@ -666,12 +678,19 @@ fn handle_wire_protocol(
                 return send_json_error(
                     stream,
                     404,
-                    &format!("Repository '{}/{}' does not exist on this Draft server", owner, repo_name),
+                    &format!(
+                        "Repository '{}/{}' does not exist on this Draft server",
+                        owner, repo_name
+                    ),
                 );
             }
             let meta = load_repo_meta(&repo_dir, owner, repo_name);
             if meta.private && !can_access_private(&meta, user.as_ref(), state) {
-                return send_json_error(stream, 401, "Authentication required for private repository");
+                return send_json_error(
+                    stream,
+                    401,
+                    "Authentication required for private repository",
+                );
             }
 
             let payload: FetchPackRequest = req.json().unwrap_or_default();
@@ -748,7 +767,10 @@ fn handle_wire_protocol(
                     &default_br,
                     false,
                     Vec::new(),
-                    user.as_ref().map(|u| u.username.as_str()).or(payload.pusher.as_deref()).unwrap_or(owner),
+                    user.as_ref()
+                        .map(|u| u.username.as_str())
+                        .or(payload.pusher.as_deref())
+                        .unwrap_or(owner),
                 ) {
                     return send_json_error(stream, 500, &e);
                 }
@@ -756,7 +778,11 @@ fn handle_wire_protocol(
 
             let mut meta = load_repo_meta(&repo_dir, owner, repo_name);
             if meta.private && !can_access_private(&meta, user.as_ref(), state) {
-                return send_json_error(stream, 401, "Authentication required to push to private repository");
+                return send_json_error(
+                    stream,
+                    401,
+                    "Authentication required to push to private repository",
+                );
             }
 
             let repo = match Repository::open(&repo_dir) {
@@ -819,8 +845,18 @@ fn handle_wire_protocol(
                                     if let Ok(b_c) = Commit::deserialize(&b_raw.data) {
                                         let mut bf = BTreeMap::new();
                                         let mut nf = BTreeMap::new();
-                                        let _ = flatten_tree(repo.cas().as_ref(), &b_c.tree, "", &mut bf);
-                                        let _ = flatten_tree(repo.cas().as_ref(), &new_c.tree, "", &mut nf);
+                                        let _ = flatten_tree(
+                                            repo.cas().as_ref(),
+                                            &b_c.tree,
+                                            "",
+                                            &mut bf,
+                                        );
+                                        let _ = flatten_tree(
+                                            repo.cas().as_ref(),
+                                            &new_c.tree,
+                                            "",
+                                            &mut nf,
+                                        );
                                         for p in nf.keys().chain(bf.keys()) {
                                             if bf.get(p).map(|x| x.1) != nf.get(p).map(|x| x.1) {
                                                 if let Some(owner_dim) =
@@ -967,7 +1003,11 @@ fn handle_wire_protocol(
 
 fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerState>) {
     let sub = req.path.trim_start_matches("/api/v1").trim_end_matches('/');
-    let segs: Vec<&str> = sub.trim_start_matches('/').split('/').filter(|s| !s.is_empty()).collect();
+    let segs: Vec<&str> = sub
+        .trim_start_matches('/')
+        .split('/')
+        .filter(|s| !s.is_empty())
+        .collect();
     let user = state.authenticate(req);
 
     match (req.method.as_str(), segs.as_slice()) {
@@ -1069,7 +1109,9 @@ fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerSt
                 return send_json_error(stream, 409, "Username or organization already exists");
             }
 
-            let colors = ["#58a6ff", "#bc8cff", "#3fb950", "#f78166", "#d29922", "#39d353"];
+            let colors = [
+                "#58a6ff", "#bc8cff", "#3fb950", "#f78166", "#d29922", "#39d353",
+            ];
             let salt = generate_token_hex(16);
             let password_hash = hash_password(&body.password, &salt);
             let new_user = {
@@ -1272,7 +1314,11 @@ fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerSt
             };
             let slug = sanitize_slug(&body.name);
             if slug.len() < 2 {
-                return send_json_error(stream, 400, "Organization name must be at least 2 characters");
+                return send_json_error(
+                    stream,
+                    400,
+                    "Organization name must be at least 2 characters",
+                );
             }
             if state.owner_exists(&slug) {
                 return send_json_error(stream, 409, "Owner name is already taken");
@@ -1299,7 +1345,9 @@ fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerSt
         ("GET", ["repos"]) => {
             let q = req.query_param("q").unwrap_or_default().to_lowercase();
             let owner_filter = req.query_param("owner").unwrap_or_default();
-            let sort = req.query_param("sort").unwrap_or_else(|| "updated".to_string());
+            let sort = req
+                .query_param("sort")
+                .unwrap_or_else(|| "updated".to_string());
             let base_url = state.base_url_for(req);
 
             let mut items: Vec<serde_json::Value> = list_all_repo_metas(state, user.as_ref())
@@ -1374,10 +1422,17 @@ fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerSt
                         .collect()
                 })
                 .unwrap_or_default();
-            send_json(stream, 200, &serde_json::json!({ "activity": events }), None);
+            send_json(
+                stream,
+                200,
+                &serde_json::json!({ "activity": events }),
+                None,
+            );
         }
         ("GET", ["issues"]) => {
-            let state_filter = req.query_param("state").unwrap_or_else(|| "open".to_string());
+            let state_filter = req
+                .query_param("state")
+                .unwrap_or_else(|| "open".to_string());
             let mut out = Vec::new();
             for m in list_all_repo_metas(state, user.as_ref()) {
                 let rdir = state.repo_dir(&m.owner, &m.name);
@@ -1401,7 +1456,9 @@ fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerSt
             send_json(stream, 200, &serde_json::json!({ "issues": out }), None);
         }
         ("GET", ["pulls"]) => {
-            let state_filter = req.query_param("state").unwrap_or_else(|| "open".to_string());
+            let state_filter = req
+                .query_param("state")
+                .unwrap_or_else(|| "open".to_string());
             let mut out = Vec::new();
             for m in list_all_repo_metas(state, user.as_ref()) {
                 let rdir = state.repo_dir(&m.owner, &m.name);
@@ -1540,7 +1597,11 @@ fn handle_api_v1(stream: &mut TcpStream, req: &HttpRequest, state: &Arc<ServerSt
             let owner = sanitize_slug(body.owner.as_deref().unwrap_or(&actor));
             let name = sanitize_slug(&body.name);
             if name.is_empty() || body.clone_addr.trim().is_empty() {
-                return send_json_error(stream, 400, "Source URL/path and target name are required");
+                return send_json_error(
+                    stream,
+                    400,
+                    "Source URL/path and target name are required",
+                );
             }
             let rdir = state.repo_dir(&owner, &name);
             if rdir.join("HEAD").exists() {
@@ -1707,7 +1768,9 @@ fn handle_repo_api(
 
         // Star Toggle
         ("POST", ["star"]) => {
-            let actor = user.map(|u| u.username.clone()).unwrap_or_else(|| "guest".to_string());
+            let actor = user
+                .map(|u| u.username.clone())
+                .unwrap_or_else(|| "guest".to_string());
             if let Some(pos) = meta.stars.iter().position(|s| s == &actor) {
                 meta.stars.remove(pos);
             } else {
@@ -1758,7 +1821,8 @@ fn handle_repo_api(
                 let _ = fs::create_dir_all(p);
             }
             let cow_strat = daft_dimension::cow::detect_best_strategy(&dst_dir);
-            if let Err(e) = daft_dimension::cow::CowEngine::clone_dir(&repo_dir, &dst_dir, cow_strat)
+            if let Err(e) =
+                daft_dimension::cow::CowEngine::clone_dir(&repo_dir, &dst_dir, cow_strat)
             {
                 return send_json_error(stream, 500, &format!("Fork clone failed: {}", e));
             }
@@ -1958,7 +2022,10 @@ fn handle_repo_api(
             };
 
             let is_bin = daft_core::diff::is_binary(&raw_blob.data);
-            let raw_url = format!("/{}/{}/raw/{}/{}", meta.owner, meta.name, ref_name, file_path);
+            let raw_url = format!(
+                "/{}/{}/raw/{}/{}",
+                meta.owner, meta.name, ref_name, file_path
+            );
             if is_bin {
                 send_json(
                     stream,
@@ -2006,11 +2073,7 @@ fn handle_repo_api(
                 Ok(b) => b,
                 Err(e) => return send_json_error(stream, 400, &e),
             };
-            let clean_path = body
-                .path
-                .trim()
-                .trim_matches('/')
-                .replace('\\', "/");
+            let clean_path = body.path.trim().trim_matches('/').replace('\\', "/");
             if clean_path.is_empty() || clean_path.contains("..") {
                 return send_json_error(stream, 400, "Invalid file path");
             }
@@ -2091,7 +2154,12 @@ fn handle_repo_api(
             };
 
             // Write ref to dimension if it exists in refs/dimensions, else refs/heads
-            write_dimension_or_head_ref(&repo_dir, &meta.default_branch, &target_branch, &commit_oid);
+            write_dimension_or_head_ref(
+                &repo_dir,
+                &meta.default_branch,
+                &target_branch,
+                &commit_oid,
+            );
             let _ = propagate_entanglements_from(&repo, &repo_dir, &target_branch);
 
             meta.updated_at = Utc::now().to_rfc3339();
@@ -2184,7 +2252,12 @@ fn handle_repo_api(
                     }
                 }
             }
-            send_json(stream, 200, &serde_json::json!({ "commits": commits }), None);
+            send_json(
+                stream,
+                200,
+                &serde_json::json!({ "commits": commits }),
+                None,
+            );
         }
 
         // Single Commit Details + Myers Diff
@@ -2207,8 +2280,12 @@ fn handle_repo_api(
                     .map(|pc| pc.tree)
             });
 
-            let patches = diff_trees(repo.cas().as_ref(), parent_tree.as_ref(), Some(&commit.tree))
-                .unwrap_or_default();
+            let patches = diff_trees(
+                repo.cas().as_ref(),
+                parent_tree.as_ref(),
+                Some(&commit.tree),
+            )
+            .unwrap_or_default();
             let diff_text = format_unified_diff(&patches);
             let (files_changed, additions, deletions) = summarize_patches(&patches);
 
@@ -2291,7 +2368,9 @@ fn handle_repo_api(
             );
         }
         ("DELETE", ["refs"]) => {
-            let kind = req.query_param("kind").unwrap_or_else(|| "branch".to_string());
+            let kind = req
+                .query_param("kind")
+                .unwrap_or_else(|| "branch".to_string());
             let name = req.query_param("name").unwrap_or_default();
             if kind == "branch" && name == meta.default_branch {
                 return send_json_error(stream, 400, "Cannot delete the default branch");
@@ -2310,7 +2389,9 @@ fn handle_repo_api(
 
         // --- Issues ---
         ("GET", ["issues"]) => {
-            let state_f = req.query_param("state").unwrap_or_else(|| "open".to_string());
+            let state_f = req
+                .query_param("state")
+                .unwrap_or_else(|| "open".to_string());
             let all_issues: Vec<IssueRecord> =
                 read_json_file(&repo_dir.join("issues.json")).unwrap_or_default();
             let open_count = all_issues.iter().filter(|i| i.state == "open").count();
@@ -2463,7 +2544,9 @@ fn handle_repo_api(
 
         // --- Pull / Convergence Requests ---
         ("GET", ["pulls"]) => {
-            let state_f = req.query_param("state").unwrap_or_else(|| "open".to_string());
+            let state_f = req
+                .query_param("state")
+                .unwrap_or_else(|| "open".to_string());
             let all_pulls: Vec<PullRecord> =
                 read_json_file(&repo_dir.join("pulls.json")).unwrap_or_default();
             let open_count = all_pulls.iter().filter(|p| p.state == "open").count();
@@ -2655,7 +2738,10 @@ fn handle_repo_api(
                 return send_json_error(
                     stream,
                     409,
-                    &format!("Cannot auto-converge due to conflicts in: {}", files.join(", ")),
+                    &format!(
+                        "Cannot auto-converge due to conflicts in: {}",
+                        files.join(", ")
+                    ),
                 );
             }
 
@@ -2665,12 +2751,15 @@ fn handle_repo_api(
             };
 
             let sig = Signature::now(actor_name, actor_email);
-            let commit_msg = mreq.message.filter(|s| !s.trim().is_empty()).unwrap_or_else(|| {
-                format!(
-                    "[converge] Merge #{} '{}' ({} -> {})",
-                    pr.number, pr.title, pr.head_ref, pr.base_ref
-                )
-            });
+            let commit_msg = mreq
+                .message
+                .filter(|s| !s.trim().is_empty())
+                .unwrap_or_else(|| {
+                    format!(
+                        "[converge] Merge #{} '{}' ({} -> {})",
+                        pr.number, pr.title, pr.head_ref, pr.base_ref
+                    )
+                });
 
             let merge_commit = Commit::new(
                 merged_tree_oid,
@@ -2792,7 +2881,9 @@ fn handle_repo_api(
 
         // --- Multiverse Spacetime Timeline (works on bare server repos!) ---
         ("GET", ["timeline"]) => {
-            let fmt = req.query_param("format").unwrap_or_else(|| "json".to_string());
+            let fmt = req
+                .query_param("format")
+                .unwrap_or_else(|| "json".to_string());
             let dim_filter = req.query_param("dimension").filter(|s| !s.is_empty());
             let graph = build_server_timeline_graph(
                 &repo,
@@ -2811,15 +2902,33 @@ fn handle_repo_api(
                     } else {
                         render_terminal_graph(&graph)
                     };
-                    send_response(stream, 200, "text/plain; charset=utf-8", txt.as_bytes(), None);
+                    send_response(
+                        stream,
+                        200,
+                        "text/plain; charset=utf-8",
+                        txt.as_bytes(),
+                        None,
+                    );
                 }
                 "ancestry" => {
                     let anc = render_ancestry_tree(&graph);
-                    send_response(stream, 200, "text/plain; charset=utf-8", anc.as_bytes(), None);
+                    send_response(
+                        stream,
+                        200,
+                        "text/plain; charset=utf-8",
+                        anc.as_bytes(),
+                        None,
+                    );
                 }
                 "dot" => {
                     let dot = render_dot(&graph);
-                    send_response(stream, 200, "text/plain; charset=utf-8", dot.as_bytes(), None);
+                    send_response(
+                        stream,
+                        200,
+                        "text/plain; charset=utf-8",
+                        dot.as_bytes(),
+                        None,
+                    );
                 }
                 _ => {
                     let j = render_json(&graph).unwrap_or_else(|_| "{}".to_string());
@@ -2866,7 +2975,8 @@ fn handle_repo_api(
             if file_path.is_empty() {
                 return send_json_error(stream, 400, "Query parameter 'path' is required");
             }
-            let observations = observe_file_across_dimensions(&repo, &meta.default_branch, &file_path);
+            let observations =
+                observe_file_across_dimensions(&repo, &meta.default_branch, &file_path);
             send_json(
                 stream,
                 200,
@@ -2944,7 +3054,10 @@ fn handle_repo_api(
                                 repo: meta.name,
                                 ref_name: Some(target),
                                 commit_id: Some(cid.to_string()),
-                                summary: format!("collapsed {} parallel dimension(s)", candidates.len()),
+                                summary: format!(
+                                    "collapsed {} parallel dimension(s)",
+                                    candidates.len()
+                                ),
                                 created_at: Utc::now().to_rfc3339(),
                             });
                         }
@@ -2969,7 +3082,11 @@ fn handle_repo_api(
                 Err(e) => return send_json_error(stream, 400, &e),
             };
             if body.dimensions.is_empty() {
-                return send_json_error(stream, 400, "Select at least one parallel dimension to converge");
+                return send_json_error(
+                    stream,
+                    400,
+                    "Select at least one parallel dimension to converge",
+                );
             }
             let target = body
                 .into
@@ -3140,7 +3257,12 @@ fn handle_repo_api(
                 }),
             );
             let _ = write_json_atomic(&terr_dir.join("claims.json"), &claims);
-            send_json(stream, 200, &serde_json::json!({ "ok": true, "claims": claims }), None);
+            send_json(
+                stream,
+                200,
+                &serde_json::json!({ "ok": true, "claims": claims }),
+                None,
+            );
         }
         ("POST", ["territory", "yield"]) => {
             #[derive(Deserialize)]
@@ -3157,7 +3279,12 @@ fn handle_repo_api(
                 read_json_file(&terr_dir.join("claims.json")).unwrap_or_default();
             claims.remove(body.path.trim().trim_start_matches('/'));
             let _ = write_json_atomic(&terr_dir.join("claims.json"), &claims);
-            send_json(stream, 200, &serde_json::json!({ "ok": true, "claims": claims }), None);
+            send_json(
+                stream,
+                200,
+                &serde_json::json!({ "ok": true, "claims": claims }),
+                None,
+            );
         }
         ("POST", ["territory", "fence"]) => {
             #[derive(Deserialize)]
@@ -3194,7 +3321,12 @@ fn handle_repo_api(
                 }));
             }
             let _ = write_json_atomic(&terr_dir.join("fences.json"), &fences);
-            send_json(stream, 200, &serde_json::json!({ "ok": true, "fences": fences }), None);
+            send_json(
+                stream,
+                200,
+                &serde_json::json!({ "ok": true, "fences": fences }),
+                None,
+            );
         }
 
         // --- Quantum Entanglement Rules ('dft entangle') ---
@@ -3374,7 +3506,8 @@ fn handle_repo_api(
                 })
             });
             rec["last_heartbeat"] = serde_json::Value::String(Utc::now().to_rfc3339());
-            rec["status"] = serde_json::Value::String(body.status.unwrap_or_else(|| "active".to_string()));
+            rec["status"] =
+                serde_json::Value::String(body.status.unwrap_or_else(|| "active".to_string()));
             if let Some(dim) = body.dimension.filter(|s| !s.trim().is_empty()) {
                 rec["assigned_dimension"] = serde_json::Value::String(dim);
             }
@@ -4121,9 +4254,7 @@ fn check_fence_violation(repo_dir: &Path, file_path: &str, current_dim: &str) ->
             .unwrap_or("mainline");
         if !fpath.is_empty() && norm(owner) != cur_norm {
             let clean_f = fpath.trim_end_matches('*').trim_end_matches('/');
-            if file_path == fpath
-                || (!clean_f.is_empty() && file_path.starts_with(clean_f))
-            {
+            if file_path == fpath || (!clean_f.is_empty() && file_path.starts_with(clean_f)) {
                 return Some(owner.to_string());
             }
         }
@@ -4240,11 +4371,10 @@ fn propagate_entanglements_from(repo: &Repository, repo_dir: &Path, source_dim: 
 
         let mut changed = 0usize;
         for (fpath, (fmode, foid)) in &src_files {
-            if path_matches_pattern(fpath, pat) {
-                if peer_files.get(fpath).map(|x| x.1) != Some(*foid) {
-                    peer_files.insert(fpath.clone(), (*fmode, *foid));
-                    changed += 1;
-                }
+            if path_matches_pattern(fpath, pat) && peer_files.get(fpath).map(|x| x.1) != Some(*foid)
+            {
+                peer_files.insert(fpath.clone(), (*fmode, *foid));
+                changed += 1;
             }
         }
         if changed > 0 {
@@ -4255,7 +4385,10 @@ fn propagate_entanglements_from(repo: &Repository, repo_dir: &Path, source_dim: 
                     vec![peer_oid],
                     sig.clone(),
                     sig,
-                    format!("[entangle] Propagated {} file(s) from '{}'", changed, source_dim),
+                    format!(
+                        "[entangle] Propagated {} file(s) from '{}'",
+                        changed, source_dim
+                    ),
                 );
                 let raw = RawObject::new(ObjectType::Commit, c.serialize());
                 if let Ok(c_oid) = repo.cas().write_raw(&raw) {
@@ -4328,7 +4461,10 @@ fn compute_hot_zones(repo: &Repository, default_branch: &str) -> Vec<serde_json:
         }
         for p in all_p {
             if lf.get(p).map(|x| x.1) != df.get(p).map(|x| x.1) {
-                file_touches.entry(p.clone()).or_default().push(dname.clone());
+                file_touches
+                    .entry(p.clone())
+                    .or_default()
+                    .push(dname.clone());
             }
         }
     }
@@ -4508,7 +4644,11 @@ fn execute_server_multi_converge(
     }
 
     let sig = Signature::now(actor_name, actor_email);
-    let prefix_tag = if is_collapse { "[collapse]" } else { "[converge]" };
+    let prefix_tag = if is_collapse {
+        "[collapse]"
+    } else {
+        "[converge]"
+    };
     let msg = custom_msg
         .filter(|s| !s.trim().is_empty())
         .map(String::from)
@@ -4547,8 +4687,8 @@ fn execute_server_cascade(
     let cas = repo.cas().as_ref();
     let graph = StoreCommitGraph::new(cas);
 
-    let src_oid = resolve_any_ref(repo, source)
-        .ok_or_else(|| format!("Source '{}' not found", source))?;
+    let src_oid =
+        resolve_any_ref(repo, source).ok_or_else(|| format!("Source '{}' not found", source))?;
     let src_raw = cas.read_raw(&src_oid).map_err(|e| e.to_string())?;
     let src_commit = Commit::deserialize(&src_raw.data).map_err(|e| e.to_string())?;
 
@@ -5096,8 +5236,15 @@ fn can_access_private(meta: &RepoMeta, user: Option<&UserRecord>, state: &Server
         return true;
     }
     if let Ok(orgs) = state.orgs.read() {
-        if let Some(org) = orgs.iter().find(|o| o.name.eq_ignore_ascii_case(&meta.owner)) {
-            if org.members.iter().any(|m| m.eq_ignore_ascii_case(&u.username)) {
+        if let Some(org) = orgs
+            .iter()
+            .find(|o| o.name.eq_ignore_ascii_case(&meta.owner))
+        {
+            if org
+                .members
+                .iter()
+                .any(|m| m.eq_ignore_ascii_case(&u.username))
+            {
                 return true;
             }
         }

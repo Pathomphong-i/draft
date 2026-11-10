@@ -124,7 +124,10 @@ pub fn parse_http_url(url: &str) -> Result<ParsedHttpUrl, CliError> {
     } else if let Some(r) = url.strip_prefix("https://") {
         ("https".to_string(), r)
     } else {
-        return Err(CliError::General(format!("Unsupported URL scheme: {}", url)));
+        return Err(CliError::General(format!(
+            "Unsupported URL scheme: {}",
+            url
+        )));
     };
 
     let (authority, path) = match rest.find('/') {
@@ -148,12 +151,15 @@ pub fn parse_http_url(url: &str) -> Result<ParsedHttpUrl, CliError> {
                 .unwrap_or(default_port);
             (h.to_string(), p)
         } else {
-            return Err(CliError::General(format!("Malformed IPv6 host in URL: {}", url)));
+            return Err(CliError::General(format!(
+                "Malformed IPv6 host in URL: {}",
+                url
+            )));
         }
     } else if let Some((h, p_str)) = hostport.rsplit_once(':') {
-        let p = p_str.parse::<u16>().map_err(|_| {
-            CliError::General(format!("Invalid port '{}' in URL '{}'", p_str, url))
-        })?;
+        let p = p_str
+            .parse::<u16>()
+            .map_err(|_| CliError::General(format!("Invalid port '{}' in URL '{}'", p_str, url)))?;
         (h.to_string(), p)
     } else {
         (hostport.to_string(), default_port)
@@ -242,12 +248,24 @@ fn curl_request(
     body: Option<&[u8]>,
 ) -> Result<(u16, Vec<u8>), CliError> {
     let mut cmd = Command::new("curl");
-    cmd.args(["-sS", "-X", method, "-H", "Content-Type: application/json", "-w", "\n__DFT_HTTP_CODE__:%{http_code}"]);
+    cmd.args([
+        "-sS",
+        "-X",
+        method,
+        "-H",
+        "Content-Type: application/json",
+        "-w",
+        "\n__DFT_HTTP_CODE__:%{http_code}",
+    ]);
     if let Some(a) = auth {
         cmd.args(["-H", &format!("Authorization: {}", a)]);
     }
     let tmp_file = if let Some(b) = body {
-        let path = env::temp_dir().join(format!("dft-req-{}-{}.json", std::process::id(), chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)));
+        let path = env::temp_dir().join(format!(
+            "dft-req-{}-{}.json",
+            std::process::id(),
+            chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)
+        ));
         std::fs::write(&path, b)?;
         cmd.args(["--data-binary", &format!("@{}", path.display())]);
         Some(path)
@@ -270,11 +288,7 @@ fn curl_request(
     }
 
     let marker = b"\n__DFT_HTTP_CODE__:";
-    if let Some(pos) = out
-        .stdout
-        .windows(marker.len())
-        .rposition(|w| w == marker)
-    {
+    if let Some(pos) = out.stdout.windows(marker.len()).rposition(|w| w == marker) {
         let code_str = String::from_utf8_lossy(&out.stdout[pos + marker.len()..]);
         let status = code_str.trim().parse::<u16>().unwrap_or(500);
         Ok((status, out.stdout[..pos].to_vec()))
@@ -291,15 +305,17 @@ fn tcp_http_request(
 ) -> Result<(u16, Vec<u8>), CliError> {
     let addr_str = format!("{}:{}", parsed.host, parsed.port);
     let mut addrs = addr_str.to_socket_addrs().map_err(|e| {
-        CliError::General(format!("Could not resolve remote host '{}': {}", addr_str, e))
+        CliError::General(format!(
+            "Could not resolve remote host '{}': {}",
+            addr_str, e
+        ))
     })?;
     let sock_addr = addrs.next().ok_or_else(|| {
         CliError::General(format!("No socket addresses resolved for '{}'", addr_str))
     })?;
 
-    let mut stream = TcpStream::connect_timeout(&sock_addr, Duration::from_secs(10)).map_err(|e| {
-        CliError::General(format!("Failed to connect to {}: {}", addr_str, e))
-    })?;
+    let mut stream = TcpStream::connect_timeout(&sock_addr, Duration::from_secs(10))
+        .map_err(|e| CliError::General(format!("Failed to connect to {}: {}", addr_str, e)))?;
     let _ = stream.set_read_timeout(Some(Duration::from_secs(120)));
     let _ = stream.set_write_timeout(Some(Duration::from_secs(120)));
 
@@ -346,7 +362,10 @@ fn tcp_http_request(
         .nth(1)
         .and_then(|s| s.parse::<u16>().ok())
         .ok_or_else(|| {
-            CliError::General(format!("Malformed HTTP status line: '{}'", status_line.trim()))
+            CliError::General(format!(
+                "Malformed HTTP status line: '{}'",
+                status_line.trim()
+            ))
         })?;
 
     let mut headers = HashMap::new();
@@ -395,12 +414,7 @@ fn read_chunked_body<R: BufRead>(reader: &mut R) -> Result<Vec<u8>, CliError> {
         reader
             .read_line(&mut size_line)
             .map_err(|e| CliError::General(format!("Chunk header read error: {}", e)))?;
-        let hex_part = size_line
-            .trim()
-            .split(';')
-            .next()
-            .unwrap_or("0")
-            .trim();
+        let hex_part = size_line.trim().split(';').next().unwrap_or("0").trim();
         let chunk_size = usize::from_str_radix(hex_part, 16).unwrap_or(0);
         if chunk_size == 0 {
             let mut trailer = String::new();
@@ -575,10 +589,7 @@ pub fn base64_encode(data: &[u8]) -> String {
 }
 
 pub fn base64_decode(input: &str) -> Option<Vec<u8>> {
-    let clean: Vec<u8> = input
-        .bytes()
-        .filter(|b| !b.is_ascii_whitespace())
-        .collect();
+    let clean: Vec<u8> = input.bytes().filter(|b| !b.is_ascii_whitespace()).collect();
     if clean.len() % 4 != 0 {
         return None;
     }
